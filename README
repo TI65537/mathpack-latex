@@ -1,0 +1,8 @@
+内容
+mathpack.sty 自作のディスプレイ数式用パッケージ
+mathpacksetup.sty mathpack.styを使って定理用ラベルをセットアップする
+mathpackops.sty 自分が良く使う数学記号の定義
+mystyle.cls 版面とpdfデータを設定するクラスファイル
+
+ライセンスについて
+LICENCEファイルを読んでください
