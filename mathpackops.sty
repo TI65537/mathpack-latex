@@ -1,0 +1,61 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mathpackops}[2024/03/19 setup math operators.]
+
+% Created by Tamaki ISII on 2024/03/19
+
+\def\defeq{\mathrel{\stackrel{\bf def}{=}}}
+\def\defdlrarrow{\;\mathrel{\stackrel{\bf def}{\Longleftrightarrow}}\;}
+
+\def\blackboardbold#1{{\tt#1\mkern-7.5mu\relax#1}}
+\def\setN{\blackboardbold{N}}
+\def\setZ{\blackboardbold{Z}}
+\def\setQ{\blackboardbold{Q}}
+\def\setR{\blackboardbold{R}}
+
+\def\textif{{\rm if}\quad}
+\def\textotherwise{{\rm otherwise}}
+
+\def\equivmod#1#2#3{#1\equiv#2\;({\rm mod}\;#3)}
+
+\def\rmi{{\rm i}}
+
+\def\func#1{\mathord{{\it #1}}}
+\def\rmfunc#1{\mathord{{\rm #1}}}
+
+\def\diff#1{\mathord{{\rm d}#1}}
+\def\pdiff#1{\mathord{\partial#1}}
+
+\def\dint{\mathop{\intop\intop}\nolimits}
+\def\tint{\mathop{\intop\intop\intop}\nolimits}
+
+\def\wrdlrarrow{\;\Longleftrightarrow\;}
+\def\wrdrarrow{\;\Longrightarrow\;}
+\def\wrdlarrow{\;\Longleftarrow\;}
+
+\def\rdlrarrow{\Longleftrightarrow}
+\def\rdrarrow{\Longrightarrow}
+\def\rdlarrow{\Longleftarrow}
+
+\def\bdlrarrow{\mathbin{\Longleftrightarrow}}
+\def\bdrarrow{\mathbin{\Longrightarrow}}
+\def\bdlarrow{\mathbin{\Longleftarrow}}
+
+\def\bnot{\lnot}
+
+\def\wror{\;\mathrel{\lor}\;}
+\def\wrand{\;\mathrel{\land}\;}
+\def\wrxor{\mathrel{\;\mathrel{\underline{\lor}}\;}}
+
+\def\ror{\mathrel{\lor}}
+\def\rand{\mathrel{\land}}
+\def\rxor\mathrel{\mathrel{\underline{\lor}}}
+
+\def\bor{\lor}
+\def\band{\land}
+\def\bxor\mathrel{\mathbin{\underline{\lor}}}
+
+\def\flst{\rlap{\quad.}}
+\def\comma{\rlap{\quad,}}
+
+\def\xflst{\quad.}
+\def\xcomma{\quad,}

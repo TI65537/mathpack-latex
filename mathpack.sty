@@ -1,0 +1,3239 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mathpack}[2024/03/19 mathpack: Advanced macros for display equation.]
+
+% Created by Tamaki ISII on 2024/03/19
+
+\makeatletter
+
+\newbox\m@thpack@boxa
+\newbox\m@thpack@boxb
+\newbox\m@thpack@boxc
+\newbox\m@thpack@boxd
+\newbox\m@thpack@boxe
+\newbox\m@thpack@boxf
+\newbox\m@thpack@boxg
+\newbox\m@thpack@boxh
+\newbox\m@thpack@boxi
+\newbox\m@thpack@boxj
+\newbox\m@thpack@boxk
+\newbox\m@thpack@boxl
+\newdimen\m@thpack@dimena
+\newdimen\m@thpack@dimenb
+\newdimen\m@thpack@dimenc
+\newdimen\m@thpack@dimend
+\newdimen\m@thpack@dimene
+\newdimen\m@thpack@dimenf
+\newcount\m@thpack@counta
+\newcount\m@thpack@countb
+\newcount\m@thpack@countc
+\newcount\m@thpack@countd
+\newskip\m@thpack@skipa
+\newtoks\m@thpack@toksa
+
+\newif\ifm@thpack@fleqn
+\newif\ifm@thpack@leqno
+\newif\ifm@thpack@onlyrefs
+
+\newdimen\m@thpack@tagmargin
+\m@thpack@tagmargin=6pt
+\newdimen\m@thpack@mathindent
+\m@thpack@mathindent=1.5cm
+\newdimen\m@thpack@maxlinemargin
+\m@thpack@maxlinemargin=3mm
+\newdimen\m@thpack@minsidemargin
+\m@thpack@minsidemargin=12pt
+\newdimen\m@thpack@minindent
+\m@thpack@minindent=1cm
+\newdimen\m@thpack@stdsidecolsep
+\m@thpack@stdsidecolsep=6pt
+\newdimen\m@thpack@stdcolsep
+\m@thpack@stdcolsep=12pt
+\newdimen\m@thpack@mathenvlineskip
+\m@thpack@mathenvlineskip=1.5pt
+\newdimen\m@thpack@mathalignlineskip
+\m@thpack@mathalignlineskip=1.5pt
+\newdimen\m@thpack@rulewidth
+\m@thpack@rulewidth=0.4pt
+\newdimen\m@thpack@rulesep
+\m@thpack@rulesep=1pt
+
+\let\mathpacktextstyle=\textstyle
+\let\mathpackdisplaystyle=\displaystyle
+
+\newif\ifm@thpack@lefttag
+%\def\m@thpack@lefttag{(lefttag)}
+
+\newif\ifm@thpack@righttag
+%\def\m@thpack@righttag{(righttag)}
+
+\def\mathpackstdtagtemplate#1{{\rm (#1)}}
+
+\def\mathpackstdlabeltemplate#1{eq.~#1}
+
+\def\mathpacklabelstyle{}
+
+\newcount\m@thpack@equation
+\m@thpack@equation=1
+\def\mathpackstdtag{\the\m@thpack@equation}
+\def\mathpackbeforestdtag{}
+\def\mathpackafterstdtag{\global\advance\m@thpack@equation by 1\relax}
+
+\def\samebeginsubtag{\global\advance\m@thpack@equation by -1\relax}
+\def\beginsubtag{\global\advance\m@thpack@equation by -1\relax}
+\def\subtag#1{\the\m@thpack@equation#1}
+\def\endsubtag{\global\advance\m@thpack@equation by 1\relax}
+
+\font\m@thpack@mathfont=cmmi10\relax%
+\newdimen\m@thpack@mu%
+\m@thpack@mu=\fontdimen6\m@thpack@mathfont\relax%
+\divide\m@thpack@mu by 18\relax%
+
+\newskip\m@thpack@thickskip%
+\m@thpack@thickskip=5\m@thpack@mu plus 5\m@thpack@mu%
+
+
+
+
+\newread\m@thpack@mathpackaux
+\openin\m@thpack@mathpackaux=\jobname_mathpack.aux\relax
+
+\ifeof\m@thpack@mathpackaux%
+  \closein\m@thpack@mathpackaux%
+\else%
+  \closein\m@thpack@mathpackaux%
+  \input\jobname_mathpack.aux\relax%
+\fi
+
+\newwrite\m@thpack@mathpackaux
+\immediate\openout\m@thpack@mathpackaux=\jobname_mathpack.aux\relax
+
+
+
+
+\m@thpack@fleqnfalse
+\m@thpack@leqnofalse
+\m@thpack@onlyrefsfalse
+\DeclareOption{fleqn}{\m@thpack@fleqntrue}
+\DeclareOption{leqno}{\m@thpack@leqnotrue}
+\DeclareOption{onlyrefs}{\m@thpack@onlyrefstrue}
+\DeclareOption*{\PackageWarningNoLine{mathpack}{Unknown Option \CurrentOption}}
+\ProcessOptions\relax
+
+
+
+
+\def\mathsetlabel#1#2{%
+  \expandafter\ifx\csname m@thpack@label@defed@#1\endcsname\relax\else%
+    \PackageError{mathpack}{Label no nijyuu teigi}{Gyou-banngou no iti de nikaime no label no teigi ga okonaware masita. label no teigi ha ikkaidakeni sitekudasai.}%
+  \fi%
+  \m@thpack@toksa={#2}%
+  \immediate\write\m@thpack@mathpackaux{\noexpand\global\noexpand\expandafter\noexpand\def\noexpand\csname m@thpack@label@@#1\noexpand\endcsname\noexpand{\the\m@thpack@toksa\noexpand}}%
+  \global\expandafter\edef\csname m@thpack@label@@#1\endcsname{\the\m@thpack@toksa}%
+  \global\expandafter\def\csname m@thpack@label@defed@#1\endcsname{}%
+}
+
+\def\mathref#1{%
+  \expandafter\ifx\csname m@thpack@label@@#1\endcsname\relax%
+    \PackageWarning{mathpack}{Label ga miteigi}%
+  \fi%
+  \ifm@thpack@onlyrefs%
+    \expandafter\ifx\csname m@thpack@label@refed@#1\endcsname\relax%
+      \PackageWarning{mathpack}{Label hatu sannsyou. Please Re-Compile}%
+    \fi%
+  \fi%
+  \ifmmode%
+    \mathord{\hbox{\csname m@thpack@label@@#1\endcsname}}%
+  \else%
+    \csname m@thpack@label@@#1\endcsname%
+  \fi%
+  \immediate\write\m@thpack@mathpackaux{\noexpand\global\noexpand\expandafter\noexpand\def\noexpand\csname m@thpack@label@refed@#1\noexpand\endcsname\noexpand{\noexpand}}%
+}
+
+
+
+
+
+
+\def\m@thpack@texspace{ }
+
+\expandafter\expandafter\expandafter\let\expandafter\expandafter\expandafter\m@thpack@checkspchar\expandafter\expandafter\expandafter=\expandafter\m@thpack@texspace\m@thpack@texspace
+
+\expandafter\def\expandafter\m@thpack@checknextdel\m@thpack@texspace{}
+
+\def\m@thpack@mathenvcheckcr{\futurelet\m@thpack@temptoken\m@thpack@mathenvcheckcrbody}
+\def\m@thpack@mathenvcheckcrbody{%
+  \def\m@thpack@checknextcmd{\cr}%
+  \ifx\m@thpack@temptoken\displine\else%
+  \ifx\m@thpack@temptoken\multiline\else%
+  \ifx\m@thpack@temptoken\lines\else%
+  \ifx\m@thpack@temptoken\widelines\else%
+  \ifx\m@thpack@temptoken\intertext\else%
+  \ifx\m@thpack@temptoken\interpar\else%
+  \ifx\m@thpack@temptoken\align\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@mathenvcheckcr\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (mathenv)}{Suusiki kannkyou (mathenv) no option-mei ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\m@thpack@mathenvcheck{\futurelet\m@thpack@temptoken\m@thpack@mathenvcheckbody}
+\def\m@thpack@mathenvcheckbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\displine\else%
+  \ifx\m@thpack@temptoken\multiline\else%
+  \ifx\m@thpack@temptoken\lines\else%
+  \ifx\m@thpack@temptoken\widelines\else%
+  \ifx\m@thpack@temptoken\intertext\else%
+  \ifx\m@thpack@temptoken\interpar\else%
+  \ifx\m@thpack@temptoken\align\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@mathenvcheck\m@thpack@checknextdel}%
+  \else%
+    \PackageError{mathpack}{Ihouna option hikisuu mataha Option ga nai (mathenv)}{Suusiki kannkyou (mathenv) no option-mei ga tigaimasu. mataha option ga arimasen. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\m@thpack@mathenvoptioncheck{\futurelet\m@thpack@temptoken\m@thpack@mathenvoptioncheckbody}
+\def\m@thpack@mathenvoptioncheckbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\prenobreak\else%
+  \ifx\m@thpack@temptoken\postnobreak\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@mathenvoptioncheck\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu mataha Option ga nai (mathenv option)}{Suusiki kannkyou (mathenv option) no option-mei ga tigaimasu. mataha option ga arimasen. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\m@thpack@checkend{}
+
+\def\mathenv#1#2{%
+  \ifvmode\ifdim\baselineskip>0pt\relax\vskip-\baselineskip\fi\leavevmode\fi%
+%
+  \begingroup%
+%
+  \newif\ifm@thpack@prenobreak%
+  \newif\ifm@thpack@postnobreak%
+  \m@thpack@prenobreakfalse%
+  \m@thpack@postnobreakfalse%
+%
+  \begingroup%
+    \def\prenobreak{\global\m@thpack@prenobreaktrue}%
+    \def\postnobreak{\global\m@thpack@postnobreaktrue}%
+    \m@thpack@mathenvoptioncheck#1\m@thpack@checkend%
+  \endgroup%
+%
+  \ifm@thpack@prenobreak%
+    \predisplaypenalty=10000%
+  \fi%
+  \ifm@thpack@postnobreak%
+    \postdisplaypenalty=10000%
+  \fi%
+%
+  $$%
+    \newif\ifm@thpack@leftoutsidemode%
+    \newif\ifm@thpack@rightoutsidemode%
+%
+    \def\displine##1##2{\m@thpack@displine@mathenv{##1}{##2}}%
+    \def\multiline##1##2{\m@thpack@multiline@mathenv{##1}{##2}}%
+    \def\lines##1##2{\m@thpack@lines@mathenv{##1}{##2}}%
+    \def\widelines##1##2{\m@thpack@widelines@mathenv{##1}{##2}}%
+    \def\intertext##1{\m@thpack@intertext@mathenv{##1}}%
+    \def\interpar##1{\m@thpack@interpar@mathenv{##1}}%
+    \def\align##1{\m@thpack@align@mathenv{##1}}%
+%
+    \def\m@thpack@everycr{}%
+    \offinterlineskip%
+    \lineskip=0pt%
+    \tabskip=0pt%
+    \everycr{\noalign{\nobreak}\m@thpack@everycr}%
+    \halign to \displaywidth{\hbox to \displaywidth{##}\cr\m@thpack@mathenvcheck#2\m@thpack@checkend}%
+  $$%
+%
+  \endgroup%
+}
+
+\def\m@thpack@optioncheck{\futurelet\m@thpack@temptoken\m@thpack@optioncheckbody}
+\def\m@thpack@optioncheckbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\tag\else%
+  \ifx\m@thpack@temptoken\overtag\else%
+  \ifx\m@thpack@temptoken\etag\else%
+  \ifx\m@thpack@temptoken\eovertag\else%
+  \ifx\m@thpack@temptoken\notag\else%
+  \ifx\m@thpack@temptoken\label\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@optioncheck\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (Tag, Label)}{Tag, label option no namae ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\m@thpack@option@tag#1{%
+  \ifm@thpack@option@settedtag%
+    \PackageError{mathpack}{Ihouna option hikisuu (tag after overtag, etag or eovertag)}{tag option, overtag option, etag option, eovertag option, notag option ha doujini siyou dekimasenn.}%
+  \fi%
+  \ifm@thpack@option@notag%
+    \PackageError{mathpack}{Ihouna option hikisuu (tag after notag)}{tag option, overtag option, etag option, eovertag option, notag option ha doujini siyou dekimasenn.}%
+  \fi%
+  \m@thpack@option@settedtagtrue%
+  \def\m@thpack@option@presettedtag{#1}%
+  \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@option@settedtag\expandafter\expandafter\expandafter{\expandafter\mathpackstdtagtemplate\expandafter{\m@thpack@option@presettedtag}}%
+  \m@thpack@optioncheck%
+}
+
+\def\m@thpack@option@overtag#1{%
+  \ifm@thpack@option@settedtag%
+    \PackageError{mathpack}{Ihouna option hikisuu (overtag after tag, etag or eovertag)}{tag option, overtag option, etag option, eovertag option, notag option ha doujini siyou dekimasenn.}%
+  \fi%
+  \ifm@thpack@option@notag%
+    \PackageError{mathpack}{Ihouna option hikisuu (overtag after notag)}{tag option, overtag option, etag option, eovertag option, notag option ha doujini siyou dekimasenn.}%
+  \fi%
+  \m@thpack@option@settedtagtrue%
+  \def\m@thpack@option@presettedtag{#1}%
+  \expandafter\def\expandafter\m@thpack@option@settedtag\expandafter{\m@thpack@option@presettedtag}%
+  \m@thpack@optioncheck%
+}
+
+\def\m@thpack@option@etag#1{%
+  \ifm@thpack@option@settedtag%
+    \PackageError{mathpack}{Ihouna option hikisuu (etag after tag, overtag, etag or eovertag)}{tag option, overtag option, etag option, eovertag option, notag option ha doujini siyou dekimasenn.}%
+  \fi%
+  \ifm@thpack@option@notag%
+    \PackageError{mathpack}{Ihouna option hikisuu (etag after notag)}{tag option, overtag option, etag option, eovertag option, notag option ha doujini siyou dekimasenn.}%
+  \fi%
+  \m@thpack@option@settedtagtrue%
+  \edef\m@thpack@option@presettedtag{#1}%
+  \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@option@settedtag\expandafter\expandafter\expandafter{\expandafter\mathpackstdtagtemplate\expandafter{\m@thpack@option@presettedtag}}%
+  \m@thpack@optioncheck%
+}
+
+\def\m@thpack@option@eovertag#1{%
+  \ifm@thpack@option@settedtag%
+    \PackageError{mathpack}{Ihouna option hikisuu (eovertag after tag, overtag or etag)}{tag option, overtag option, etag option, eovertag option, notag option ha doujini siyou dekimasenn.}%
+  \fi%
+  \ifm@thpack@option@notag%
+    \PackageError{mathpack}{Ihouna option hikisuu (eovertag after notag)}{tag option, overtag option, etag option, eovertag option, notag option ha doujini siyou dekimasenn.}%
+  \fi%
+  \m@thpack@option@settedtagtrue%
+  \edef\m@thpack@option@presettedtag{#1}%
+  \expandafter\def\expandafter\m@thpack@option@settedtag\expandafter{\m@thpack@option@presettedtag}%
+  \m@thpack@optioncheck%
+}
+
+\def\m@thpack@option@notag{%
+  \m@thpack@option@notagtrue%
+  \m@thpack@optioncheck%
+}
+
+\def\m@thpack@option@label#1{%
+  \m@thpack@option@labeltrue%
+  \def\m@thpack@option@labelbody{#1}%
+  \m@thpack@optioncheck%
+}
+
+\def\m@thpack@optionproc#1{%
+  \begingroup%
+    \newif\ifm@thpack@option@settedtag%
+    \m@thpack@option@settedtagfalse%
+    \def\m@thpack@option@presettedtag{}%
+    \def\m@thpack@option@settedtag{}%
+    \newif\ifm@thpack@option@notag%
+    \m@thpack@option@notagfalse%
+    \newif\ifm@thpack@option@label%
+    \m@thpack@option@labelfalse%
+    \def\m@thpack@option@labelbody{}%
+%
+    \def\tag##1{\m@thpack@option@tag{##1}}%
+    \def\overtag##1{\m@thpack@option@overtag{##1}}%
+    \def\etag##1{\m@thpack@option@etag{##1}}%
+    \def\eovertag##1{\m@thpack@option@eovertag{##1}}%
+    \def\notag{\m@thpack@option@notag}%
+    \def\addtext##1{\m@thpack@option@addtext{##1}}%
+    \def\label##1{\m@thpack@option@label{##1}}%
+%
+    \m@thpack@optioncheck#1\m@thpack@checkend%
+%
+    \ifm@thpack@option@notag%
+      \ifm@thpack@option@settedtag%
+        \PackageError{mathpack}{Ihouna option hikisuu (notag after tag, overtag, etag or eovertag)}{tag option, overtag option, etag option, eovertag option, notag option ha doujini siyou dekimasenn.}%
+      \fi%
+    \else%
+      \ifm@thpack@option@settedtag\else%
+        \ifm@thpack@onlyrefs%
+          \ifm@thpack@option@label%
+            \expandafter\ifx\csname m@thpack@label@refed@\m@thpack@option@labelbody\endcsname\relax%
+              \mathsetlabel{\m@thpack@option@labelbody}{(?)}%
+              \m@thpack@option@labelfalse%
+            \else%
+              \m@thpack@option@settedtagtrue%
+              \mathpackbeforestdtag%
+              \edef\m@thpack@option@presettedtag{\mathpackstdtag}%
+              \mathpackafterstdtag%
+              \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@option@settedtag\expandafter\expandafter\expandafter{\expandafter\mathpackstdtagtemplate\expandafter{\m@thpack@option@presettedtag}}%
+            \fi%
+          \fi%
+        \else%
+          \m@thpack@option@settedtagtrue%
+          \mathpackbeforestdtag%
+          \edef\m@thpack@option@presettedtag{\mathpackstdtag}%
+          \mathpackafterstdtag%
+          \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@option@settedtag\expandafter\expandafter\expandafter{\expandafter\mathpackstdtagtemplate\expandafter{\m@thpack@option@presettedtag}}%
+        \fi%
+      \fi%
+    \fi%
+%
+    \ifm@thpack@option@label%
+      \ifm@thpack@option@settedtag%
+        \edef\m@thpack@tempcmd##1{\mathpackstdlabeltemplate{##1}}%
+        \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@tempcmd\expandafter\expandafter\expandafter##\expandafter\expandafter\expandafter1\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter{\expandafter\mathpacklabelstyle\m@thpack@tempcmd{##1}}}%
+        \expandafter\expandafter\expandafter\mathsetlabel\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter\m@thpack@option@labelbody\expandafter\expandafter\expandafter}\expandafter\expandafter\expandafter{\expandafter\m@thpack@tempcmd\expandafter{\m@thpack@option@presettedtag}}%
+      \else%
+        \PackageError{mathpack}{Ihouna option hikisuu (label and notag)}{label ha notag to heiyou dekimasenn.}%
+      \fi%
+    \fi%
+%
+    \global\m@thpack@lefttagfalse%
+    \global\m@thpack@righttagfalse%
+    \ifm@thpack@option@settedtag%
+      \ifm@thpack@leqno%
+        \global\m@thpack@lefttagtrue%
+        \expandafter\global\expandafter\def\expandafter\m@thpack@lefttag\expandafter{\m@thpack@option@settedtag}%
+      \else%
+        \global\m@thpack@righttagtrue%
+        \expandafter\global\expandafter\def\expandafter\m@thpack@righttag\expandafter{\m@thpack@option@settedtag}%
+      \fi%
+    \fi%
+  \endgroup%
+}
+
+\def\m@thpack@manualtagcheck{\futurelet\m@thpack@temptoken\m@thpack@manualtagcheckbody}
+\def\m@thpack@manualtagcheckbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\tag\else%
+  \ifx\m@thpack@temptoken\overtag\else%
+  \ifx\m@thpack@temptoken\etag\else%
+  \ifx\m@thpack@temptoken\eovertag\else%
+  \ifx\m@thpack@temptoken\label\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@manualtagcheck\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (Manual Tag, Label)}{Manual Tag, label option no namae ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\manualtag#1{%
+  \begingroup%
+    \newif\ifm@thpack@option@settedtag%
+    \m@thpack@option@settedtagfalse%
+    \def\m@thpack@option@presettedtag{}%
+    \def\m@thpack@option@settedtag{}%
+    \newif\ifm@thpack@option@label%
+    \m@thpack@option@labelfalse%
+    \def\m@thpack@option@labelbody{}%
+%
+    \def\tag##1{%
+      \ifm@thpack@option@settedtag%
+        \PackageError{mathpack}{Ihouna option hikisuu (tag after overtag, etag or eovertag)}{tag option, overtag option, etag option, eovertag option ha doujini siyou dekimasenn.}%
+      \fi%
+      \m@thpack@option@settedtagtrue%
+      \def\m@thpack@option@presettedtag{##1}%
+      \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@option@settedtag\expandafter\expandafter\expandafter{\expandafter\mathpackstdtagtemplate\expandafter{\m@thpack@option@presettedtag}}%
+      \m@thpack@manualtagcheck%
+    }%
+    \def\overtag##1{%
+      \ifm@thpack@option@settedtag%
+        \PackageError{mathpack}{Ihouna option hikisuu (overtag after tag, etag or eovertag)}{tag option, overtag option, etag option, eovertag option ha doujini siyou dekimasenn.}%
+      \fi%
+      \m@thpack@option@settedtagtrue%
+      \def\m@thpack@option@presettedtag{##1}%
+      \expandafter\def\expandafter\m@thpack@option@settedtag\expandafter{\m@thpack@option@presettedtag}%
+      \m@thpack@manualtagcheck%
+    }%
+    \def\etag##1{%
+      \ifm@thpack@option@settedtag%
+        \PackageError{mathpack}{Ihouna option hikisuu (etag after tag, overtag or eovertag)}{tag option, overtag option, etag option, eovertag option ha doujini siyou dekimasenn.}%
+      \fi%
+      \m@thpack@option@settedtagtrue%
+      \edef\m@thpack@option@presettedtag{##1}%
+      \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@option@settedtag\expandafter\expandafter\expandafter{\expandafter\mathpackstdtagtemplate\expandafter{\m@thpack@option@presettedtag}}%
+      \m@thpack@manualtagcheck%
+    }%
+    \def\eovertag##1{%
+      \ifm@thpack@option@settedtag%
+        \PackageError{mathpack}{Ihouna option hikisuu (eovertag after tag, overtag or eovertag)}{tag option, overtag option, etag option, eovertag option ha doujini siyou dekimasenn.}%
+      \fi%
+      \m@thpack@option@settedtagtrue%
+      \edef\m@thpack@option@presettedtag{##1}%
+      \expandafter\def\expandafter\m@thpack@option@settedtag\expandafter{\m@thpack@option@presettedtag}%
+      \m@thpack@manualtagcheck%
+    }%
+    \def\label##1{%
+      \m@thpack@option@labeltrue%
+      \def\m@thpack@option@labelbody{##1}%
+      \m@thpack@manualtagcheck%
+    }%
+%
+    \m@thpack@manualtagcheck#1\m@thpack@checkend%
+%
+    \ifm@thpack@option@settedtag\else%
+      \ifm@thpack@onlyrefs%
+        \ifm@thpack@option@label%
+          \expandafter\ifx\csname m@thpack@label@refed@\m@thpack@option@labelbody\endcsname\relax%
+            \mathsetlabel{\m@thpack@option@labelbody}{(?)}%
+            \m@thpack@option@labelfalse%
+          \else%
+            \m@thpack@option@settedtagtrue%
+            \mathpackbeforestdtag%
+            \edef\m@thpack@option@presettedtag{\mathpackstdtag}%
+            \mathpackafterstdtag%
+            \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@option@settedtag\expandafter\expandafter\expandafter{\expandafter\mathpackstdtagtemplate\expandafter{\m@thpack@option@presettedtag}}%
+          \fi%
+        \fi%
+      \else%
+        \m@thpack@option@settedtagtrue%
+        \mathpackbeforestdtag%
+        \edef\m@thpack@option@presettedtag{\mathpackstdtag}%
+        \mathpackafterstdtag%
+        \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@option@settedtag\expandafter\expandafter\expandafter{\expandafter\mathpackstdtagtemplate\expandafter{\m@thpack@option@presettedtag}}%
+      \fi%
+    \fi%
+%
+    \ifm@thpack@option@label%
+      \edef\m@thpack@tempcmd##1{\mathpackstdlabeltemplate{##1}}%
+      \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@tempcmd\expandafter\expandafter\expandafter##\expandafter\expandafter\expandafter1\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter{\expandafter\mathpacklabelstyle\m@thpack@tempcmd{##1}}}%
+      \expandafter\expandafter\expandafter\mathsetlabel\expandafter\expandafter\expandafter{\expandafter\expandafter\expandafter\m@thpack@option@labelbody\expandafter\expandafter\expandafter}\expandafter\expandafter\expandafter{\expandafter\m@thpack@tempcmd\expandafter{\m@thpack@option@presettedtag}}%
+    \fi%
+%
+    \m@thpack@option@settedtag%
+%
+  \endgroup%
+}
+
+\def\m@thpack@displine@mathenv#1#2{%
+  \m@thpack@optionproc{#1}%
+%
+  \let\m@thpack@mathbox=\m@thpack@boxa%
+  \let\m@thpack@tempdimen=\m@thpack@dimena%
+  \ifm@thpack@lefttag%
+    \let\m@thpack@lefttagbox=\m@thpack@boxb%
+    \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
+    \m@thpack@tempdimen=\ht\m@thpack@lefttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimen%
+    \m@thpack@tempdimen=\dp\m@thpack@lefttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimen%
+  \fi%
+  \ifm@thpack@righttag%
+    \let\m@thpack@righttagbox=\m@thpack@boxb%
+    \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
+    \m@thpack@tempdimen=\ht\m@thpack@righttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\ht\m@thpack@righttagbox=\m@thpack@tempdimen%
+    \m@thpack@tempdimen=\dp\m@thpack@righttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\dp\m@thpack@righttagbox=\m@thpack@tempdimen%
+  \fi%
+  \global\setbox\m@thpack@mathbox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#2}\endgroup$}%
+  \global\m@thpack@leftoutsidemodefalse%
+  \global\m@thpack@rightoutsidemodefalse%
+  \ifm@thpack@fleqn%
+    \ifm@thpack@lefttag%
+      \m@thpack@tempdimen=\wd\m@thpack@lefttagbox%
+      \advance\m@thpack@tempdimen by \m@thpack@tagmargin%
+      \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+        \global\m@thpack@leftoutsidemodetrue%
+      \fi%
+    \fi%
+    \ifm@thpack@righttag%
+      \m@thpack@tempdimen=\m@thpack@mathindent%
+      \advance\m@thpack@tempdimen by \wd\m@thpack@mathbox%
+      \advance\m@thpack@tempdimen by \m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by \wd\m@thpack@righttagbox%
+      \ifdim\m@thpack@tempdimen>\displaywidth%
+        \global\m@thpack@rightoutsidemodetrue%
+      \fi%
+    \fi%
+  \else%
+    \ifm@thpack@lefttag%
+      \m@thpack@tempdimen=\wd\m@thpack@mathbox%
+      \advance\m@thpack@tempdimen by 2\m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by 2\wd\m@thpack@lefttagbox%
+      \ifdim\m@thpack@tempdimen>\displaywidth%
+        \global\m@thpack@leftoutsidemodetrue%
+      \fi%
+    \fi%
+    \ifm@thpack@righttag%
+      \m@thpack@tempdimen=\wd\m@thpack@mathbox%
+      \advance\m@thpack@tempdimen by 2\m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by 2\wd\m@thpack@righttagbox%
+      \ifdim\m@thpack@tempdimen>\displaywidth%
+        \global\m@thpack@rightoutsidemodetrue%
+      \fi%
+    \fi%
+  \fi%
+%
+  \def\m@thpack@tempcmd{%
+    \let\m@thpack@mathbox=\m@thpack@boxa%
+    \let\m@thpack@tempdimena=\m@thpack@dimena%
+    \let\m@thpack@tempdimenb=\m@thpack@dimenb%
+    \ifm@thpack@lefttag%
+      \let\m@thpack@lefttagbox=\m@thpack@boxb%
+    \fi%
+    \ifm@thpack@righttag%
+      \let\m@thpack@righttagbox=\m@thpack@boxb%
+    \fi%
+    \ifm@thpack@lefttag\ifm@thpack@leftoutsidemode\else%
+      \rlap{\box\m@thpack@lefttagbox}%
+    \fi\fi%
+    \ifm@thpack@fleqn%
+      \hskip\m@thpack@mathindent%
+    \else%
+      \hskip 0pt plus 1fill%
+    \fi%
+    \m@thpack@tempdimena=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \box\m@thpack@mathbox%
+    \hskip 0pt plus 1fill%
+    \ifm@thpack@righttag\ifm@thpack@rightoutsidemode\else%
+      \llap{\box\m@thpack@righttagbox}%
+    \fi\fi%
+    \ifm@thpack@righttag%
+      \ifm@thpack@rightoutsidemode%
+        \global\def\m@thpack@everycr{%
+          \let\m@thpack@righttagbox=\m@thpack@boxb%
+          \hskip 0 pt plus 1fill\box\m@thpack@righttagbox%
+          \global\def\m@thpack@everycr{}%
+          \cr%
+        }%
+      \else%
+        \global\def\m@thpack@everycr{}%
+      \fi%
+    \else%
+      \global\def\m@thpack@everycr{}%
+    \fi%
+  }%
+  \ifm@thpack@lefttag%
+    \ifm@thpack@leftoutsidemode%
+      \box\m@thpack@lefttagbox\hskip 0 pt plus 1fill%
+      \expandafter\global\expandafter\def\expandafter\m@thpack@everycr\expandafter{\m@thpack@tempcmd\cr}%
+    \else%
+      \m@thpack@tempcmd%
+    \fi%
+  \else%
+    \m@thpack@tempcmd%
+  \fi%
+  \m@thpack@mathenvcheckcr%
+}
+
+\def\m@thpack@multilinecheck{\futurelet\m@thpack@temptoken\m@thpack@multilinecheckbody}
+\def\m@thpack@multilinecheckbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\showauto\else%
+  \ifx\m@thpack@temptoken\showindentlv\else%
+  \ifx\m@thpack@temptoken\showratio\else%
+  \ifx\m@thpack@temptoken\showleft\else%
+  \ifx\m@thpack@temptoken\showcenter\else%
+  \ifx\m@thpack@temptoken\showright\else%
+  \ifx\m@thpack@temptoken\showtext\else%
+  \ifx\m@thpack@temptoken\showpar\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@multilinecheck\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (multiline)}{Suusiki kannkyou (multiline) no option-mei ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\m@thpack@multiline@mathenv#1#2{%
+  \m@thpack@optionproc{#1}%
+%
+  \let\m@thpack@widthbig=\m@thpack@dimena%
+  \let\m@thpack@widthsmall=\m@thpack@dimenb%
+  \let\m@thpack@indentbig=\m@thpack@dimend%
+  \let\m@thpack@indentsmall=\m@thpack@dimene%
+  \let\m@thpack@tempdimen=\m@thpack@dimenf%
+  \let\m@thpack@lineno=\m@thpack@counta%
+  \let\m@thpack@endlineno=\m@thpack@countb%
+  \ifm@thpack@lefttag%
+    \let\m@thpack@lefttagbox=\m@thpack@boxb%
+    \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
+    \m@thpack@tempdimen=\ht\m@thpack@lefttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimen%
+    \m@thpack@tempdimen=\dp\m@thpack@lefttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimen%
+  \fi%
+  \ifm@thpack@righttag%
+    \let\m@thpack@righttagbox=\m@thpack@boxb%
+    \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
+    \m@thpack@tempdimen=\ht\m@thpack@righttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\ht\m@thpack@righttagbox=\m@thpack@tempdimen%
+    \m@thpack@tempdimen=\dp\m@thpack@righttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\dp\m@thpack@righttagbox=\m@thpack@tempdimen%
+  \fi%
+  \global\m@thpack@widthbig=\displaywidth%
+  \ifm@thpack@fleqn%
+    \global\advance\m@thpack@widthbig by -\m@thpack@mathindent%
+    \global\advance\m@thpack@widthbig by -\m@thpack@minsidemargin%
+  \else%
+    \global\advance\m@thpack@widthbig by -2\m@thpack@minsidemargin%
+  \fi%
+  \global\m@thpack@widthsmall=\displaywidth%
+  \ifm@thpack@fleqn%
+    \global\advance\m@thpack@widthsmall by -\m@thpack@mathindent%
+    \ifm@thpack@righttag%
+      \global\advance\m@thpack@widthsmall by -\m@thpack@tagmargin%
+      \global\advance\m@thpack@widthsmall by -\wd\m@thpack@righttagbox%
+    \else%
+      \global\advance\m@thpack@widthsmall by -\m@thpack@minsidemargin%
+    \fi%
+  \else%
+    \ifm@thpack@lefttag%
+      \global\advance\m@thpack@widthsmall by -2\m@thpack@tagmargin%
+      \global\advance\m@thpack@widthsmall by -2\wd\m@thpack@lefttagbox%
+    \fi%
+    \ifm@thpack@righttag%
+      \global\advance\m@thpack@widthsmall by -2\m@thpack@tagmargin%
+      \global\advance\m@thpack@widthsmall by -2\wd\m@thpack@righttagbox%
+    \fi%
+  \fi%
+  \ifdim\m@thpack@widthsmall>\m@thpack@widthbig%
+    \global\m@thpack@widthsmall=\m@thpack@widthbig%
+  \fi%
+  \global\m@thpack@indentbig=\displaywidth%
+  \global\m@thpack@indentsmall=\displaywidth%
+%
+  \def\m@thpack@next##1{##1}%
+  \m@thpack@lineno=0%
+  \m@thpack@endlineno=-1%
+%
+  \def\showauto##1{\m@thpack@showauto@multiline{##1}}%
+  \def\showindentlv##1##2{\m@thpack@showindentlv@multiline{##1}{##2}}%
+  \def\showratio##1##2##3{\m@thpack@showratio@multiline{##1}{##2}{##3}}%
+  \def\showleft##1{\m@thpack@showleft@multiline{##1}}%
+  \def\showcenter##1{\m@thpack@showcenter@multiline{##1}}%
+  \def\showright##1{\m@thpack@showright@multiline{##1}}%
+  \def\showtext##1{\m@thpack@showtext@all{##1}}%
+  \def\showpar##1{\m@thpack@showpar@all{##1}}%
+%
+  \m@thpack@multilinecheck#2\m@thpack@checkend%
+%
+  \let\m@thpack@leftmargin=\m@thpack@dimena%
+  \let\m@thpack@indent=\m@thpack@dimenb%
+  \let\m@thpack@rightmargin=\m@thpack@dimenc%
+  \global\m@thpack@leftoutsidemodefalse%
+  \global\m@thpack@rightoutsidemodefalse%
+  \ifdim\m@thpack@indentsmall<\m@thpack@minindent%
+    \ifdim\m@thpack@indentbig<\m@thpack@minindent%
+      \ifm@thpack@fleqn%
+        \ifm@thpack@lefttag%
+          \m@thpack@tempdimen=\m@thpack@tagmargin%
+          \advance\m@thpack@tempdimen by \wd\m@thpack@lefttagbox%
+          \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+            \global\m@thpack@leftoutsidemodetrue%
+          \fi%
+        \fi%
+        \global\m@thpack@leftmargin=\m@thpack@mathindent%
+        \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+      \else%
+        \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+        \global\m@thpack@rightmargin=\m@thpack@leftmargin%
+        \global\m@thpack@leftoutsidemodetrue%
+      \fi%
+      \global\m@thpack@indent=0pt%
+      \global\m@thpack@rightoutsidemodetrue%
+    \else%
+      \ifm@thpack@fleqn%
+        \ifm@thpack@lefttag%
+          \m@thpack@tempdimen=\m@thpack@tagmargin%
+          \advance\m@thpack@tempdimen by \wd\m@thpack@lefttagbox%
+          \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+            \global\m@thpack@leftoutsidemodetrue%
+          \fi%
+        \fi%
+        \global\m@thpack@leftmargin=\m@thpack@mathindent%
+        \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+      \else%
+        \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+        \global\m@thpack@rightmargin=\m@thpack@leftmargin%
+        \global\m@thpack@leftoutsidemodetrue%
+      \fi%
+      \global\m@thpack@indent=\m@thpack@indentbig%
+      \global\m@thpack@rightoutsidemodetrue%
+    \fi%
+  \else%
+    \ifm@thpack@fleqn%
+      \global\m@thpack@leftmargin=\m@thpack@mathindent%
+      \ifm@thpack@lefttag%
+        \m@thpack@tempdimen=\m@thpack@tagmargin%
+        \advance\m@thpack@tempdimen by \wd\m@thpack@lefttagbox%
+        \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+          \global\m@thpack@leftoutsidemodetrue%
+        \fi%
+      \fi%
+      \ifm@thpack@righttag%
+        \global\m@thpack@rightmargin=\m@thpack@tagmargin%
+        \global\advance\m@thpack@rightmargin by \wd\m@thpack@righttagbox%
+      \else%
+        \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+      \fi%
+      \ifdim\m@thpack@rightmargin<\m@thpack@minsidemargin%
+        \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+      \fi%
+    \else%
+      \ifm@thpack@lefttag%
+        \global\m@thpack@leftmargin=\m@thpack@tagmargin%
+        \global\advance\m@thpack@leftmargin by \wd\m@thpack@lefttagbox%
+      \else%
+        \ifm@thpack@righttag%
+          \global\m@thpack@leftmargin=\m@thpack@tagmargin%
+          \global\advance\m@thpack@leftmargin by \wd\m@thpack@righttagbox%
+        \else%
+          \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+        \fi%
+      \fi%
+      \ifdim\m@thpack@leftmargin<\m@thpack@minsidemargin%
+        \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+      \fi%
+      \global\m@thpack@rightmargin=\m@thpack@leftmargin%
+    \fi%
+    \global\m@thpack@indent=\m@thpack@indentsmall%
+  \fi%
+%
+  \global\m@thpack@lineno=0%
+%
+  \ifm@thpack@lefttag%
+    \ifm@thpack@leftoutsidemode%
+      \box\m@thpack@lefttagbox\hskip 0 pt plus 1fill%
+      \expandafter\global\expandafter\def\expandafter\m@thpack@everycr\expandafter{\m@thpack@next{}\cr}%
+    \else%
+      \m@thpack@next{}%
+    \fi%
+  \else%
+    \m@thpack@next{}%
+  \fi%
+  \m@thpack@mathenvcheckcr%
+}
+
+\def\m@thpack@showbase@multiline#1#2#3{%
+  \ifcase\m@thpack@lineno%
+    \let\m@thpack@mathbox=\m@thpack@boxa%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxc%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxd%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxe%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxf%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxg%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxh%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxi%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxj%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxk%
+  \else%
+    \let\m@thpack@mathbox=\m@thpack@boxl%
+  \fi%
+  \global\setbox\m@thpack@mathbox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\begingroup#1\endgroup}\endgroup$}%
+  \m@thpack@tempdimen=\m@thpack@indentbig%
+  \multiply\m@thpack@tempdimen by \m@thpack@lineno%
+  \advance\m@thpack@tempdimen by \wd\m@thpack@mathbox%
+  \ifnum\m@thpack@lineno=0\relax%
+    \ifdim\m@thpack@tempdimen>\m@thpack@widthbig%
+      \m@thpack@widthbig=0pt%
+    \fi%
+  \else%
+    \ifdim\m@thpack@tempdimen>\m@thpack@widthbig%
+      \advance\m@thpack@tempdimen by -\m@thpack@widthbig%
+      \divide\m@thpack@tempdimen by \m@thpack@lineno%
+      \advance\m@thpack@indentbig by -\m@thpack@tempdimen%
+    \fi%
+  \fi%
+  \m@thpack@tempdimen=\m@thpack@indentsmall%
+  \multiply\m@thpack@tempdimen by \m@thpack@lineno%
+  \advance\m@thpack@tempdimen by \wd\m@thpack@mathbox%
+  \ifnum\m@thpack@lineno=0\relax%
+    \ifdim\m@thpack@tempdimen>\m@thpack@widthsmall%
+      \m@thpack@widthsmall=0pt%
+    \fi%
+  \else%
+    \ifdim\m@thpack@tempdimen>\m@thpack@widthsmall%
+      \advance\m@thpack@tempdimen by -\m@thpack@widthsmall%
+      \divide\m@thpack@tempdimen by \m@thpack@lineno%
+      \advance\m@thpack@indentsmall by -\m@thpack@tempdimen%
+    \fi%
+  \fi%
+  \expandafter\def\expandafter\m@thpack@next\expandafter##\expandafter1\expandafter{\m@thpack@next{%
+    \let\m@thpack@lineno=\m@thpack@counta%
+    \let\m@thpack@endlineno=\m@thpack@countb%
+    \ifcase\m@thpack@lineno%
+      \let\m@thpack@mathbox=\m@thpack@boxa%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxc%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxd%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxe%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxf%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxg%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxh%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxi%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxj%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxk%
+    \else%
+      \let\m@thpack@mathbox=\m@thpack@boxl%
+      \setbox\m@thpack@mathbox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#1}\endgroup$}%
+    \fi%
+    \let\m@thpack@leftmargin=\m@thpack@dimena%
+    \let\m@thpack@indent=\m@thpack@dimenb%
+    \let\m@thpack@rightmargin=\m@thpack@dimenc%
+    \let\m@thpack@tempdimena=\m@thpack@dimend%
+    \let\m@thpack@tempdimenb=\m@thpack@dimene%
+    \let\m@thpack@tempcounta=\m@thpack@countc%
+    \let\m@thpack@tempcountb=\m@thpack@countd%
+    \ifm@thpack@lefttag%
+      \let\m@thpack@lefttagbox=\m@thpack@boxb%
+    \fi%
+    \ifm@thpack@righttag%
+      \let\m@thpack@righttagbox=\m@thpack@boxb%
+    \fi%
+    \ifnum\m@thpack@lineno=0\relax%
+      \ifm@thpack@lefttag\ifm@thpack@leftoutsidemode\else%
+        \rlap{\box\m@thpack@lefttagbox}%
+      \fi\fi%
+    \fi%
+    \m@thpack@tempdimena=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
+    #2%
+    \ifnum\m@thpack@lineno=\m@thpack@endlineno%
+      \ifm@thpack@righttag%
+        \ifm@thpack@rightoutsidemode%
+          #3%
+        \else%
+          \llap{\box\m@thpack@righttagbox}%
+        \fi%
+      \fi%
+    \fi%
+    \ifnum\m@thpack@lineno=\m@thpack@endlineno%
+      \ifm@thpack@righttag%
+        \ifm@thpack@rightoutsidemode%
+          \global\def\m@thpack@everycr{\let\m@thpack@righttagbox=\m@thpack@boxb\hskip 0 pt plus 1fill\box\m@thpack@righttagbox\global\def\m@thpack@everycr{}\cr}%
+        \else%
+          \global\def\m@thpack@everycr{}%
+        \fi%
+      \else%
+        \global\def\m@thpack@everycr{}%
+      \fi%
+    \else%
+      \global\def\m@thpack@everycr{##1\cr}%
+    \fi%
+    \global\advance\m@thpack@lineno by 1\relax%
+  }}%
+  \advance\m@thpack@lineno by 1\relax%
+  \global\advance\m@thpack@endlineno by 1\relax%
+  \m@thpack@multilinecheck%
+}
+
+\def\m@thpack@showauto@multiline#1{%
+  \m@thpack@showbase@multiline{#1}%
+  {%
+    \m@thpack@tempdimena=\m@thpack@indent%
+    \m@thpack@tempdimenb=\wd\m@thpack@mathbox%
+    \multiply\m@thpack@tempdimena by \m@thpack@lineno%
+    \advance\m@thpack@tempdimena by \m@thpack@leftmargin%
+    \hskip\m@thpack@tempdimena\box\m@thpack@mathbox\hskip 0pt plus 1fill%
+  }%
+  {%
+          \advance\m@thpack@tempdimena by \m@thpack@tempdimenb%
+          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
+          \ifdim\m@thpack@tempdimena>\displaywidth\else%
+            \llap{\box\m@thpack@righttagbox}%
+            \m@thpack@rightoutsidemodefalse%
+          \fi%
+  }%
+}
+
+\def\m@thpack@showindentlv@multiline#1#2{%
+  \m@thpack@showbase@multiline{#2}%
+  {%
+    \m@thpack@tempdimena=\m@thpack@indent%
+    \m@thpack@tempdimenb=\wd\m@thpack@mathbox%
+    \m@thpack@tempcounta=#1%
+    \advance\m@thpack@tempcounta by -1\relax%
+    \multiply\m@thpack@tempdimena by \m@thpack@tempcounta%
+    \advance\m@thpack@tempdimena by \m@thpack@leftmargin%
+    \hskip\m@thpack@tempdimena\box\m@thpack@mathbox\hskip 0pt plus 1fill%
+  }%
+  {%
+          \advance\m@thpack@tempdimena by \m@thpack@tempdimenb%
+          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
+          \ifdim\m@thpack@tempdimena>\displaywidth\else%
+            \llap{\box\m@thpack@righttagbox}%
+            \m@thpack@rightoutsidemodefalse%
+          \fi%
+  }%
+}
+
+\def\m@thpack@showratio@multiline#1#2#3{%
+  \m@thpack@showbase@multiline{#3}%
+  {%
+    \m@thpack@tempdimenb=\wd\m@thpack@mathbox%
+    \m@thpack@tempcounta=#1\relax%
+    \m@thpack@tempcountb=#2\relax%
+    \advance\m@thpack@tempcountb by -\m@thpack@tempcounta%
+    \advance\m@thpack@tempcounta by -1\relax%
+    \hskip\m@thpack@leftmargin\hskip 0pt plus \m@thpack@tempcounta fill\box\m@thpack@mathbox\hskip 0pt plus \m@thpack@tempcountb fill\hskip\m@thpack@rightmargin%
+  }%
+  {%
+          \advance\m@thpack@tempcounta by \m@thpack@tempcountb%
+          \m@thpack@tempdimena=\displaywidth%
+          \advance\m@thpack@tempdimena by -\m@thpack@leftmargin%
+          \advance\m@thpack@tempdimena by -\m@thpack@rightmargin%
+          \advance\m@thpack@tempdimena by -\m@thpack@tempdimenb%
+          \divide\m@thpack@tempdimena by \m@thpack@tempcounta%
+          \multiply\m@thpack@tempdimena by \m@thpack@tempcountb%
+          \advance\m@thpack@tempdimena by \m@thpack@rightmargin%
+          \advance\m@thpack@tempdimena by -\m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by -\wd\m@thpack@righttagbox%
+          \ifdim\m@thpack@tempdimena<0pt\else%
+            \llap{\box\m@thpack@righttagbox}%
+            \m@thpack@rightoutsidemodefalse%
+          \fi%
+  }%
+}
+
+\def\m@thpack@showleft@multiline#1{%
+  \m@thpack@showratio@multiline{1}{3}{#1}%
+}
+
+\def\m@thpack@showcenter@multiline#1{%
+  \m@thpack@showratio@multiline{2}{3}{#1}%
+}
+
+\def\m@thpack@showright@multiline#1{%
+  \m@thpack@showratio@multiline{3}{3}{#1}%
+}
+
+\def\m@thpack@linescheck{\futurelet\m@thpack@temptoken\m@thpack@linescheckbody}
+\def\m@thpack@linescheckbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\showauto\else%
+  \ifx\m@thpack@temptoken\showindentlv\else%
+  \ifx\m@thpack@temptoken\showaddindentlv\else%
+  \ifx\m@thpack@temptoken\showratio\else%
+  \ifx\m@thpack@temptoken\showleft\else%
+  \ifx\m@thpack@temptoken\showcenter\else%
+  \ifx\m@thpack@temptoken\showright\else%
+  \ifx\m@thpack@temptoken\showtext\else%
+  \ifx\m@thpack@temptoken\showpar\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@linescheck\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (lines/widelines)}{Suusiki kannkyou (lines/widelines) no option-mei ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\m@thpack@lines@mathenv#1#2{%
+  \m@thpack@optionproc{#1}%
+%
+  \let\m@thpack@maxwidth=\m@thpack@dimena%
+  \let\m@thpack@leftmargin=\m@thpack@dimenb%
+  \let\m@thpack@rightmargin=\m@thpack@dimenc%
+  \let\m@thpack@indent=\m@thpack@dimend%
+  \let\m@thpack@tempdimen=\m@thpack@dimene%
+  \let\m@thpack@lineno=\m@thpack@counta%
+  \let\m@thpack@endlineno=\m@thpack@countb%
+  \ifm@thpack@lefttag%
+    \let\m@thpack@lefttagbox=\m@thpack@boxb%
+    \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
+    \m@thpack@tempdimen=\ht\m@thpack@lefttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimen%
+    \m@thpack@tempdimen=\dp\m@thpack@lefttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimen%
+  \fi%
+  \ifm@thpack@righttag%
+    \let\m@thpack@righttagbox=\m@thpack@boxb%
+    \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
+    \m@thpack@tempdimen=\ht\m@thpack@righttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\ht\m@thpack@righttagbox=\m@thpack@tempdimen%
+    \m@thpack@tempdimen=\dp\m@thpack@righttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\dp\m@thpack@righttagbox=\m@thpack@tempdimen%
+  \fi%
+%
+  \def\m@thpack@next##1{##1}%
+  \m@thpack@lineno=0%
+  \global\m@thpack@endlineno=-1%
+  \global\m@thpack@maxwidth=0pt%
+%
+  \def\showauto##1{\m@thpack@showauto@lines{##1}}%
+  \def\showindentlv##1##2##3{\m@thpack@showindentlv@lines{##1}{##2}{##3}}%
+  \def\showaddindentlv##1##2##3{\m@thpack@showaddindentlv@lines{##1}{##2}{##3}}%
+  \def\showratio##1##2##3{\m@thpack@showratio@lines{##1}{##2}{##3}}%
+  \def\showleft##1{\m@thpack@showleft@lines{##1}}%
+  \def\showcenter##1{\m@thpack@showcenter@lines{##1}}%
+  \def\showright##1{\m@thpack@showright@lines{##1}}%
+  \def\showtext##1{\m@thpack@showtext@all{##1}}%
+  \def\showpar##1{\m@thpack@showpar@all{##1}}%
+%
+  \m@thpack@linescheck#2\m@thpack@checkend%
+%
+  \global\m@thpack@leftoutsidemodefalse%
+  \global\m@thpack@rightoutsidemodefalse%
+  \ifm@thpack@fleqn%
+    \global\m@thpack@leftmargin=\m@thpack@mathindent%
+    \ifm@thpack@lefttag%
+      \m@thpack@tempdimen=\m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by \wd\m@thpack@lefttagbox%
+      \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+        \global\m@thpack@leftoutsidemodetrue%
+      \fi%
+    \fi%
+    \ifm@thpack@righttag%
+      \m@thpack@tempdimen=\m@thpack@mathindent%
+      \advance\m@thpack@tempdimen by \m@thpack@maxwidth%
+      \advance\m@thpack@tempdimen by \m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by \wd\m@thpack@righttagbox%
+      \ifdim\m@thpack@tempdimen>\displaywidth%
+        \global\m@thpack@rightoutsidemodetrue%
+        \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+      \else%
+        \global\m@thpack@rightmargin=\m@thpack@tagmargin%
+        \global\advance\m@thpack@rightmargin by \wd\m@thpack@righttagbox%
+        \ifdim\m@thpack@rightmargin<\m@thpack@minsidemargin%
+          \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+        \fi%
+      \fi%
+    \else%
+      \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+    \fi%
+  \else%
+    \ifm@thpack@lefttag%
+      \m@thpack@tempdimen=\m@thpack@maxwidth%
+      \advance\m@thpack@tempdimen by 2\m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by 2\wd\m@thpack@lefttagbox%
+      \global\m@thpack@leftmargin=\m@thpack@tagmargin%
+      \global\advance\m@thpack@leftmargin by \wd\m@thpack@lefttagbox%
+      \ifdim\m@thpack@tempdimen>\displaywidth%
+        \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+        \global\m@thpack@leftoutsidemodetrue%
+      \fi%
+    \else%
+      \ifm@thpack@righttag%
+        \m@thpack@tempdimen=\m@thpack@maxwidth%
+        \advance\m@thpack@tempdimen by 2\m@thpack@tagmargin%
+        \advance\m@thpack@tempdimen by 2\wd\m@thpack@righttagbox%
+        \global\m@thpack@leftmargin=\m@thpack@tagmargin%
+        \global\advance\m@thpack@leftmargin by \wd\m@thpack@righttagbox%
+        \ifdim\m@thpack@tempdimen>\displaywidth%
+          \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+          \global\m@thpack@rightoutsidemodetrue%
+        \fi%
+      \else%
+        \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+      \fi%
+    \fi%
+    \ifdim\m@thpack@leftmargin<\m@thpack@minsidemargin%
+      \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+    \fi%
+    \global\m@thpack@rightmargin=\m@thpack@leftmargin%
+  \fi%
+  \ifm@thpack@fleqn%
+    \global\m@thpack@indent=\m@thpack@mathindent%
+  \else%
+    \global\m@thpack@indent=\displaywidth%
+    \global\advance\m@thpack@indent by -\m@thpack@maxwidth%
+    \global\divide\m@thpack@indent by 2\relax%
+  \fi%
+%
+  \global\m@thpack@lineno=0%
+%
+  \ifm@thpack@lefttag%
+    \ifm@thpack@leftoutsidemode%
+      \box\m@thpack@lefttagbox\hskip 0pt plus 1fill%
+      \expandafter\global\expandafter\def\expandafter\m@thpack@everycr\expandafter{\m@thpack@next{}\cr}%
+    \else%
+      \m@thpack@next{}%
+    \fi%
+  \else%
+    \m@thpack@next{}%
+  \fi%
+  \m@thpack@mathenvcheckcr%
+}
+
+\def\m@thpack@widelines@mathenv#1#2{%
+  \m@thpack@optionproc{#1}%
+%
+  \let\m@thpack@maxwidth=\m@thpack@dimena%
+  \let\m@thpack@leftmargin=\m@thpack@dimenb%
+  \let\m@thpack@rightmargin=\m@thpack@dimenc%
+  \let\m@thpack@indent=\m@thpack@dimend%
+  \let\m@thpack@tempdimen=\m@thpack@dimene%
+  \let\m@thpack@lineno=\m@thpack@counta%
+  \let\m@thpack@endlineno=\m@thpack@countb%
+  \ifm@thpack@lefttag%
+    \let\m@thpack@lefttagbox=\m@thpack@boxb%
+    \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
+    \m@thpack@tempdimen=\ht\m@thpack@lefttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimen%
+    \m@thpack@tempdimen=\dp\m@thpack@lefttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimen%
+  \fi%
+  \ifm@thpack@righttag%
+    \let\m@thpack@righttagbox=\m@thpack@boxb%
+    \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
+    \m@thpack@tempdimen=\ht\m@thpack@righttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\ht\m@thpack@righttagbox=\m@thpack@tempdimen%
+    \m@thpack@tempdimen=\dp\m@thpack@righttagbox%
+    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \global\dp\m@thpack@righttagbox=\m@thpack@tempdimen%
+  \fi%
+%
+  \def\m@thpack@next##1{##1}%
+  \m@thpack@lineno=0%
+  \global\m@thpack@endlineno=-1%
+  \global\m@thpack@maxwidth=0pt%
+%
+  \def\showauto##1{\m@thpack@showauto@lines{##1}}%
+  \def\showindentlv##1##2##3{\m@thpack@showindentlv@lines{##1}{##2}{##3}}%
+  \def\showaddindentlv##1##2##3{\m@thpack@showaddindentlv@lines{##1}{##2}{##3}}%
+  \def\showratio##1##2##3{\m@thpack@showratio@lines{##1}{##2}{##3}}%
+  \def\showleft##1{\m@thpack@showleft@lines{##1}}%
+  \def\showcenter##1{\m@thpack@showcenter@lines{##1}}%
+  \def\showright##1{\m@thpack@showright@lines{##1}}%
+  \def\showtext##1{\m@thpack@showtext@all{##1}}%
+  \def\showpar##1{\m@thpack@showpar@all{##1}}%
+%
+  \m@thpack@linescheck#2\m@thpack@checkend%
+%
+  \global\m@thpack@leftoutsidemodefalse%
+  \global\m@thpack@rightoutsidemodetrue%
+  \ifm@thpack@fleqn%
+    \global\m@thpack@leftmargin=\m@thpack@mathindent%
+    \ifm@thpack@lefttag%
+      \m@thpack@tempdimen=\m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by \wd\m@thpack@lefttagbox%
+      \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+        \global\m@thpack@leftoutsidemodetrue%
+      \fi%
+    \fi%
+  \else%
+    \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+  \fi%
+  \m@thpack@rightmargin=\m@thpack@minsidemargin%
+  \ifm@thpack@fleqn%
+    \global\m@thpack@indent=\m@thpack@mathindent%
+  \else%
+    \global\m@thpack@indent=\displaywidth%
+    \global\advance\m@thpack@indent by -\m@thpack@maxwidth%
+    \global\divide\m@thpack@indent by 2\relax%
+  \fi%
+%
+  \global\m@thpack@lineno=0%
+%
+  \ifm@thpack@lefttag%
+    \ifm@thpack@leftoutsidemode%
+      \box\m@thpack@lefttagbox\hskip 0pt plus 1fill%
+      \expandafter\global\expandafter\def\expandafter\m@thpack@everycr\expandafter{\m@thpack@next{}\cr}%
+    \else%
+      \m@thpack@next{}%
+    \fi%
+  \else%
+    \m@thpack@next{}%
+  \fi%
+  \m@thpack@mathenvcheckcr%
+}
+
+\def\m@thpack@showbase@lines#1#2#3{%
+  \ifcase\m@thpack@lineno%
+    \let\m@thpack@mathbox=\m@thpack@boxa%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxc%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxd%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxe%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxf%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxg%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxh%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxi%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxj%
+  \or%
+    \let\m@thpack@mathbox=\m@thpack@boxk%
+  \else%
+    \let\m@thpack@mathbox=\m@thpack@boxl%
+  \fi%
+  \global\setbox\m@thpack@mathbox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\begingroup#1\endgroup}\endgroup$}%
+  \ifdim\wd\m@thpack@mathbox>\m@thpack@maxwidth%
+    \m@thpack@maxwidth=\wd\m@thpack@mathbox%
+  \fi%
+  \expandafter\def\expandafter\m@thpack@next\expandafter##\expandafter1\expandafter{\m@thpack@next{%
+    \let\m@thpack@maxwidth=\m@thpack@dimena%
+    \let\m@thpack@leftmargin=\m@thpack@dimenb%
+    \let\m@thpack@rightmargin=\m@thpack@dimenc%
+    \let\m@thpack@indent=\m@thpack@dimend%
+    \let\m@thpack@tempdimena=\m@thpack@dimene%
+    \let\m@thpack@tempdimenb=\m@thpack@dimenf%
+    \let\m@thpack@lineno=\m@thpack@counta%
+    \let\m@thpack@endlineno=\m@thpack@countb%
+    \let\m@thpack@tempcounta=\m@thpack@countc%
+    \let\m@thpack@tempcountb=\m@thpack@countd%
+    \ifcase\m@thpack@lineno%
+      \let\m@thpack@mathbox=\m@thpack@boxa%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxc%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxd%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxe%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxf%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxg%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxh%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxi%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxj%
+    \or%
+      \let\m@thpack@mathbox=\m@thpack@boxk%
+    \else%
+      \let\m@thpack@mathbox=\m@thpack@boxl%
+      \setbox\m@thpack@mathbox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#1}\endgroup$}%
+    \fi%
+    \ifm@thpack@lefttag%
+      \let\m@thpack@lefttagbox=\m@thpack@boxb%
+    \fi%
+    \ifm@thpack@righttag%
+      \let\m@thpack@righttagbox=\m@thpack@boxb%
+    \fi%
+    \ifnum\m@thpack@lineno=0\relax%
+      \ifm@thpack@lefttag\ifm@thpack@leftoutsidemode\else%
+        \rlap{\box\m@thpack@lefttagbox}%
+      \fi\fi%
+    \fi%
+    \m@thpack@tempdimena=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
+    #2%
+    \ifnum\m@thpack@lineno=\m@thpack@endlineno%
+      \ifm@thpack@righttag%
+        \ifm@thpack@rightoutsidemode%
+          #3%
+        \else%
+          \llap{\box\m@thpack@righttagbox}%
+        \fi%
+      \fi%
+    \fi%
+    \ifnum\m@thpack@lineno=\m@thpack@endlineno%
+      \ifm@thpack@righttag%
+        \ifm@thpack@rightoutsidemode%
+          \global\def\m@thpack@everycr{\let\m@thpack@righttagbox=\m@thpack@boxb\hskip 0 pt plus 1fill\box\m@thpack@righttagbox\global\def\m@thpack@everycr{}\cr}%
+        \else%
+          \global\def\m@thpack@everycr{}%
+        \fi%
+      \else%
+        \global\def\m@thpack@everycr{}%
+      \fi%
+    \else%
+      \global\def\m@thpack@everycr{##1\cr}%
+    \fi%
+    \global\advance\m@thpack@lineno by 1\relax%
+  }}%
+  \advance\m@thpack@lineno by 1\relax%
+  \global\advance\m@thpack@endlineno by 1\relax%
+  \m@thpack@linescheck%
+}
+
+\def\m@thpack@showauto@lines#1{%
+  \m@thpack@showbase@lines{#1}%
+  {%
+    \m@thpack@tempdimena=\wd\m@thpack@mathbox%
+    \hskip\m@thpack@indent\box\m@thpack@mathbox\hskip 0pt plus 1fill%
+  }%
+  {%
+          \advance\m@thpack@tempdimena by \m@thpack@indent%
+          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
+          \ifdim\m@thpack@tempdimena>\displaywidth\else%
+            \llap{\box\m@thpack@righttagbox}%
+            \m@thpack@rightoutsidemodefalse%
+          \fi%
+  }%
+}
+
+\def\m@thpack@showindentlv@lines#1#2#3{%
+  \m@thpack@showbase@lines{#3}%
+  {%
+    \m@thpack@tempdimena=\wd\m@thpack@mathbox%
+    \m@thpack@tempdimenb=#1\relax%
+    \multiply\m@thpack@tempdimenb by #2\relax%
+    \hskip\m@thpack@leftmargin\hskip\m@thpack@tempdimenb\box\m@thpack@mathbox\hskip 0pt plus 1fill%
+  }%
+  {%
+          \advance\m@thpack@tempdimena by \m@thpack@leftmargin%
+          \advance\m@thpack@tempdimena by \m@thpack@tempdimenb%
+          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
+          \ifdim\m@thpack@tempdimena>\displaywidth\else%
+            \llap{\box\m@thpack@righttagbox}%
+            \m@thpack@rightoutsidemodefalse%
+          \fi%
+  }%
+}
+
+\def\m@thpack@showaddindentlv@lines#1#2#3{%
+  \m@thpack@showbase@lines{#3}%
+  {%
+    \m@thpack@tempdimena=\wd\m@thpack@mathbox%
+    \m@thpack@tempdimenb=#1\relax%
+    \multiply\m@thpack@tempdimenb by #2\relax%
+    \hskip\m@thpack@indent\hskip\m@thpack@tempdimenb\box\m@thpack@mathbox\hskip 0pt plus 1fill%
+  }%
+  {%
+          \advance\m@thpack@tempdimena by \m@thpack@indent%
+          \advance\m@thpack@tempdimena by \m@thpack@tempdimenb%
+          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
+          \ifdim\m@thpack@tempdimena>\displaywidth\else%
+            \llap{\box\m@thpack@righttagbox}%
+            \m@thpack@rightoutsidemodefalse%
+          \fi%
+  }%
+}
+
+\def\m@thpack@showratio@lines#1#2#3{%
+  \m@thpack@showbase@lines{#3}%
+  {%
+    \m@thpack@tempdimenb=\wd\m@thpack@mathbox%
+    \m@thpack@tempcounta=#1\relax%
+    \m@thpack@tempcountb=#2\relax%
+    \advance\m@thpack@tempcountb by -\m@thpack@tempcounta%
+    \advance\m@thpack@tempcounta by -1\relax%
+    \hskip\m@thpack@leftmargin\hskip 0pt plus \m@thpack@tempcounta fill\box\m@thpack@mathbox\hskip 0pt plus \m@thpack@tempcountb fill\hskip\m@thpack@rightmargin%
+  }%
+  {%
+          \advance\m@thpack@tempcounta by \m@thpack@tempcountb%
+          \m@thpack@tempdimena=\displaywidth%
+          \advance\m@thpack@tempdimena by -\m@thpack@leftmargin%
+          \advance\m@thpack@tempdimena by -\m@thpack@rightmargin%
+          \advance\m@thpack@tempdimena by -\m@thpack@tempdimenb%
+          \divide\m@thpack@tempdimena by \m@thpack@tempcounta%
+          \multiply\m@thpack@tempdimena by \m@thpack@tempcountb%
+          \advance\m@thpack@tempdimena by \m@thpack@rightmargin%
+          \advance\m@thpack@tempdimena by -\m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by -\wd\m@thpack@righttagbox%
+          \ifdim\m@thpack@tempdimena<0pt\else%
+            \llap{\box\m@thpack@righttagbox}%
+            \m@thpack@rightoutsidemodefalse%
+          \fi%
+  }%
+}
+
+\def\m@thpack@showleft@lines#1{%
+  \m@thpack@showratio@lines{1}{3}{#1}%
+}
+
+\def\m@thpack@showcenter@lines#1{%
+  \m@thpack@showratio@lines{2}{3}{#1}%
+}
+
+\def\m@thpack@showright@lines#1{%
+  \m@thpack@showratio@lines{3}{3}{#1}%
+}
+
+\def\m@thpack@intertext@mathenv#1{%
+  \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{\hbox to \displaywidth{\ifm@thpack@fleqn\hskip\m@thpack@mathindent\else\hskip 0pt plus 1fill\fi#1\hskip 0pt plus 1fill}}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}%
+  \m@thpack@mathenvcheck%
+}
+
+\def\m@thpack@interpar@mathenv#1{%
+  \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{#1}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}%
+  \m@thpack@mathenvcheck%
+}
+
+\def\m@thpack@showtext@all#1{%
+  \expandafter\def\expandafter\m@thpack@next\expandafter##\expandafter1\expandafter{\m@thpack@next{%
+    \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{\hbox to \displaywidth{\ifm@thpack@fleqn\hskip\m@thpack@mathindent\else\hskip 0pt plus 1fill\fi#1\hskip 0pt plus 1fill}}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}%
+    ##1%
+  }}%
+}
+
+\def\m@thpack@showpar@all#1{%
+  \expandafter\def\expandafter\m@thpack@next\expandafter##\expandafter1\expandafter{\m@thpack@next{%
+    \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{#1}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}%
+    ##1%
+  }}%
+}
+
+\def\m@thpack@aligntempcheck{\futurelet\m@thpack@temptoken\m@thpack@aligntempcheckbody}
+\def\m@thpack@aligntempcheckbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\mathleft\else%
+  \ifx\m@thpack@temptoken\mathcenter\else%
+  \ifx\m@thpack@temptoken\mathright\else%
+  \ifx\m@thpack@temptoken\displeft\else%
+  \ifx\m@thpack@temptoken\dispcenter\else%
+  \ifx\m@thpack@temptoken\dispright\else%
+  \ifx\m@thpack@temptoken\textleft\else%
+  \ifx\m@thpack@temptoken\textcenter\else%
+  \ifx\m@thpack@temptoken\textright\else%
+  \ifx\m@thpack@temptoken\wideline\else%
+  \ifx\m@thpack@temptoken\eqsep\else%
+  \ifx\m@thpack@temptoken\dimsep\else%
+  \ifx\m@thpack@temptoken\zerosep\else%
+  \ifx\m@thpack@temptoken\sep\else%
+  \ifx\m@thpack@temptoken\halfsep\else%
+  \ifx\m@thpack@temptoken\for\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@aligntempcheck\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (align)}{Suusiki kannkyou (align) no option-mei ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\m@thpack@aligncheck{\futurelet\m@thpack@temptoken\m@thpack@aligncheckbody}
+\def\m@thpack@aligncheckbody{%
+  \def\m@thpack@checknextcmd{\cr}%
+  \ifx\m@thpack@temptoken\showline\else%
+  \ifx\m@thpack@temptoken\showoutside\else%
+  \ifx\m@thpack@temptoken\showtext\else%
+  \ifx\m@thpack@temptoken\showpar\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@aligncheck\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (align naibu)}{Suusiki kannkyou (align naibu) no option-mei ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\m@thpack@alignchecknocr{\futurelet\m@thpack@temptoken\m@thpack@alignchecknocrbody}
+\def\m@thpack@alignchecknocrbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\showline\else%
+  \ifx\m@thpack@temptoken\showoutside\else%
+  \ifx\m@thpack@temptoken\showtext\else%
+  \ifx\m@thpack@temptoken\showpar\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@alignchecknocr\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (align naibu)}{Suusiki kannkyou (align naibu) no option-mei ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\m@thpack@align@mathenv#1#2{%
+  \let\m@thpack@indentskip=\m@thpack@skipa%
+  \let\m@thpack@bodybox=\m@thpack@boxa%
+  \let\m@thpack@lefttagbox=\m@thpack@boxb%
+  \let\m@thpack@righttagbox=\m@thpack@boxb%
+  \let\m@thpack@tempboxa=\m@thpack@boxc%
+  \let\m@thpack@tempdimena=\m@thpack@dimena%
+  \let\m@thpack@tempdimenb=\m@thpack@dimenb%
+  \let\m@thpack@spancount=\m@thpack@counta%
+  \let\m@thpack@numsig=\relax%
+  \ifm@thpack@fleqn%
+    \m@thpack@indentskip=\m@thpack@mathindent%
+  \else%
+    \m@thpack@indentskip=0pt plus 1fill%
+  \fi%
+  \def\m@thpack@template{\m@thpack@numsig\tabskip\m@thpack@indentskip&}%
+  \m@thpack@spancount=2\relax%
+%
+  \begingroup%
+    \def\mathleft{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\mathcenter{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\mathright{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\displeft{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\dispcenter{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\dispright{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\textleft{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\textcenter{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\textright{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\wideline{%
+      \def\m@thpack@tempcmd{%
+        \ifm@thpack@fleqn%
+          \m@thpack@tempdimena=\displaywidth%
+          \advance\m@thpack@tempdimena by -\m@thpack@mathindent%
+          \advance\m@thpack@tempdimena by -\m@thpack@minsidemargin%
+        \else%
+          \m@thpack@tempdimena=\displaywidth%
+          \advance\m@thpack@tempdimena by -2\m@thpack@minsidemargin%
+        \fi%
+        \setbox\m@thpack@bodybox=\hbox to \m@thpack@tempdimena{\m@thpack@numsig}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\eqsep{%
+      \global\advance\m@thpack@spancount by 1\relax%
+      \def\m@thpack@tempcmd{\tabskip\m@thpack@thickskip&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\dimsep##1{%
+      \global\advance\m@thpack@spancount by 1\relax%
+      \def\m@thpack@tempcmd{\tabskip##1\relax&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\zerosep{%
+      \global\advance\m@thpack@spancount by 1\relax%
+      \def\m@thpack@tempcmd{\tabskip0pt&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\sep{%
+      \global\advance\m@thpack@spancount by 1\relax%
+      \def\m@thpack@tempcmd{\tabskip\m@thpack@stdcolsep&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\halfsep{%
+      \global\advance\m@thpack@spancount by 1\relax%
+      \def\m@thpack@tempcmd{\tabskip.5\m@thpack@stdcolsep&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@aligntempcheck%
+    }%
+    \def\for##1##2{%
+      \def\m@thpack@tempcmd{}%
+      \m@thpack@tempcounta=##1\relax%
+      \loop\ifnum\m@thpack@tempcounta>0\relax%
+        \advance\m@thpack@tempcounta by -1\relax%
+        \expandafter\def\expandafter\m@thpack@tempcmd\expandafter{\m@thpack@tempcmd##2}%
+      \repeat%
+      \expandafter\m@thpack@mathaligntempcheck%
+      \m@thpack@tempcmd%
+    }%
+%
+    \m@thpack@aligntempcheck#1\m@thpack@checkend%
+  \endgroup%
+%
+  \def\m@thpack@tempcmd{\tabskip0pt plus 1fill&\m@thpack@numsig\tabskip0pt}%
+  \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+%
+  \let\m@thpack@numsig=##%
+%
+  \def\showline##1##2{%
+    \m@thpack@optionproc{##1}%
+    \ifm@thpack@lefttag%
+      \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
+      \m@thpack@tempdimena=\ht\m@thpack@lefttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimena%
+      \m@thpack@tempdimena=\dp\m@thpack@lefttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimena%
+    \fi%
+    \ifm@thpack@righttag%
+      \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
+      \m@thpack@tempdimena=\ht\m@thpack@righttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \global\ht\m@thpack@righttagbox=\m@thpack@tempdimena%
+      \m@thpack@tempdimena=\dp\m@thpack@righttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \global\dp\m@thpack@righttagbox=\m@thpack@tempdimena%
+    \fi%
+    \ifm@thpack@lefttag%
+      \ifm@thpack@fleqn%
+        \m@thpack@tempdimena=\m@thpack@tagmargin%
+        \advance\m@thpack@tempdimena by \wd\m@thpack@lefttagbox%
+        \ifdim\m@thpack@tempdimena>\m@thpack@mathindent%
+          \def\m@thpack@tempcmd{\rlap{\box\m@thpack@lefttagbox}&\multispan{\m@thpack@spancount}\cr&##2&\ifm@thpack@righttag\llap{\box\m@thpack@righttagbox}\fi\m@thpack@aligncheck}%
+        \else%
+          \def\m@thpack@tempcmd{\rlap{\box\m@thpack@lefttagbox}&##2&\ifm@thpack@righttag\llap{\box\m@thpack@righttagbox}\fi\m@thpack@aligncheck}%
+        \fi%
+      \else%
+        \def\m@thpack@tempcmd{\rlap{\m@thpack@lefttag}&##2&\ifm@thpack@righttag\llap{\box\m@thpack@righttagbox}\fi\m@thpack@aligncheck}%
+      \fi%
+    \else%
+      \def\m@thpack@tempcmd{&##2&\ifm@thpack@righttag\llap{\box\m@thpack@righttagbox}\fi\m@thpack@aligncheck}%
+    \fi%
+    \m@thpack@tempcmd%
+  }%
+  \def\showoutside##1##2{%
+    \m@thpack@optionproc{##1}%
+    \ifm@thpack@lefttag%
+      \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
+      \m@thpack@tempdimena=\ht\m@thpack@lefttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimena%
+      \m@thpack@tempdimena=\dp\m@thpack@lefttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimena%
+    \fi%
+    \ifm@thpack@righttag%
+      \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
+      \m@thpack@tempdimena=\ht\m@thpack@righttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \global\ht\m@thpack@righttagbox=\m@thpack@tempdimena%
+      \m@thpack@tempdimena=\dp\m@thpack@righttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \global\dp\m@thpack@righttagbox=\m@thpack@tempdimena%
+    \fi%
+    \ifm@thpack@lefttag%
+      \ifm@thpack@fleqn%
+        \m@thpack@tempdimena=\m@thpack@tagmargin%
+        \advance\m@thpack@tempdimena by \wd\m@thpack@lefttagbox%
+        \ifdim\m@thpack@tempdimena>\m@thpack@mathindent%
+          \def\m@thpack@tempcmd{\rlap{\box\m@thpack@lefttagbox}&\multispan{\m@thpack@spancount}\cr&##2&\ifm@thpack@righttag\global\def\m@thpack@everycr{\multispan{\m@thpack@spancount}&\llap{\box\m@thpack@righttagbox}\global\def\m@thpack@everycr{}\cr}\fi\m@thpack@aligncheck}%
+        \else%
+          \def\m@thpack@tempcmd{\rlap{\box\m@thpack@lefttagbox}&##2&\ifm@thpack@righttag\global\def\m@thpack@everycr{\multispan{\m@thpack@spancount}&\llap{\box\m@thpack@righttagbox}\global\def\m@thpack@everycr{}\cr}\fi\m@thpack@aligncheck}%
+        \fi%
+      \else%
+        \def\m@thpack@tempcmd{\rlap{\m@thpack@lefttag}&\multispan{\m@thpack@spancount}\cr&##2&\ifm@thpack@righttag\global\def\m@thpack@everycr{\multispan{\m@thpack@spancount}&\llap{\box\m@thpack@righttagbox}\global\def\m@thpack@everycr{}\cr}\fi\m@thpack@aligncheck}%
+      \fi%
+    \else%
+      \def\m@thpack@tempcmd{&##2&\ifm@thpack@righttag\global\def\m@thpack@everycr{\multispan{\m@thpack@spancount}&\llap{\box\m@thpack@righttagbox}\global\def\m@thpack@everycr{}\cr}\fi\m@thpack@aligncheck}%
+    \fi%
+    \m@thpack@tempcmd%
+  }%
+  \def\showtext##1{%
+    \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{\hbox to \displaywidth{\ifm@thpack@fleqn\hskip\m@thpack@mathindent\else\hskip 0pt plus 1fill\fi##1\hskip 0pt plus 1fill}}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\m@thpack@aligncheck%
+  }%
+  \def\showpar##1{%
+    \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{##1}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\m@thpack@aligncheck%
+  }%
+%
+  \def\multicols##1##2##3{\m@thpack@alignmulticols{##1}{##2}{##3}}%
+  \expandafter\vbox\expandafter{\expandafter\halign\expandafter to\expandafter\displaywidth\expandafter{\m@thpack@template\cr\m@thpack@alignchecknocr#2\m@thpack@checkend}}%
+%
+  \m@thpack@mathenvcheckcr%
+}
+
+\def\m@thpack@mathaligntempcheck{\futurelet\m@thpack@temptoken\m@thpack@mathaligntempcheckbody}
+\def\m@thpack@mathaligntempcheckbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\mathleft\else%
+  \ifx\m@thpack@temptoken\mathcenter\else%
+  \ifx\m@thpack@temptoken\mathright\else%
+  \ifx\m@thpack@temptoken\displeft\else%
+  \ifx\m@thpack@temptoken\dispcenter\else%
+  \ifx\m@thpack@temptoken\dispright\else%
+  \ifx\m@thpack@temptoken\textleft\else%
+  \ifx\m@thpack@temptoken\textcenter\else%
+  \ifx\m@thpack@temptoken\textright\else%
+  \ifx\m@thpack@temptoken\xtextleft\else%
+  \ifx\m@thpack@temptoken\xtextcenter\else%
+  \ifx\m@thpack@temptoken\xtextright\else%
+  \ifx\m@thpack@temptoken\rule\else%
+  \ifx\m@thpack@temptoken\drule\else%
+  \ifx\m@thpack@temptoken\eqsep\else%
+  \ifx\m@thpack@temptoken\dimsep\else%
+  \ifx\m@thpack@temptoken\zerosep\else%
+  \ifx\m@thpack@temptoken\sep\else%
+  \ifx\m@thpack@temptoken\halfsep\else%
+  \ifx\m@thpack@temptoken\for\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@mathaligntempcheck\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (mathalign)}{Suusiki kannkyou (mathalign) no option-mei ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\m@thpack@mathaligncheck{\futurelet\m@thpack@temptoken\m@thpack@mathaligncheckbody}
+\def\m@thpack@mathaligncheckbody{%
+  \def\m@thpack@checknextcmd{\cr}%
+  \ifx\m@thpack@temptoken\showline\else%
+  \ifx\m@thpack@temptoken\showrule\else%
+  \ifx\m@thpack@temptoken\showdrule\else%
+  \ifx\m@thpack@temptoken\showdrulerowcut\else%
+  \ifx\m@thpack@temptoken\showrowsep\else%
+  \ifx\m@thpack@temptoken\showrowcut\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@mathaligncheck\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (mathalign naibu)}{Suusiki kannkyou (mathalign naibu) no option-mei ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\m@thpack@mathalignchecknocr{\futurelet\m@thpack@temptoken\m@thpack@mathalignchecknocrbody}
+\def\m@thpack@mathalignchecknocrbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\showline\else%
+  \ifx\m@thpack@temptoken\showrule\else%
+  \ifx\m@thpack@temptoken\showdrule\else%
+  \ifx\m@thpack@temptoken\showdrulerowcut\else%
+  \ifx\m@thpack@temptoken\showrowsep\else%
+  \ifx\m@thpack@temptoken\showrowcut\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@mathalignchecknocr\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (mathalign naibu)}{Suusiki kannkyou (mathalign naibu) no option-mei ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\mathalign#1#2{%
+  \begingroup%
+%
+  \offinterlineskip%
+  \lineskip=0pt%
+  \tabskip=\m@thpack@stdsidecolsep%
+  \everycr{\noalign{\nobreak}}%
+%
+  \let\m@thpack@bodybox=\m@thpack@boxa%
+  \let\m@thpack@tempboxa=\m@thpack@boxb%
+  \let\m@thpack@tempdimena=\m@thpack@dimena%
+  \let\m@thpack@tempdimenb=\m@thpack@dimenb%
+  \let\m@thpack@spancount=\m@thpack@counta%
+  \let\m@thpack@tempcounta=\m@thpack@countb%
+  \let\m@thpack@numsig=\relax%
+  \def\m@thpack@template{\m@thpack@numsig\tabskip0pt&}%
+  \def\m@thpack@ruletemplate{&}%
+%
+  \begingroup%
+    \def\mathleft{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\mathcenter{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\mathright{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\displeft{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\dispcenter{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\dispright{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
+        \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+        \divide\m@thpack@tempdimena by 8\relax%
+        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\textleft{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\textcenter{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\textright{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\xtextleft{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}%
+        \ifdim\ht\m@thpack@bodybox<2ex%
+          \ht\m@thpack@bodybox=2ex%
+        \fi%
+        \ifdim\dp\m@thpack@bodybox<1ex%
+          \dp\m@thpack@bodybox=1ex%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\xtextcenter{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}%
+        \ifdim\ht\m@thpack@bodybox<2ex%
+          \ht\m@thpack@bodybox=2ex%
+        \fi%
+        \ifdim\dp\m@thpack@bodybox<1ex%
+          \dp\m@thpack@bodybox=1ex%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox\hfill%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\xtextright{%
+      \def\m@thpack@tempcmd{%
+        \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}%
+        \ifdim\ht\m@thpack@bodybox<2ex%
+          \ht\m@thpack@bodybox=2ex%
+        \fi%
+        \ifdim\dp\m@thpack@bodybox<1ex%
+          \dp\m@thpack@bodybox=1ex%
+        \fi%
+        \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+        \hfill\box\m@thpack@bodybox%
+      }%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{\omit}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\rule{%
+      \def\m@thpack@tempcmd{\m@thpack@numsig\vrule width \m@thpack@rulewidth}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\drule{%
+      \def\m@thpack@tempcmd{\m@thpack@numsig\vrule width \m@thpack@rulewidth\hskip\m@thpack@rulesep\vrule width \m@thpack@rulewidth}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\eqsep{%
+      \def\m@thpack@tempcmd{\tabskip\m@thpack@thickskip&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\dimsep##1{%
+      \def\m@thpack@tempcmd{\tabskip##1\relax&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\zerosep{%
+      \def\m@thpack@tempcmd{\tabskip0pt&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\sep{%
+      \def\m@thpack@tempcmd{\tabskip\m@thpack@stdcolsep&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\halfsep{%
+      \def\m@thpack@tempcmd{\tabskip.5\m@thpack@stdcolsep&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
+      \def\m@thpack@tempcmd{&}%
+      \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
+      \m@thpack@mathaligntempcheck%
+    }%
+    \def\for##1##2{%
+      \def\m@thpack@tempcmd{}%
+      \m@thpack@tempcounta=##1\relax%
+      \loop\ifnum\m@thpack@tempcounta>0\relax%
+        \advance\m@thpack@tempcounta by -1\relax%
+        \expandafter\def\expandafter\m@thpack@tempcmd\expandafter{\m@thpack@tempcmd##2}%
+      \repeat%
+      \expandafter\m@thpack@mathaligntempcheck%
+      \m@thpack@tempcmd%
+    }%
+%
+    \m@thpack@mathaligntempcheck#1\m@thpack@checkend%
+  \endgroup%
+%
+  \let\m@thpack@numsig=##%
+%
+  \def\showline##1{%
+    &##1%
+    \m@thpack@mathaligncheck%
+  }%
+  \def\showrule{%
+    \noalign{\hrule height \m@thpack@rulewidth depth 0pt}\noalign{\nobreak}\m@thpack@mathaligncheck%
+  }%
+  \def\showdrule{%
+    \noalign{\hrule height \m@thpack@rulewidth depth 0pt}\noalign{\nobreak}
+    \setbox\m@thpack@tempboxa=\hbox to 0pt{}\ht\m@thpack@tempboxa=\m@thpack@rulesep\dp\m@thpack@tempboxa=0pt\box\m@thpack@tempboxa%
+    \m@thpack@ruletemplate%
+    \cr%
+    \noalign{\hrule height \m@thpack@rulewidth depth 0pt}\noalign{\nobreak}%
+    \m@thpack@mathaligncheck%
+  }%
+  \def\showdrulerowcut{%
+    \noalign{\hrule height \m@thpack@rulewidth depth 0pt}\noalign{\nobreak}%
+    \noalign{\vskip\m@thpack@rulesep}\noalign{\nobreak}%
+    \noalign{\hrule height \m@thpack@rulewidth depth 0pt}\noalign{\nobreak}%
+    \m@thpack@mathaligncheck%
+  }%
+  \def\showrowsep{%
+    \setbox\m@thpack@tempboxa=\hbox to 0pt{}\ht\m@thpack@tempboxa=\m@thpack@rulesep\dp\m@thpack@tempboxa=0pt\box\m@thpack@tempboxa%
+    \m@thpack@ruletemplate%
+    \m@thpack@mathaligncheck%
+  }%
+  \def\showrowcut{%
+    \noalign{\vskip\m@thpack@rulesep}\noalign{\nobreak}\m@thpack@aligncheck%
+  }%
+%
+  \def\multicols##1##2##3{\m@thpack@mathalignmulticols{##1}{##2}{##3}}%
+  \expandafter\vcenter\expandafter{\expandafter\halign\expandafter{\m@thpack@template\tabskip\m@thpack@stdsidecolsep\cr\m@thpack@mathalignchecknocr#2\m@thpack@checkend}}%
+%
+  \endgroup%
+}
+
+\def\m@thpack@alignmulticols#1#2#3{%
+  \multispan{#1}%
+  \def\mathleft{\m@thpack@a}%
+  \def\mathcenter{\m@thpack@b}%
+  \def\mathright{\m@thpack@c}%
+  \def\displeft{\m@thpack@d}%
+  \def\dispcenter{\m@thpack@e}%
+  \def\dispright{\m@thpack@f}%
+  \def\textleft{\m@thpack@g}%
+  \def\textcenter{\m@thpack@h}%
+  \def\textright{\m@thpack@i}%
+  \def\null{\m@thpack@o}%
+  \let\m@thpack@bodybox=\m@thpack@boxc%
+  \let\m@thpack@tempdimena=\m@thpack@dimenc%
+  \let\m@thpack@tempdimenb=\m@thpack@dimend%
+  \let\m@thpack@opttok=#2%
+  \ifx\m@thpack@opttok\mathleft%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\mathcenter%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\mathright%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox%
+  \else%
+  \ifx\m@thpack@opttok\displeft%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\dispcenter%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\dispright%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox%
+  \else%
+  \ifx\m@thpack@opttok\textleft%
+    \setbox\m@thpack@bodybox=\hbox{#3}%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\textcenter%
+    \setbox\m@thpack@bodybox=\hbox{#3}%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\textright%
+    \setbox\m@thpack@bodybox=\hbox{#3}%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox%
+  \else%
+  \ifx\m@thpack@opttok\null%
+    #3%
+  \else%
+    \PackageError{mathpack}{Ihouna option hikisuu (multicols)}{Opution-mei ga tigaimasu.}%
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+}
+
+\def\m@thpack@mathalignmulticols#1#2#3{%
+  \multispan{#1}%
+  \def\mathleft{\m@thpack@a}%
+  \def\mathcenter{\m@thpack@b}%
+  \def\mathright{\m@thpack@c}%
+  \def\displeft{\m@thpack@d}%
+  \def\dispcenter{\m@thpack@e}%
+  \def\dispright{\m@thpack@f}%
+  \def\textleft{\m@thpack@g}%
+  \def\textcenter{\m@thpack@h}%
+  \def\textright{\m@thpack@i}%
+  \def\xtextleft{\m@thpack@j}%
+  \def\xtextcenter{\m@thpack@k}%
+  \def\xtextright{\m@thpack@l}%
+  \def\rule{\m@thpack@m}%
+  \def\drule{\m@thpack@n}%
+  \def\null{\m@thpack@o}%
+  \let\m@thpack@bodybox=\m@thpack@boxc%
+  \let\m@thpack@tempdimena=\m@thpack@dimenc%
+  \let\m@thpack@tempdimenb=\m@thpack@dimend%
+  \let\m@thpack@opttok=#2%
+  \ifx\m@thpack@opttok\mathleft%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\mathcenter%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\mathright%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox%
+  \else%
+  \ifx\m@thpack@opttok\displeft%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\dispcenter%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\dispright%
+    \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
+    \m@thpack@tempdimena=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox%
+  \else%
+  \ifx\m@thpack@opttok\textleft%
+    \setbox\m@thpack@bodybox=\hbox{#3}%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\textcenter%
+    \setbox\m@thpack@bodybox=\hbox{#3}%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\textright%
+    \setbox\m@thpack@bodybox=\hbox{#3}%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox%
+  \else%
+  \ifx\m@thpack@opttok\xtextleft%
+    \setbox\m@thpack@bodybox=\hbox{#3}%
+    \ifdim\ht\m@thpack@bodybox<2ex%
+      \ht\m@thpack@bodybox=2ex%
+    \fi%
+    \ifdim\dp\m@thpack@bodybox<1ex%
+      \dp\m@thpack@bodybox=1ex%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\xtextcenter%
+    \setbox\m@thpack@bodybox=\hbox{#3}%
+    \ifdim\ht\m@thpack@bodybox<2ex%
+      \ht\m@thpack@bodybox=2ex%
+    \fi%
+    \ifdim\dp\m@thpack@bodybox<1ex%
+      \dp\m@thpack@bodybox=1ex%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox\hfill%
+  \else%
+  \ifx\m@thpack@opttok\xtextright%
+    \setbox\m@thpack@bodybox=\hbox{#3}%
+    \ifdim\ht\m@thpack@bodybox<2ex%
+      \ht\m@thpack@bodybox=2ex%
+    \fi%
+    \ifdim\dp\m@thpack@bodybox<1ex%
+      \dp\m@thpack@bodybox=1ex%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
+    \hfill\box\m@thpack@bodybox%
+  \else%
+  \ifx\m@thpack@opttok\rule%
+    \leaders\hrule height \m@thpack@rulewidth depth 0pt\hfill%
+  \else%
+  \ifx\m@thpack@opttok\drule%
+    \leaders\vbox{\hrule width \m@thpack@rulewidth\vskip\m@thpack@rulesep\hrule width \m@thpack@rulewidth}\hfill%
+  \else%
+  \ifx\m@thpack@opttok\null%
+    #3%
+  \else%
+    \PackageError{mathpack}{Ihouna option hikisuu (multicols)}{Opution-mei ga tigaimasu.}%
+  \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+}
+
+
+
+
+\newif\ifm@thpack@inthmenv
+\m@thpack@inthmenvfalse
+
+\newif\ifm@thpack@thmnote
+\def\m@thpack@thmnote{}
+
+\newif\ifm@thpack@thmlabel
+\def\m@thpack@thmlabel{}
+
+\newif\ifthmheadbreak
+\newif\ifthmqed
+\newif\ifthmqedbreak
+
+\def\thmbeforeheadcommand{}
+\def\thmnumbertemplate{}
+\def\thmheadtemplate#1{}
+\def\thmlabeltemplate#1{}
+\def\thmafterheadcommand{}
+
+\def\thmbeforenotemark{}
+\def\thmnotestyle{}
+\def\thmafternotemark{}
+
+\def\thmendtitlemark{}
+
+\def\thmqedmark{}
+
+\def\thmbeforecommand{}
+\def\thmaftercommand{}
+
+\newif\ifthmallowof
+
+\newif\ifm@thpack@thmof
+\def\m@thpack@thmof{}
+
+\def\thmof{}
+\def\thmlabelof{}
+\def\thmofstyle{}
+
+\newcount\m@thpack@thmoldpenalty
+
+\def\m@thpack@thmcheck{\futurelet\m@thpack@temptoken\m@thpack@thmcheckbody}
+\def\m@thpack@thmcheckbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\label\else%
+  \ifx\m@thpack@temptoken\note\else%
+  \ifx\m@thpack@temptoken\of\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@thmcheck\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu (Teiri kannkyou)}{Teiri kannkyou no option-mei ga tigaimasu. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\newthm#1#2#3#4#5#6#7{%  1: thmname  2: option  3: top_skip  4: indentskip  5: head-note skip  6: head,note-body skip  7: bottomskip
+  \expandafter\ifx\csname m@thpack@thm@@#1\endcsname\relax\else%
+    \PackageError{mathpack}{Teiri-mei no nijyuu teigi}{Gyou-banngou no iti de Teiri-mei ga kannsyou simasita. Onaji teiri-mei ha itidodake teigi dekimasu.}%
+  \fi%
+  \expandafter\def\csname m@thpack@thm@@#1\endcsname##1{%
+    \ifm@thpack@inthmenv%
+      \PackageError{mathpack}{Teiri kannkyou no nesuto}{Teiri kannkyou ha ireko ni dekimasenn.}%
+    \fi%
+    \vskip#3\relax%
+    \noindent\hskip#4\relax%
+    \thmheadbreakfalse%
+    \thmqedfalse%
+    \thmqedbreakfalse%
+    \def\thmbeforeheadcommand{}%
+    \def\thmnumbertemplate{}%
+    \def\thmheadtemplate####1{}%
+    \def\thmlabeltemplate####1{}%
+    \def\thmafterheadcommand{}%
+    \def\thmbeforenotemark{}%
+    \def\thmnotestyle{}%
+    \def\thmafternotemark{}%
+    \def\thmendtitlemark{}%
+    \def\thmqedmark{}%
+    \def\thmbeforecommand{}%
+    \def\thmaftercommand{}%
+    \thmallowoffalse%
+    \m@thpack@thmoffalse%
+    \def\thmof{}%
+    \def\thmlabelof{}%
+    \def\thmofstyle{}%
+    #2%
+    \begingroup%
+      \thmbeforeheadcommand%
+      \begingroup\thmheadtemplate{\thmnumbertemplate}\endgroup%
+      \begingroup%
+        \global\m@thpack@thmnotefalse%
+        \m@thpack@thmlabelfalse%
+        \def\label####1{\m@thpack@thmlabeltrue\def\m@thpack@thmlabel{####1}\m@thpack@thmcheck}%
+        \def\note####1{\global\m@thpack@thmnotetrue\global\def\m@thpack@thmnote{####1}\m@thpack@thmcheck}%
+        \def\of####1{\ifthmallowof\global\m@thpack@thmoftrue\global\def\m@thpack@thmof{####1}\else\PackageError{mathpack}{Of-option ha tukaemasenn}{Kono teiri-kannkyou deha of-option ha tukaemasenn.}\fi\m@thpack@thmcheck}%
+        \m@thpack@thmcheck##1\m@thpack@checkend%
+        \ifm@thpack@thmlabel%
+          \ifm@thpack@thmof%
+            \edef\m@thpack@tempcmd{\thmnumbertemplate}%
+            \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@tempcmd\expandafter\expandafter\expandafter{\expandafter\thmlabeltemplate\expandafter{\m@thpack@tempcmd}}%
+            \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@tempcmd\expandafter\expandafter\expandafter{\expandafter\m@thpack@tempcmd\thmlabelof}%
+            \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@tempcmd\expandafter\expandafter\expandafter{\expandafter\m@thpack@tempcmd\m@thpack@thmof}%
+            \expandafter\mathsetlabel\expandafter{\expandafter\m@thpack@thmlabel\expandafter}\expandafter{\m@thpack@tempcmd}%
+          \else%
+            \edef\m@thpack@tempcmd{\thmnumbertemplate}%
+            \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@tempcmd\expandafter\expandafter\expandafter{\expandafter\thmlabeltemplate\expandafter{\m@thpack@tempcmd}}%
+            \expandafter\mathsetlabel\expandafter{\expandafter\m@thpack@thmlabel\expandafter}\expandafter{\m@thpack@tempcmd}%
+          \fi%
+        \fi%
+      \endgroup%
+      \thmafterheadcommand%
+    \endgroup%
+    \ifm@thpack@thmof%
+      \begingroup\thmof\endgroup\begingroup\thmofstyle\m@thpack@thmof\endgroup%
+    \fi%
+    \ifm@thpack@thmnote%
+      \hskip#5\relax\begingroup\thmbeforenotemark\endgroup\begingroup\thmnotestyle\m@thpack@thmnote\endgroup\begingroup\thmafternotemark\endgroup%
+    \fi%
+    \begingroup\thmendtitlemark\endgroup%
+    \ifthmheadbreak%
+      \par\nobreak%
+    \else%
+      \hskip#6\relax%
+      \m@thpack@thmoldpenalty=\interlinepenalty\interlinepenalty=10000\everypar{\interlinepenalty=\m@thpack@thmoldpenalty\everypar{}}%
+    \fi%
+%
+    \begingroup%
+    \global\m@thpack@inthmenvtrue%
+    \global\def\m@thpack@thm@end{%
+        \ifthmqed%
+          \ifthmqedbreak%
+            \noindent\nobreak\hfill\nobreak\hbox{\thmqedmark}\par%
+          \else%
+            \nobreak\hfill\nobreak\hbox{\thmqedmark}\par%
+          \fi%
+        \fi%
+        \global\m@thpack@inthmenvfalse%
+      \endgroup%
+      \vskip#7\relax%
+    }%
+    \thmbeforecommand%
+  }%
+}
+
+\def\thmbegin#1#2{%
+  \expandafter\ifx\csname m@thpack@thm@@#1\endcsname\relax%
+    \PackageError{mathpack}{Thmbegin no teiri-mei ga sonzai sinai}{Teiri-mei wo sonnzai suru mono ni syuusei sitekudasai.}%
+  \fi%
+  \csname m@thpack@thm@@#1\endcsname{#2}%
+}
+
+\def\thmqedhere{\thmqedmark\global\thmqedfalse}
+
+\def\thmend{%
+  \ifm@thpack@inthmenv\else%
+    \PackageError{mathpack}{Teiri-kannkyou wo tojirenai}{Teiri-kannkyou ga hajimatte imasenn.}%
+  \fi%
+  \m@thpack@thm@end%
+}
+
+
+
+
+\newif\ifheadbreak
+\newcount\m@thpack@headoldpenalty
+
+\def\newhead#1#2#3#4#5#6#7{%  1: command name  2: indent  3: before head command  4: head  5;after head command  6: option  7: head-body skip
+  \expandafter\ifx\csname#1\endcsname\relax\else%
+    \PackageError{mathpack}{Newhead no teigi-mei kannsyou}{Newhead de teigisuru command no namae wo kaete kudasai.}%
+  \fi%
+  \expandafter\def\csname#1\endcsname{%
+    \noindent\hskip#2\relax\begingroup#3\begingroup#4\endgroup#5\endgroup%
+    \headbreakfalse%
+    #6%
+    \ifheadbreak%
+      \par\nobreak%
+    \else%
+      \hskip#7\relax%
+      \m@thpack@headoldpenalty=\interlinepenalty\interlinepenalty=10000\everypar{\interlinepenalty=\m@thpack@headoldpenalty\everypar{}}%
+    \fi%
+  }%
+}
+
+\newif\ifmarkbreak
+
+\def\newmark#1#2#3{%  1: command_name  2: option  3: mark
+  \expandafter\ifx\csname#1\endcsname\relax\else%
+    \PackageError{mathpack}{Newmark no teigi-mei kannsyou}{Newmark de teigisuru command no namae wo kaete kudasai.}%
+  \fi%
+  \expandafter\def\csname#1\endcsname{%
+    \markbreakfalse%
+    #2%
+    \ifmarkbreak%
+      \noindent\nobreak\hfill\nobreak\hbox{#3}\par%
+    \else%
+      \nobreak\hfill\nobreak\hbox{#3}\par%
+    \fi%
+  }%
+}
+
+
+
+
+\def\singledispenv#1#2#3{%
+  \ifvmode\ifdim\baselineskip>0pt\relax\vskip-\baselineskip\fi\leavevmode\fi%
+%
+  \begingroup%
+%
+  \newif\ifm@thpack@prenobreak%
+  \newif\ifm@thpack@postnobreak%
+  \m@thpack@prenobreakfalse%
+  \m@thpack@postnobreakfalse%
+%
+  \begingroup%
+    \def\prenobreak{\global\m@thpack@prenobreaktrue}%
+    \def\postnobreak{\global\m@thpack@postnobreaktrue}%
+    \m@thpack@mathenvoptioncheck#1\m@thpack@checkend%
+  \endgroup%
+%
+  \ifm@thpack@prenobreak%
+    \predisplaypenalty=10000%
+  \fi%
+  \ifm@thpack@postnobreak%
+    \postdisplaypenalty=10000%
+  \fi%
+%
+  \m@thpack@optionproc{#2}%
+  $$%
+    \offinterlineskip%
+    \lineskip=0pt%
+    \tabskip=0pt%
+    \everycr{\noalign{\nobreak}}%
+%
+    \let\m@thpack@mathbox=\m@thpack@boxa%
+    \let\m@thpack@tempdimena=\m@thpack@dimena%
+    \let\m@thpack@tempdimenb=\m@thpack@dimenb%
+    \ifm@thpack@lefttag%
+      \let\m@thpack@lefttagbox=\m@thpack@boxb%
+      \setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
+      \m@thpack@tempdimena=\ht\m@thpack@lefttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \ht\m@thpack@lefttagbox=\m@thpack@tempdimena%
+      \m@thpack@tempdimena=\dp\m@thpack@lefttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \dp\m@thpack@lefttagbox=\m@thpack@tempdimena%
+    \fi%
+    \ifm@thpack@righttag%
+      \let\m@thpack@righttagbox=\m@thpack@boxb%
+      \setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
+      \m@thpack@tempdimena=\ht\m@thpack@righttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \ht\m@thpack@righttagbox=\m@thpack@tempdimena%
+      \m@thpack@tempdimena=\dp\m@thpack@righttagbox%
+      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \dp\m@thpack@righttagbox=\m@thpack@tempdimena%
+    \fi%
+    \setbox\m@thpack@mathbox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
+%
+    \m@thpack@tempdimena=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
+    \divide\m@thpack@tempdimena by 8\relax%
+    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
+      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \fi%
+    \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
+    \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
+    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
+    \ifm@thpack@fleqn%
+      \ifm@thpack@lefttag%
+        \m@thpack@tempdimena=\wd\m@thpack@lefttagbox%
+        \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+        \ifdim\m@thpack@tempdimena>\m@thpack@mathindent%
+          \halign to \displaywidth{\hbox to \displaywidth{##}\cr\box\m@thpack@lefttagbox\hfill\cr\hskip\m@thpack@mathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill\cr}%
+        \else%
+          \hbox to \displaywidth{\rlap{\box\m@thpack@lefttagbox}\hskip\m@thpack@mathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill}%
+        \fi%
+      \else%
+        \ifm@thpack@righttag%
+          \m@thpack@tempdimena=\m@thpack@mathindent%
+          \advance\m@thpack@tempdimena by \wd\m@thpack@mathbox%
+          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
+          \ifdim\m@thpack@tempdimena>\displaywidth%
+            \halign to \displaywidth{\hbox to \displaywidth{##}\cr\hskip\m@thpack@mathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill\cr\hfill\box\m@thpack@righttagbox\cr}%
+          \else%
+            \hbox to \displaywidth{\hskip\m@thpack@mathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill\llap{\box\m@thpack@righttagbox}}%
+          \fi%
+        \else%
+          \hbox to \displaywidth{\hskip\m@thpack@mathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill}%
+        \fi%
+      \fi%
+    \else%
+      \box\m@thpack@mathbox%
+      \ifm@thpack@lefttag%
+        \leqno{\box\m@thpack@lefttagbox}%
+      \fi%
+      \ifm@thpack@righttag%
+        \eqno{\box\m@thpack@righttagbox}%
+      \fi%
+    \fi%
+  $$%
+%
+  \endgroup%
+}
+
+\def\displineenv#1#2#3{%
+  \mathenv{#1}{\displine{#2}{#3}}%
+}
+
+\def\multilineenv#1#2#3{%
+  \mathenv{#1}{\multiline{#2}{#3}}%
+}
+
+\def\linesenv#1#2#3{%
+  \mathenv{#1}{\lines{#2}{#3}}%
+}
+
+\def\widelinesenv#1#2#3{%
+  \mathenv{#1}{\widelines{#2}{#3}}%
+}
+
+\def\alignenv#1#2#3{%
+  \mathenv{#1}{\align{#2}{#3}}%
+}
+
+\makeatother
