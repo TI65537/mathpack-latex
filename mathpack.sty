@@ -3033,9 +3033,9 @@
     \global\def\m@thpack@thm@end{%
         \ifthmqed%
           \ifthmqedbreak%
-            \noindent\nobreak\hfill\nobreak\hbox{\thmqedmark}\par%
+            \noindent\nobreak\hglue 0pt plus 1fill\nobreak\hbox{\thmqedmark}\par%
           \else%
-            \nobreak\hfill\nobreak\hbox{\thmqedmark}\par%
+            \nobreak\hglue 0pt plus 1fill\nobreak\hbox{\thmqedmark}\par%
           \fi%
         \fi%
         \global\m@thpack@inthmenvfalse%
@@ -3095,9 +3095,9 @@
     \markbreakfalse%
     #2%
     \ifmarkbreak%
-      \noindent\nobreak\hfill\nobreak\hbox{#3}\par%
+      \noindent\nobreak\hglue 0pt plus 1fill\nobreak\hbox{#3}\par%
     \else%
-      \nobreak\hfill\nobreak\hbox{#3}\par%
+      \nobreak\hglue 0pt plus 1fill\nobreak\hbox{#3}\par%
     \fi%
   }%
 }
