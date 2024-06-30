@@ -1,0 +1,231 @@
+------------------------------------------------------
+オプション変数
+
+\newdimen\mathpacktagmargin タグと数式の間の距離の最小値
+\mathpacktagmargin=6pt
+
+\newdimen\mathpackmathindent fleqn時のインデント
+\mathpackmathindent=1.5cm
+
+\newdimen\mathpackmaxlinemargin 数式の上下に自動的に挿入される空白の最大値
+\mathpackmaxlinemargin=3mm
+
+\newdimen\mathpackminsidemargin 数式の左右に残す余白の最小値
+\mathpackminsidemargin=12pt
+
+\newdimen\mathpackminindent multilineのインデントの最小値
+\mathpackminindent=1cm
+
+\newdimen\mathpackstdsidecolsep mathalignの左右に挿入される空白
+\mathpackstdsidecolsep=6pt
+
+\newdimen\mathpackstdcolsep alignの列区切りの長さ
+\mathpackstdcolsep=12pt
+
+\newdimen\mathpackmathalignstdcolsep mathalignの列区切りの長さ
+\mathpackmathalignstdcolsep=12pt
+
+\newdimen\mathpacklineskip alignの行区切りの長さ
+\mathpacklineskip=1.5pt
+
+\newdimen\mathpackmathalignlineskip mathalignの行区切りの長さ
+\mathpackmathalignlineskip=1.5pt
+
+\newdimen\mathpackrulewidth align,mathalignの罫線の太さ
+\mathpackrulewidth=0.4pt
+
+\newdimen\mathpackrulesep align,mathalignの罫線の太さ
+\mathpackrulesep=1pt
+
+\newcount\mathpackmarginrate 数式の上下に自動的に挿入される空白の量を調整(大きいほど少なくなる)
+\mathpackmarginrate=8\relax
+
+\newcount\mathpackmathalignmarginrate mathalignの行の上下に自動的に挿入される空白の量を調整(大きいほど少なくなる)
+\mathpackmathalignmarginrate=8\relax
+
+\let\mathpacktextstyle=\textstyle mathpackで使用されるテキスト数式スタイル
+
+\let\mathpackdisplaystyle=\displaystyle mathpackで使用されるディスプレイ数式スタイル
+
+------------------------------------------------------------------------
+タグのスタイル設定コマンド スタイルを変える場合はコマンドを再定義
+
+\def\mathpackstdtagtemplate#1{{\rm (#1)}} 括弧のスタイル
+
+\def\mathpackstdlabeltemplate#1{eq.~#1} ラベルのスタイル
+
+\def\mathpacklabelstyle{} ラベルのフォント
+
+-----------------------------------------------------------------------
+数式番号のコマンド 変える場合はコマンドを再定義
+
+\newcount\m@thpack@equation デフォルトの数式番号カウンタ
+\m@thpack@equation=1
+
+\def\mathpackstdtag{\the\m@thpack@equation} 数式番号を返すコマンド
+
+\def\mathpackbeforestdtag{} 数式番号が評価される前に実行するコマンド
+
+\def\mathpackafterstdtag{\global\advance\m@thpack@equation by 1\relax} 数式番号が評価された後に実行するコマンド
+
+------------------------------------------------------------------------
+サブタグ用コマンド
+
+\def\samebeginsubtag{\global\advance\m@thpack@equation by -1\relax} 同数サブタグ開始の合図(1->1a)
+
+\def\subtag#1{\the\m@thpack@equation#1} サブタグ\tagに入れて使用
+
+\def\endsubtag{\global\advance\m@thpack@equation by 1\relax} サブタグ終了の合図
+------------------------------------------------------------------------
+ラベル関係コマンド
+
+\mathsetlabel{参照名}{テキスト} 参照名にテキストを設定する
+
+\mathref{参照名} 参照名を設定する
+
+------------------------------------------------------------------------
+手動タグオプション
+
+\manualtag{tagオプション} 手動タグ
+
+------------------------------------------------------------------------
+mathenv
+
+\mathenv{改ページオプション}{body} 様々なスタイルの数式をまとめて表示するコマンド
+  body:
+    \displine
+    \multiline
+    \lines
+    \widelines
+    \intertext
+    \interpar
+    \align
+
+改ページオプション:
+  \prenobreak 直前での改行禁止
+  \postnobreak 直後での改行禁止
+
+タグオプション:
+  \tag{#1} タグの中身を変える
+  \overtag{#1} タグの括弧と中身を変える
+  \etag{#1} タグの中身を変える(引数は\edefで展開される)
+  \eovertag{#1}  タグの括弧と中身を変える(引数は\edefで展開される)
+  \notag タグを付けない
+  \label{#1} 参照名を設定
+
+\displine{タグオプション}{数式} 一行の数式を表示
+
+\multiline{タグオプション}{body} 数式を折り返して表示
+  body:
+    \showauto{数式} 自動的に設定されたインデントで表示
+    \showindentlv{#1}{数式} 自動的に設定されたインデントの#1倍インデントする
+    \showratio{#1}{#2}{数式} #1/#2 の比の位置に表示
+    \showleft{数式} 左寄せ
+    \showcenter{数式} 中央寄せ
+    \showright{数式} 右寄せ
+    \showtext{テキスト} テキストを挿入
+    \showpar{テキスト等} テキスト等を段落として挿入
+
+\lines{タグオプション}{body} 数式を重ねて表示
+  body:
+    \showauto{数式} 自動的に設定されたインデントで表示
+    \showindentlv{#1}{#2}{数式} 長さ#1の#2倍インデントする
+    \showaddindentlv{#1}{#2}{数式} 自動的に設定されたインデント+長さ#1の#2倍インデントする
+    \showratio{#1}{#2}{数式} #1/#2 の比の位置に表示
+    \showleft{数式} 左寄せ
+    \showcenter{数式} 中央寄せ
+    \showright{数式} 右寄せ
+    \showtext{テキスト} テキストを挿入
+    \showpar{テキスト等} テキスト等を段落として挿入
+
+\widelines{タグオプション}{body} 数式を重ねて表示(タグは別行に表示)
+  body:
+    \showauto{数式} 自動的に設定されたインデントで表示
+    \showindentlv{#1}{#2}{数式} 長さ#1の#2倍インデントする
+    \showaddindentlv{#1}{#2}{数式} 自動的に設定されたインデント+長さ#1の#2倍インデントする
+    \showratio{#1}{#2}{数式} #1/#2の比の位置に表示
+    \showleft{数式} 左寄せ
+    \showcenter{数式} 中央寄せ
+    \showright{数式} 右寄せ
+    \showtext{テキスト} テキストを挿入
+    \showpar{テキスト等} テキスト等を段落として挿入
+
+\align{タグオプション}{template}{body}
+  template:
+    \mathleft \mathpacktextstyleで指定されたスタイルで数式を左寄せで表示
+    \mathcenter \mathpacktextstyleで指定されたスタイルで数式を中央寄せで表示
+    \mathright \mathpacktextstyleで指定されたスタイルで数式を右寄せで表示
+    \displeft \mathpackdisplaystyleで指定されたスタイルで数式を左寄せで表示
+    \dispcenter \mathpackdisplaystyleで指定されたスタイルで数式を中央寄せで表示
+    \dispright \mathpackdisplaystyleで指定されたスタイルで数式を右寄せで表示
+    \textleft 左寄せテキスト
+    \textcenter 中央寄せテキスト
+    \textright 右寄せテキスト
+    \wideline (特殊) 幅一杯に広がるテキストボックス
+    \eqsep (区切り) 等号の左右の空白と同じ長さの区切り
+    \dimsep{#1} (区切り) #1の長さの区切り
+    \zerosep (区切り) 長さ0の区切り
+    \sep (区切り) \stdcolsepの長さの区切り
+    \halfsep (区切り) \stdcolsepの半分の長さの区切り
+    \for{#1}{#2} (特殊) #2を#1回繰り返す
+  body:
+    \showline{タグオプション}{&で区切られた数式、テキスト等}
+    \showoutside{タグオプション}{&で区切られた数式、テキスト等} タグは改行される
+    \showtext{テキスト} テキストを挿入
+    \showpar{テキスト等} テキスト等を段落として挿入
+
+------------------------------------------------------------------------
+mathalign
+
+\mathalign{タグオプション}{template}{body} 表組コマンド
+  template:
+    \mathleft \mathpacktextstyleで指定されたスタイルで数式を左寄せで表示
+    \mathcenter \mathpacktextstyleで指定されたスタイルで数式を中央寄せで表示
+    \mathright \mathpacktextstyleで指定されたスタイルで数式を右寄せで表示
+    \displeft \mathpackdisplaystyleで指定されたスタイルで数式を左寄せで表示
+    \dispcenter \mathpackdisplaystyleで指定されたスタイルで数式を中央寄せで表示
+    \dispright \mathpackdisplaystyleで指定されたスタイルで数式を右寄せで表示
+    \textleft 左寄せテキスト
+    \textcenter 中央寄せテキスト
+    \textright 右寄せテキスト
+    \xtextleft 左寄せ等高テキスト
+    \xtextcenter 中央寄せ等高テキスト
+    \xtextright 右寄せ等高テキスト
+    \rule 罫線
+    \drule 二重罫線
+    \eqsep (区切り) 等号の左右の空白と同じ長さの区切り
+    \dimsep{#1} (区切り) #1の長さの区切り
+    \zerosep (区切り) 長さ0の区切り
+    \sep (区切り) \stdcolsepの長さの区切り
+    \halfsep (区切り) \stdcolsepの半分の長さの区切り
+    \for{#1}{#2} (特殊) #2を#1回繰り返す
+  body:
+    \showline{&で区切られた数式、テキスト等}
+    \showrule 罫線
+    \showdrule 二重罫線
+    \showdrulerowcut 二重罫線
+    \showrowsep
+    \showrowcut
+
+---------------------------------------------------------------------------
+align, mathalignの \showline, \showoutsideで使用可能なコマンド
+
+\multicols{#1}{template}{数式、テキスト等} #1個の行をつなげる
+  template:
+    align,mathalignで使えるtemplate((区切り), (特殊)以外)
+    \null テンプレートで処理をせず直接表示
+
+---------------------------------------------------------------------------
+mathenvへのリダイレクトコマンド
+
+\displineenv{改ページオプション}{タグオプション}{body} \mathenv{改ページオプション}{\displine{タグオプション}{body}}へリダイレクト
+
+\multilineenv{改ページオプション}{タグオプション}{body} \mathenv{改ページオプション}{\multiline{タグオプション}{body}}へリダイレクト
+
+\linesenv{改ページオプション}{タグオプション}{body} \mathenv{改ページオプション}{\lines{タグオプション}{body}}へリダイレクト
+
+\widelinesenv{改ページオプション}{タグオプション}{body} \mathenv{改ページオプション}{\widelines{タグオプション}{body}}へリダイレクト
+
+\alignenv{改ページオプション}{タグオプション}{body} \mathenv{改ページオプション}{\align{タグオプション}{body}}へリダイレクト
+
+----------------------------------------------------------------------------

@@ -34,28 +34,34 @@
 \newif\ifm@thpack@leqno
 \newif\ifm@thpack@onlyrefs
 
-\newdimen\m@thpack@tagmargin
-\m@thpack@tagmargin=6pt
-\newdimen\m@thpack@mathindent
-\m@thpack@mathindent=1.5cm
-\newdimen\m@thpack@maxlinemargin
-\m@thpack@maxlinemargin=3mm
-\newdimen\m@thpack@minsidemargin
-\m@thpack@minsidemargin=12pt
-\newdimen\m@thpack@minindent
-\m@thpack@minindent=1cm
-\newdimen\m@thpack@stdsidecolsep
-\m@thpack@stdsidecolsep=6pt
-\newdimen\m@thpack@stdcolsep
-\m@thpack@stdcolsep=12pt
-\newdimen\m@thpack@mathenvlineskip
-\m@thpack@mathenvlineskip=1.5pt
-\newdimen\m@thpack@mathalignlineskip
-\m@thpack@mathalignlineskip=1.5pt
-\newdimen\m@thpack@rulewidth
-\m@thpack@rulewidth=0.4pt
-\newdimen\m@thpack@rulesep
-\m@thpack@rulesep=1pt
+\newdimen\mathpacktagmargin
+\mathpacktagmargin=6pt
+\newdimen\mathpackmathindent
+\mathpackmathindent=1.5cm
+\newdimen\mathpackmaxlinemargin
+\mathpackmaxlinemargin=3mm
+\newdimen\mathpackminsidemargin
+\mathpackminsidemargin=12pt
+\newdimen\mathpackminindent
+\mathpackminindent=1cm
+\newdimen\mathpackstdsidecolsep
+\mathpackstdsidecolsep=6pt
+\newdimen\mathpackstdcolsep
+\mathpackstdcolsep=12pt
+\newdimen\mathpackmathalignstdcolsep
+\mathpackmathalignstdcolsep=12pt
+\newdimen\mathpacklineskip
+\mathpacklineskip=1.5pt
+\newdimen\mathpackmathalignlineskip
+\mathpackmathalignlineskip=1.5pt
+\newdimen\mathpackrulewidth
+\mathpackrulewidth=0.4pt
+\newdimen\mathpackrulesep
+\mathpackrulesep=1pt
+\newcount\mathpackmarginrate
+\mathpackmarginrate=8\relax
+\newcount\mathpackmathalignmarginrate
+\mathpackmathalignmarginrate=8\relax
 
 \let\mathpacktextstyle=\textstyle
 \let\mathpackdisplaystyle=\displaystyle
@@ -79,7 +85,6 @@
 \def\mathpackafterstdtag{\global\advance\m@thpack@equation by 1\relax}
 
 \def\samebeginsubtag{\global\advance\m@thpack@equation by -1\relax}
-\def\beginsubtag{\global\advance\m@thpack@equation by -1\relax}
 \def\subtag#1{\the\m@thpack@equation#1}
 \def\endsubtag{\global\advance\m@thpack@equation by 1\relax}
 
@@ -358,7 +363,6 @@
     \def\etag##1{\m@thpack@option@etag{##1}}%
     \def\eovertag##1{\m@thpack@option@eovertag{##1}}%
     \def\notag{\m@thpack@option@notag}%
-    \def\addtext##1{\m@thpack@option@addtext{##1}}%
     \def\label##1{\m@thpack@option@label{##1}}%
 %
     \m@thpack@optioncheck#1\m@thpack@checkend%
@@ -530,20 +534,20 @@
     \let\m@thpack@lefttagbox=\m@thpack@boxb%
     \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
     \m@thpack@tempdimen=\ht\m@thpack@lefttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimen%
     \m@thpack@tempdimen=\dp\m@thpack@lefttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimen%
   \fi%
   \ifm@thpack@righttag%
     \let\m@thpack@righttagbox=\m@thpack@boxb%
     \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
     \m@thpack@tempdimen=\ht\m@thpack@righttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\ht\m@thpack@righttagbox=\m@thpack@tempdimen%
     \m@thpack@tempdimen=\dp\m@thpack@righttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\dp\m@thpack@righttagbox=\m@thpack@tempdimen%
   \fi%
   \global\setbox\m@thpack@mathbox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#2}\endgroup$}%
@@ -552,15 +556,15 @@
   \ifm@thpack@fleqn%
     \ifm@thpack@lefttag%
       \m@thpack@tempdimen=\wd\m@thpack@lefttagbox%
-      \advance\m@thpack@tempdimen by \m@thpack@tagmargin%
-      \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+      \advance\m@thpack@tempdimen by \mathpacktagmargin%
+      \ifdim\m@thpack@tempdimen>\mathpackmathindent%
         \global\m@thpack@leftoutsidemodetrue%
       \fi%
     \fi%
     \ifm@thpack@righttag%
-      \m@thpack@tempdimen=\m@thpack@mathindent%
+      \m@thpack@tempdimen=\mathpackmathindent%
       \advance\m@thpack@tempdimen by \wd\m@thpack@mathbox%
-      \advance\m@thpack@tempdimen by \m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by \mathpacktagmargin%
       \advance\m@thpack@tempdimen by \wd\m@thpack@righttagbox%
       \ifdim\m@thpack@tempdimen>\displaywidth%
         \global\m@thpack@rightoutsidemodetrue%
@@ -569,7 +573,7 @@
   \else%
     \ifm@thpack@lefttag%
       \m@thpack@tempdimen=\wd\m@thpack@mathbox%
-      \advance\m@thpack@tempdimen by 2\m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by 2\mathpacktagmargin%
       \advance\m@thpack@tempdimen by 2\wd\m@thpack@lefttagbox%
       \ifdim\m@thpack@tempdimen>\displaywidth%
         \global\m@thpack@leftoutsidemodetrue%
@@ -577,7 +581,7 @@
     \fi%
     \ifm@thpack@righttag%
       \m@thpack@tempdimen=\wd\m@thpack@mathbox%
-      \advance\m@thpack@tempdimen by 2\m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by 2\mathpacktagmargin%
       \advance\m@thpack@tempdimen by 2\wd\m@thpack@righttagbox%
       \ifdim\m@thpack@tempdimen>\displaywidth%
         \global\m@thpack@rightoutsidemodetrue%
@@ -599,15 +603,15 @@
       \rlap{\box\m@thpack@lefttagbox}%
     \fi\fi%
     \ifm@thpack@fleqn%
-      \hskip\m@thpack@mathindent%
+      \hskip\mathpackmathindent%
     \else%
       \hskip 0pt plus 1fill%
     \fi%
     \m@thpack@tempdimena=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -616,10 +620,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
     \box\m@thpack@mathbox%
     \hskip 0pt plus 1fill%
@@ -688,45 +692,45 @@
     \let\m@thpack@lefttagbox=\m@thpack@boxb%
     \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
     \m@thpack@tempdimen=\ht\m@thpack@lefttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimen%
     \m@thpack@tempdimen=\dp\m@thpack@lefttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimen%
   \fi%
   \ifm@thpack@righttag%
     \let\m@thpack@righttagbox=\m@thpack@boxb%
     \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
     \m@thpack@tempdimen=\ht\m@thpack@righttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\ht\m@thpack@righttagbox=\m@thpack@tempdimen%
     \m@thpack@tempdimen=\dp\m@thpack@righttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\dp\m@thpack@righttagbox=\m@thpack@tempdimen%
   \fi%
   \global\m@thpack@widthbig=\displaywidth%
   \ifm@thpack@fleqn%
-    \global\advance\m@thpack@widthbig by -\m@thpack@mathindent%
-    \global\advance\m@thpack@widthbig by -\m@thpack@minsidemargin%
+    \global\advance\m@thpack@widthbig by -\mathpackmathindent%
+    \global\advance\m@thpack@widthbig by -\mathpackminsidemargin%
   \else%
-    \global\advance\m@thpack@widthbig by -2\m@thpack@minsidemargin%
+    \global\advance\m@thpack@widthbig by -2\mathpackminsidemargin%
   \fi%
   \global\m@thpack@widthsmall=\displaywidth%
   \ifm@thpack@fleqn%
-    \global\advance\m@thpack@widthsmall by -\m@thpack@mathindent%
+    \global\advance\m@thpack@widthsmall by -\mathpackmathindent%
     \ifm@thpack@righttag%
-      \global\advance\m@thpack@widthsmall by -\m@thpack@tagmargin%
+      \global\advance\m@thpack@widthsmall by -\mathpacktagmargin%
       \global\advance\m@thpack@widthsmall by -\wd\m@thpack@righttagbox%
     \else%
-      \global\advance\m@thpack@widthsmall by -\m@thpack@minsidemargin%
+      \global\advance\m@thpack@widthsmall by -\mathpackminsidemargin%
     \fi%
   \else%
     \ifm@thpack@lefttag%
-      \global\advance\m@thpack@widthsmall by -2\m@thpack@tagmargin%
+      \global\advance\m@thpack@widthsmall by -2\mathpacktagmargin%
       \global\advance\m@thpack@widthsmall by -2\wd\m@thpack@lefttagbox%
     \fi%
     \ifm@thpack@righttag%
-      \global\advance\m@thpack@widthsmall by -2\m@thpack@tagmargin%
+      \global\advance\m@thpack@widthsmall by -2\mathpacktagmargin%
       \global\advance\m@thpack@widthsmall by -2\wd\m@thpack@righttagbox%
     \fi%
   \fi%
@@ -756,20 +760,20 @@
   \let\m@thpack@rightmargin=\m@thpack@dimenc%
   \global\m@thpack@leftoutsidemodefalse%
   \global\m@thpack@rightoutsidemodefalse%
-  \ifdim\m@thpack@indentsmall<\m@thpack@minindent%
-    \ifdim\m@thpack@indentbig<\m@thpack@minindent%
+  \ifdim\m@thpack@indentsmall<\mathpackminindent%
+    \ifdim\m@thpack@indentbig<\mathpackminindent%
       \ifm@thpack@fleqn%
         \ifm@thpack@lefttag%
-          \m@thpack@tempdimen=\m@thpack@tagmargin%
+          \m@thpack@tempdimen=\mathpacktagmargin%
           \advance\m@thpack@tempdimen by \wd\m@thpack@lefttagbox%
-          \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+          \ifdim\m@thpack@tempdimen>\mathpackmathindent%
             \global\m@thpack@leftoutsidemodetrue%
           \fi%
         \fi%
-        \global\m@thpack@leftmargin=\m@thpack@mathindent%
-        \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+        \global\m@thpack@leftmargin=\mathpackmathindent%
+        \global\m@thpack@rightmargin=\mathpackminsidemargin%
       \else%
-        \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+        \global\m@thpack@leftmargin=\mathpackminsidemargin%
         \global\m@thpack@rightmargin=\m@thpack@leftmargin%
         \global\m@thpack@leftoutsidemodetrue%
       \fi%
@@ -778,16 +782,16 @@
     \else%
       \ifm@thpack@fleqn%
         \ifm@thpack@lefttag%
-          \m@thpack@tempdimen=\m@thpack@tagmargin%
+          \m@thpack@tempdimen=\mathpacktagmargin%
           \advance\m@thpack@tempdimen by \wd\m@thpack@lefttagbox%
-          \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+          \ifdim\m@thpack@tempdimen>\mathpackmathindent%
             \global\m@thpack@leftoutsidemodetrue%
           \fi%
         \fi%
-        \global\m@thpack@leftmargin=\m@thpack@mathindent%
-        \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+        \global\m@thpack@leftmargin=\mathpackmathindent%
+        \global\m@thpack@rightmargin=\mathpackminsidemargin%
       \else%
-        \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+        \global\m@thpack@leftmargin=\mathpackminsidemargin%
         \global\m@thpack@rightmargin=\m@thpack@leftmargin%
         \global\m@thpack@leftoutsidemodetrue%
       \fi%
@@ -796,37 +800,37 @@
     \fi%
   \else%
     \ifm@thpack@fleqn%
-      \global\m@thpack@leftmargin=\m@thpack@mathindent%
+      \global\m@thpack@leftmargin=\mathpackmathindent%
       \ifm@thpack@lefttag%
-        \m@thpack@tempdimen=\m@thpack@tagmargin%
+        \m@thpack@tempdimen=\mathpacktagmargin%
         \advance\m@thpack@tempdimen by \wd\m@thpack@lefttagbox%
-        \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+        \ifdim\m@thpack@tempdimen>\mathpackmathindent%
           \global\m@thpack@leftoutsidemodetrue%
         \fi%
       \fi%
       \ifm@thpack@righttag%
-        \global\m@thpack@rightmargin=\m@thpack@tagmargin%
+        \global\m@thpack@rightmargin=\mathpacktagmargin%
         \global\advance\m@thpack@rightmargin by \wd\m@thpack@righttagbox%
       \else%
-        \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+        \global\m@thpack@rightmargin=\mathpackminsidemargin%
       \fi%
-      \ifdim\m@thpack@rightmargin<\m@thpack@minsidemargin%
-        \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+      \ifdim\m@thpack@rightmargin<\mathpackminsidemargin%
+        \global\m@thpack@rightmargin=\mathpackminsidemargin%
       \fi%
     \else%
       \ifm@thpack@lefttag%
-        \global\m@thpack@leftmargin=\m@thpack@tagmargin%
+        \global\m@thpack@leftmargin=\mathpacktagmargin%
         \global\advance\m@thpack@leftmargin by \wd\m@thpack@lefttagbox%
       \else%
         \ifm@thpack@righttag%
-          \global\m@thpack@leftmargin=\m@thpack@tagmargin%
+          \global\m@thpack@leftmargin=\mathpacktagmargin%
           \global\advance\m@thpack@leftmargin by \wd\m@thpack@righttagbox%
         \else%
-          \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+          \global\m@thpack@leftmargin=\mathpackminsidemargin%
         \fi%
       \fi%
-      \ifdim\m@thpack@leftmargin<\m@thpack@minsidemargin%
-        \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+      \ifdim\m@thpack@leftmargin<\mathpackminsidemargin%
+        \global\m@thpack@leftmargin=\mathpackminsidemargin%
       \fi%
       \global\m@thpack@rightmargin=\m@thpack@leftmargin%
     \fi%
@@ -948,9 +952,9 @@
     \fi%
     \m@thpack@tempdimena=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -959,10 +963,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
     #2%
     \ifnum\m@thpack@lineno=\m@thpack@endlineno%
@@ -1005,7 +1009,7 @@
   }%
   {%
           \advance\m@thpack@tempdimena by \m@thpack@tempdimenb%
-          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \mathpacktagmargin%
           \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
           \ifdim\m@thpack@tempdimena>\displaywidth\else%
             \llap{\box\m@thpack@righttagbox}%
@@ -1027,7 +1031,7 @@
   }%
   {%
           \advance\m@thpack@tempdimena by \m@thpack@tempdimenb%
-          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \mathpacktagmargin%
           \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
           \ifdim\m@thpack@tempdimena>\displaywidth\else%
             \llap{\box\m@thpack@righttagbox}%
@@ -1055,7 +1059,7 @@
           \divide\m@thpack@tempdimena by \m@thpack@tempcounta%
           \multiply\m@thpack@tempdimena by \m@thpack@tempcountb%
           \advance\m@thpack@tempdimena by \m@thpack@rightmargin%
-          \advance\m@thpack@tempdimena by -\m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by -\mathpacktagmargin%
           \advance\m@thpack@tempdimena by -\wd\m@thpack@righttagbox%
           \ifdim\m@thpack@tempdimena<0pt\else%
             \llap{\box\m@thpack@righttagbox}%
@@ -1111,20 +1115,20 @@
     \let\m@thpack@lefttagbox=\m@thpack@boxb%
     \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
     \m@thpack@tempdimen=\ht\m@thpack@lefttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimen%
     \m@thpack@tempdimen=\dp\m@thpack@lefttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimen%
   \fi%
   \ifm@thpack@righttag%
     \let\m@thpack@righttagbox=\m@thpack@boxb%
     \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
     \m@thpack@tempdimen=\ht\m@thpack@righttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\ht\m@thpack@righttagbox=\m@thpack@tempdimen%
     \m@thpack@tempdimen=\dp\m@thpack@righttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\dp\m@thpack@righttagbox=\m@thpack@tempdimen%
   \fi%
 %
@@ -1148,65 +1152,65 @@
   \global\m@thpack@leftoutsidemodefalse%
   \global\m@thpack@rightoutsidemodefalse%
   \ifm@thpack@fleqn%
-    \global\m@thpack@leftmargin=\m@thpack@mathindent%
+    \global\m@thpack@leftmargin=\mathpackmathindent%
     \ifm@thpack@lefttag%
-      \m@thpack@tempdimen=\m@thpack@tagmargin%
+      \m@thpack@tempdimen=\mathpacktagmargin%
       \advance\m@thpack@tempdimen by \wd\m@thpack@lefttagbox%
-      \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+      \ifdim\m@thpack@tempdimen>\mathpackmathindent%
         \global\m@thpack@leftoutsidemodetrue%
       \fi%
     \fi%
     \ifm@thpack@righttag%
-      \m@thpack@tempdimen=\m@thpack@mathindent%
+      \m@thpack@tempdimen=\mathpackmathindent%
       \advance\m@thpack@tempdimen by \m@thpack@maxwidth%
-      \advance\m@thpack@tempdimen by \m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by \mathpacktagmargin%
       \advance\m@thpack@tempdimen by \wd\m@thpack@righttagbox%
       \ifdim\m@thpack@tempdimen>\displaywidth%
         \global\m@thpack@rightoutsidemodetrue%
-        \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+        \global\m@thpack@rightmargin=\mathpackminsidemargin%
       \else%
-        \global\m@thpack@rightmargin=\m@thpack@tagmargin%
+        \global\m@thpack@rightmargin=\mathpacktagmargin%
         \global\advance\m@thpack@rightmargin by \wd\m@thpack@righttagbox%
-        \ifdim\m@thpack@rightmargin<\m@thpack@minsidemargin%
-          \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+        \ifdim\m@thpack@rightmargin<\mathpackminsidemargin%
+          \global\m@thpack@rightmargin=\mathpackminsidemargin%
         \fi%
       \fi%
     \else%
-      \global\m@thpack@rightmargin=\m@thpack@minsidemargin%
+      \global\m@thpack@rightmargin=\mathpackminsidemargin%
     \fi%
   \else%
     \ifm@thpack@lefttag%
       \m@thpack@tempdimen=\m@thpack@maxwidth%
-      \advance\m@thpack@tempdimen by 2\m@thpack@tagmargin%
+      \advance\m@thpack@tempdimen by 2\mathpacktagmargin%
       \advance\m@thpack@tempdimen by 2\wd\m@thpack@lefttagbox%
-      \global\m@thpack@leftmargin=\m@thpack@tagmargin%
+      \global\m@thpack@leftmargin=\mathpacktagmargin%
       \global\advance\m@thpack@leftmargin by \wd\m@thpack@lefttagbox%
       \ifdim\m@thpack@tempdimen>\displaywidth%
-        \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+        \global\m@thpack@leftmargin=\mathpackminsidemargin%
         \global\m@thpack@leftoutsidemodetrue%
       \fi%
     \else%
       \ifm@thpack@righttag%
         \m@thpack@tempdimen=\m@thpack@maxwidth%
-        \advance\m@thpack@tempdimen by 2\m@thpack@tagmargin%
+        \advance\m@thpack@tempdimen by 2\mathpacktagmargin%
         \advance\m@thpack@tempdimen by 2\wd\m@thpack@righttagbox%
-        \global\m@thpack@leftmargin=\m@thpack@tagmargin%
+        \global\m@thpack@leftmargin=\mathpacktagmargin%
         \global\advance\m@thpack@leftmargin by \wd\m@thpack@righttagbox%
         \ifdim\m@thpack@tempdimen>\displaywidth%
-          \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+          \global\m@thpack@leftmargin=\mathpackminsidemargin%
           \global\m@thpack@rightoutsidemodetrue%
         \fi%
       \else%
-        \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+        \global\m@thpack@leftmargin=\mathpackminsidemargin%
       \fi%
     \fi%
-    \ifdim\m@thpack@leftmargin<\m@thpack@minsidemargin%
-      \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+    \ifdim\m@thpack@leftmargin<\mathpackminsidemargin%
+      \global\m@thpack@leftmargin=\mathpackminsidemargin%
     \fi%
     \global\m@thpack@rightmargin=\m@thpack@leftmargin%
   \fi%
   \ifm@thpack@fleqn%
-    \global\m@thpack@indent=\m@thpack@mathindent%
+    \global\m@thpack@indent=\mathpackmathindent%
   \else%
     \global\m@thpack@indent=\displaywidth%
     \global\advance\m@thpack@indent by -\m@thpack@maxwidth%
@@ -1242,20 +1246,20 @@
     \let\m@thpack@lefttagbox=\m@thpack@boxb%
     \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
     \m@thpack@tempdimen=\ht\m@thpack@lefttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimen%
     \m@thpack@tempdimen=\dp\m@thpack@lefttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimen%
   \fi%
   \ifm@thpack@righttag%
     \let\m@thpack@righttagbox=\m@thpack@boxb%
     \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
     \m@thpack@tempdimen=\ht\m@thpack@righttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\ht\m@thpack@righttagbox=\m@thpack@tempdimen%
     \m@thpack@tempdimen=\dp\m@thpack@righttagbox%
-    \advance\m@thpack@tempdimen by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimen by \mathpacklineskip%
     \global\dp\m@thpack@righttagbox=\m@thpack@tempdimen%
   \fi%
 %
@@ -1279,20 +1283,20 @@
   \global\m@thpack@leftoutsidemodefalse%
   \global\m@thpack@rightoutsidemodetrue%
   \ifm@thpack@fleqn%
-    \global\m@thpack@leftmargin=\m@thpack@mathindent%
+    \global\m@thpack@leftmargin=\mathpackmathindent%
     \ifm@thpack@lefttag%
-      \m@thpack@tempdimen=\m@thpack@tagmargin%
+      \m@thpack@tempdimen=\mathpacktagmargin%
       \advance\m@thpack@tempdimen by \wd\m@thpack@lefttagbox%
-      \ifdim\m@thpack@tempdimen>\m@thpack@mathindent%
+      \ifdim\m@thpack@tempdimen>\mathpackmathindent%
         \global\m@thpack@leftoutsidemodetrue%
       \fi%
     \fi%
   \else%
-    \global\m@thpack@leftmargin=\m@thpack@minsidemargin%
+    \global\m@thpack@leftmargin=\mathpackminsidemargin%
   \fi%
-  \m@thpack@rightmargin=\m@thpack@minsidemargin%
+  \m@thpack@rightmargin=\mathpackminsidemargin%
   \ifm@thpack@fleqn%
-    \global\m@thpack@indent=\m@thpack@mathindent%
+    \global\m@thpack@indent=\mathpackmathindent%
   \else%
     \global\m@thpack@indent=\displaywidth%
     \global\advance\m@thpack@indent by -\m@thpack@maxwidth%
@@ -1390,9 +1394,9 @@
     \fi%
     \m@thpack@tempdimena=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -1401,10 +1405,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
     #2%
     \ifnum\m@thpack@lineno=\m@thpack@endlineno%
@@ -1444,7 +1448,7 @@
   }%
   {%
           \advance\m@thpack@tempdimena by \m@thpack@indent%
-          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \mathpacktagmargin%
           \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
           \ifdim\m@thpack@tempdimena>\displaywidth\else%
             \llap{\box\m@thpack@righttagbox}%
@@ -1464,7 +1468,7 @@
   {%
           \advance\m@thpack@tempdimena by \m@thpack@leftmargin%
           \advance\m@thpack@tempdimena by \m@thpack@tempdimenb%
-          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \mathpacktagmargin%
           \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
           \ifdim\m@thpack@tempdimena>\displaywidth\else%
             \llap{\box\m@thpack@righttagbox}%
@@ -1484,7 +1488,7 @@
   {%
           \advance\m@thpack@tempdimena by \m@thpack@indent%
           \advance\m@thpack@tempdimena by \m@thpack@tempdimenb%
-          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \mathpacktagmargin%
           \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
           \ifdim\m@thpack@tempdimena>\displaywidth\else%
             \llap{\box\m@thpack@righttagbox}%
@@ -1512,7 +1516,7 @@
           \divide\m@thpack@tempdimena by \m@thpack@tempcounta%
           \multiply\m@thpack@tempdimena by \m@thpack@tempcountb%
           \advance\m@thpack@tempdimena by \m@thpack@rightmargin%
-          \advance\m@thpack@tempdimena by -\m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by -\mathpacktagmargin%
           \advance\m@thpack@tempdimena by -\wd\m@thpack@righttagbox%
           \ifdim\m@thpack@tempdimena<0pt\else%
             \llap{\box\m@thpack@righttagbox}%
@@ -1534,25 +1538,25 @@
 }
 
 \def\m@thpack@intertext@mathenv#1{%
-  \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{\hbox to \displaywidth{\ifm@thpack@fleqn\hskip\m@thpack@mathindent\else\hskip 0pt plus 1fill\fi#1\hskip 0pt plus 1fill}}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}%
+  \noalign{\vskip\mathpacklineskip}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{\hbox to \displaywidth{\ifm@thpack@fleqn\hskip\mathpackmathindent\else\hskip 0pt plus 1fill\fi#1\hskip 0pt plus 1fill}}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{\vskip\mathpacklineskip}\noalign{\nobreak}%
   \m@thpack@mathenvcheck%
 }
 
 \def\m@thpack@interpar@mathenv#1{%
-  \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{#1}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}%
+  \noalign{\vskip\mathpacklineskip}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{#1}\noalign{\nobreak}\noalign{\vskip3pt}\noalign{\nobreak}\noalign{\vskip\mathpacklineskip}\noalign{\nobreak}%
   \m@thpack@mathenvcheck%
 }
 
 \def\m@thpack@showtext@all#1{%
   \expandafter\def\expandafter\m@thpack@next\expandafter##\expandafter1\expandafter{\m@thpack@next{%
-    \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{\hbox to \displaywidth{\ifm@thpack@fleqn\hskip\m@thpack@mathindent\else\hskip 0pt plus 1fill\fi#1\hskip 0pt plus 1fill}}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}%
+    \noalign{\vskip\mathpacklineskip}\noalign{\nobreak}\noalign{\hbox to \displaywidth{\ifm@thpack@fleqn\hskip\mathpackmathindent\else\hskip 0pt plus 1fill\fi#1\hskip 0pt plus 1fill}}\noalign{\nobreak}\noalign{\vskip\mathpacklineskip}\noalign{\nobreak}%
     ##1%
   }}%
 }
 
 \def\m@thpack@showpar@all#1{%
   \expandafter\def\expandafter\m@thpack@next\expandafter##\expandafter1\expandafter{\m@thpack@next{%
-    \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{#1}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}%
+    \noalign{\vskip\mathpacklineskip}\noalign{\nobreak}\noalign{#1}\noalign{\nobreak}\noalign{\vskip\mathpacklineskip}\noalign{\nobreak}%
     ##1%
   }}%
 }
@@ -1628,7 +1632,7 @@
   \let\m@thpack@spancount=\m@thpack@counta%
   \let\m@thpack@numsig=\relax%
   \ifm@thpack@fleqn%
-    \m@thpack@indentskip=\m@thpack@mathindent%
+    \m@thpack@indentskip=\mathpackmathindent%
   \else%
     \m@thpack@indentskip=0pt plus 1fill%
   \fi%
@@ -1641,9 +1645,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -1652,10 +1656,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \box\m@thpack@bodybox\hfill%
       }%
@@ -1667,9 +1671,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -1678,10 +1682,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox\hfill%
       }%
@@ -1693,9 +1697,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -1704,10 +1708,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox%
       }%
@@ -1719,9 +1723,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -1730,10 +1734,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \box\m@thpack@bodybox\hfill%
       }%
@@ -1745,9 +1749,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -1756,10 +1760,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox\hfill%
       }%
@@ -1771,9 +1775,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -1782,10 +1786,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox%
       }%
@@ -1796,10 +1800,10 @@
       \def\m@thpack@tempcmd{%
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \box\m@thpack@bodybox\hfill%
       }%
@@ -1810,10 +1814,10 @@
       \def\m@thpack@tempcmd{%
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox\hfill%
       }%
@@ -1824,10 +1828,10 @@
       \def\m@thpack@tempcmd{%
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox%
       }%
@@ -1838,18 +1842,18 @@
       \def\m@thpack@tempcmd{%
         \ifm@thpack@fleqn%
           \m@thpack@tempdimena=\displaywidth%
-          \advance\m@thpack@tempdimena by -\m@thpack@mathindent%
-          \advance\m@thpack@tempdimena by -\m@thpack@minsidemargin%
+          \advance\m@thpack@tempdimena by -\mathpackmathindent%
+          \advance\m@thpack@tempdimena by -\mathpackminsidemargin%
         \else%
           \m@thpack@tempdimena=\displaywidth%
-          \advance\m@thpack@tempdimena by -2\m@thpack@minsidemargin%
+          \advance\m@thpack@tempdimena by -2\mathpackminsidemargin%
         \fi%
         \setbox\m@thpack@bodybox=\hbox to \m@thpack@tempdimena{\m@thpack@numsig}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -1858,10 +1862,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+        \advance\m@thpack@tempdimenb by \mathpacklineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox%
       }%
@@ -1888,13 +1892,13 @@
     }%
     \def\sep{%
       \global\advance\m@thpack@spancount by 1\relax%
-      \def\m@thpack@tempcmd{\tabskip\m@thpack@stdcolsep&}%
+      \def\m@thpack@tempcmd{\tabskip\mathpackstdcolsep&}%
       \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
       \m@thpack@aligntempcheck%
     }%
     \def\halfsep{%
       \global\advance\m@thpack@spancount by 1\relax%
-      \def\m@thpack@tempcmd{\tabskip.5\m@thpack@stdcolsep&}%
+      \def\m@thpack@tempcmd{\tabskip.5\mathpackstdcolsep&}%
       \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
       \m@thpack@aligntempcheck%
     }%
@@ -1922,26 +1926,26 @@
     \ifm@thpack@lefttag%
       \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
       \m@thpack@tempdimena=\ht\m@thpack@lefttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimena%
       \m@thpack@tempdimena=\dp\m@thpack@lefttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimena%
     \fi%
     \ifm@thpack@righttag%
       \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
       \m@thpack@tempdimena=\ht\m@thpack@righttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \global\ht\m@thpack@righttagbox=\m@thpack@tempdimena%
       \m@thpack@tempdimena=\dp\m@thpack@righttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \global\dp\m@thpack@righttagbox=\m@thpack@tempdimena%
     \fi%
     \ifm@thpack@lefttag%
       \ifm@thpack@fleqn%
-        \m@thpack@tempdimena=\m@thpack@tagmargin%
+        \m@thpack@tempdimena=\mathpacktagmargin%
         \advance\m@thpack@tempdimena by \wd\m@thpack@lefttagbox%
-        \ifdim\m@thpack@tempdimena>\m@thpack@mathindent%
+        \ifdim\m@thpack@tempdimena>\mathpackmathindent%
           \def\m@thpack@tempcmd{\rlap{\box\m@thpack@lefttagbox}&\multispan{\m@thpack@spancount}\cr&##2&\ifm@thpack@righttag\llap{\box\m@thpack@righttagbox}\fi\m@thpack@aligncheck}%
         \else%
           \def\m@thpack@tempcmd{\rlap{\box\m@thpack@lefttagbox}&##2&\ifm@thpack@righttag\llap{\box\m@thpack@righttagbox}\fi\m@thpack@aligncheck}%
@@ -1959,26 +1963,26 @@
     \ifm@thpack@lefttag%
       \global\setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
       \m@thpack@tempdimena=\ht\m@thpack@lefttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \global\ht\m@thpack@lefttagbox=\m@thpack@tempdimena%
       \m@thpack@tempdimena=\dp\m@thpack@lefttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \global\dp\m@thpack@lefttagbox=\m@thpack@tempdimena%
     \fi%
     \ifm@thpack@righttag%
       \global\setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
       \m@thpack@tempdimena=\ht\m@thpack@righttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \global\ht\m@thpack@righttagbox=\m@thpack@tempdimena%
       \m@thpack@tempdimena=\dp\m@thpack@righttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \global\dp\m@thpack@righttagbox=\m@thpack@tempdimena%
     \fi%
     \ifm@thpack@lefttag%
       \ifm@thpack@fleqn%
-        \m@thpack@tempdimena=\m@thpack@tagmargin%
+        \m@thpack@tempdimena=\mathpacktagmargin%
         \advance\m@thpack@tempdimena by \wd\m@thpack@lefttagbox%
-        \ifdim\m@thpack@tempdimena>\m@thpack@mathindent%
+        \ifdim\m@thpack@tempdimena>\mathpackmathindent%
           \def\m@thpack@tempcmd{\rlap{\box\m@thpack@lefttagbox}&\multispan{\m@thpack@spancount}\cr&##2&\ifm@thpack@righttag\global\def\m@thpack@everycr{\multispan{\m@thpack@spancount}&\llap{\box\m@thpack@righttagbox}\global\def\m@thpack@everycr{}\cr}\fi\m@thpack@aligncheck}%
         \else%
           \def\m@thpack@tempcmd{\rlap{\box\m@thpack@lefttagbox}&##2&\ifm@thpack@righttag\global\def\m@thpack@everycr{\multispan{\m@thpack@spancount}&\llap{\box\m@thpack@righttagbox}\global\def\m@thpack@everycr{}\cr}\fi\m@thpack@aligncheck}%
@@ -1992,10 +1996,10 @@
     \m@thpack@tempcmd%
   }%
   \def\showtext##1{%
-    \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{\hbox to \displaywidth{\ifm@thpack@fleqn\hskip\m@thpack@mathindent\else\hskip 0pt plus 1fill\fi##1\hskip 0pt plus 1fill}}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\m@thpack@aligncheck%
+    \noalign{\vskip\mathpacklineskip}\noalign{\nobreak}\noalign{\hbox to \displaywidth{\ifm@thpack@fleqn\hskip\mathpackmathindent\else\hskip 0pt plus 1fill\fi##1\hskip 0pt plus 1fill}}\noalign{\nobreak}\noalign{\vskip\mathpacklineskip}\noalign{\nobreak}\m@thpack@aligncheck%
   }%
   \def\showpar##1{%
-    \noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\noalign{##1}\noalign{\nobreak}\noalign{\vskip\m@thpack@mathenvlineskip}\noalign{\nobreak}\m@thpack@aligncheck%
+    \noalign{\vskip\mathpacklineskip}\noalign{\nobreak}\noalign{##1}\noalign{\nobreak}\noalign{\vskip\mathpacklineskip}\noalign{\nobreak}\m@thpack@aligncheck%
   }%
 %
   \def\multicols##1##2##3{\m@thpack@alignmulticols{##1}{##2}{##3}}%
@@ -2077,7 +2081,7 @@
 %
   \offinterlineskip%
   \lineskip=0pt%
-  \tabskip=\m@thpack@stdsidecolsep%
+  \tabskip=\mathpackstdsidecolsep%
   \everycr{\noalign{\nobreak}}%
 %
   \let\m@thpack@bodybox=\m@thpack@boxa%
@@ -2096,9 +2100,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2107,10 +2111,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \box\m@thpack@bodybox\hfill%
       }%
@@ -2124,9 +2128,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2135,10 +2139,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox\hfill%
       }%
@@ -2152,9 +2156,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2163,10 +2167,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox%
       }%
@@ -2180,9 +2184,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2191,10 +2195,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \box\m@thpack@bodybox\hfill%
       }%
@@ -2208,9 +2212,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2219,10 +2223,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox\hfill%
       }%
@@ -2236,9 +2240,9 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by 8\relax%
-        \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-          \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+          \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2247,10 +2251,10 @@
         \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox%
       }%
@@ -2263,10 +2267,10 @@
       \def\m@thpack@tempcmd{%
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \box\m@thpack@bodybox\hfill%
       }%
@@ -2279,10 +2283,10 @@
       \def\m@thpack@tempcmd{%
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox\hfill%
       }%
@@ -2295,10 +2299,10 @@
       \def\m@thpack@tempcmd{%
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@numsig}%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox%
       }%
@@ -2317,10 +2321,10 @@
           \dp\m@thpack@bodybox=1ex%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \box\m@thpack@bodybox\hfill%
       }%
@@ -2339,10 +2343,10 @@
           \dp\m@thpack@bodybox=1ex%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox\hfill%
       }%
@@ -2361,10 +2365,10 @@
           \dp\m@thpack@bodybox=1ex%
         \fi%
         \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
         \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-        \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+        \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
         \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
         \hfill\box\m@thpack@bodybox%
       }%
@@ -2374,12 +2378,12 @@
       \m@thpack@mathaligntempcheck%
     }%
     \def\rule{%
-      \def\m@thpack@tempcmd{\m@thpack@numsig\vrule width \m@thpack@rulewidth}%
+      \def\m@thpack@tempcmd{\m@thpack@numsig\vrule width \mathpackrulewidth}%
       \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
       \m@thpack@mathaligntempcheck%
     }%
     \def\drule{%
-      \def\m@thpack@tempcmd{\m@thpack@numsig\vrule width \m@thpack@rulewidth\hskip\m@thpack@rulesep\vrule width \m@thpack@rulewidth}%
+      \def\m@thpack@tempcmd{\m@thpack@numsig\vrule width \mathpackrulewidth\hskip\mathpackrulesep\vrule width \mathpackrulewidth}%
       \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
       \m@thpack@mathaligntempcheck%
     }%
@@ -2405,14 +2409,14 @@
       \m@thpack@mathaligntempcheck%
     }%
     \def\sep{%
-      \def\m@thpack@tempcmd{\tabskip\m@thpack@stdcolsep&}%
+      \def\m@thpack@tempcmd{\tabskip\mathpackmathalignstdcolsep&}%
       \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
       \def\m@thpack@tempcmd{&}%
       \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
       \m@thpack@mathaligntempcheck%
     }%
     \def\halfsep{%
-      \def\m@thpack@tempcmd{\tabskip.5\m@thpack@stdcolsep&}%
+      \def\m@thpack@tempcmd{\tabskip.5\mathpackmathalignstdcolsep&}%
       \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@template\expandafter\expandafter\expandafter{\expandafter\m@thpack@template\m@thpack@tempcmd}%
       \def\m@thpack@tempcmd{&}%
       \expandafter\expandafter\expandafter\global\expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@ruletemplate\expandafter\expandafter\expandafter{\expandafter\m@thpack@ruletemplate\m@thpack@tempcmd}%
@@ -2439,33 +2443,33 @@
     \m@thpack@mathaligncheck%
   }%
   \def\showrule{%
-    \noalign{\hrule height \m@thpack@rulewidth depth 0pt}\noalign{\nobreak}\m@thpack@mathaligncheck%
+    \noalign{\hrule height \mathpackrulewidth depth 0pt}\noalign{\nobreak}\m@thpack@mathaligncheck%
   }%
   \def\showdrule{%
-    \noalign{\hrule height \m@thpack@rulewidth depth 0pt}\noalign{\nobreak}
-    \setbox\m@thpack@tempboxa=\hbox to 0pt{}\ht\m@thpack@tempboxa=\m@thpack@rulesep\dp\m@thpack@tempboxa=0pt\box\m@thpack@tempboxa%
+    \noalign{\hrule height \mathpackrulewidth depth 0pt}\noalign{\nobreak}
+    \setbox\m@thpack@tempboxa=\hbox to 0pt{}\ht\m@thpack@tempboxa=\mathpackrulesep\dp\m@thpack@tempboxa=0pt\box\m@thpack@tempboxa%
     \m@thpack@ruletemplate%
     \cr%
-    \noalign{\hrule height \m@thpack@rulewidth depth 0pt}\noalign{\nobreak}%
+    \noalign{\hrule height \mathpackrulewidth depth 0pt}\noalign{\nobreak}%
     \m@thpack@mathaligncheck%
   }%
   \def\showdrulerowcut{%
-    \noalign{\hrule height \m@thpack@rulewidth depth 0pt}\noalign{\nobreak}%
-    \noalign{\vskip\m@thpack@rulesep}\noalign{\nobreak}%
-    \noalign{\hrule height \m@thpack@rulewidth depth 0pt}\noalign{\nobreak}%
+    \noalign{\hrule height \mathpackrulewidth depth 0pt}\noalign{\nobreak}%
+    \noalign{\vskip\mathpackrulesep}\noalign{\nobreak}%
+    \noalign{\hrule height \mathpackrulewidth depth 0pt}\noalign{\nobreak}%
     \m@thpack@mathaligncheck%
   }%
   \def\showrowsep{%
-    \setbox\m@thpack@tempboxa=\hbox to 0pt{}\ht\m@thpack@tempboxa=\m@thpack@rulesep\dp\m@thpack@tempboxa=0pt\box\m@thpack@tempboxa%
+    \setbox\m@thpack@tempboxa=\hbox to 0pt{}\ht\m@thpack@tempboxa=\mathpackrulesep\dp\m@thpack@tempboxa=0pt\box\m@thpack@tempboxa%
     \m@thpack@ruletemplate%
     \m@thpack@mathaligncheck%
   }%
   \def\showrowcut{%
-    \noalign{\vskip\m@thpack@rulesep}\noalign{\nobreak}\m@thpack@aligncheck%
+    \noalign{\vskip\mathpackrulesep}\noalign{\nobreak}\m@thpack@aligncheck%
   }%
 %
   \def\multicols##1##2##3{\m@thpack@mathalignmulticols{##1}{##2}{##3}}%
-  \expandafter\vcenter\expandafter{\expandafter\halign\expandafter{\m@thpack@template\tabskip\m@thpack@stdsidecolsep\cr\m@thpack@mathalignchecknocr#2\m@thpack@checkend}}%
+  \expandafter\vcenter\expandafter{\expandafter\halign\expandafter{\m@thpack@template\tabskip\mathpackstdsidecolsep\cr\m@thpack@mathalignchecknocr#2\m@thpack@checkend}}%
 %
   \endgroup%
 }
@@ -2490,9 +2494,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2501,10 +2505,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \box\m@thpack@bodybox\hfill%
   \else%
@@ -2512,9 +2516,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2523,10 +2527,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox\hfill%
   \else%
@@ -2534,9 +2538,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2545,10 +2549,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox%
   \else%
@@ -2556,9 +2560,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2567,10 +2571,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \box\m@thpack@bodybox\hfill%
   \else%
@@ -2578,9 +2582,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2589,10 +2593,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox\hfill%
   \else%
@@ -2600,9 +2604,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2611,40 +2615,40 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox%
   \else%
   \ifx\m@thpack@opttok\textleft%
     \setbox\m@thpack@bodybox=\hbox{#3}%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \box\m@thpack@bodybox\hfill%
   \else%
   \ifx\m@thpack@opttok\textcenter%
     \setbox\m@thpack@bodybox=\hbox{#3}%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox\hfill%
   \else%
   \ifx\m@thpack@opttok\textright%
     \setbox\m@thpack@bodybox=\hbox{#3}%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox%
   \else%
@@ -2680,9 +2684,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2691,10 +2695,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \box\m@thpack@bodybox\hfill%
   \else%
@@ -2702,9 +2706,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2713,10 +2717,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox\hfill%
   \else%
@@ -2724,9 +2728,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2735,10 +2739,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox%
   \else%
@@ -2746,9 +2750,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2757,10 +2761,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \box\m@thpack@bodybox\hfill%
   \else%
@@ -2768,9 +2772,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2779,10 +2783,10 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox\hfill%
   \else%
@@ -2790,9 +2794,9 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -2801,40 +2805,40 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox%
   \else%
   \ifx\m@thpack@opttok\textleft%
     \setbox\m@thpack@bodybox=\hbox{#3}%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \box\m@thpack@bodybox\hfill%
   \else%
   \ifx\m@thpack@opttok\textcenter%
     \setbox\m@thpack@bodybox=\hbox{#3}%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox\hfill%
   \else%
   \ifx\m@thpack@opttok\textright%
     \setbox\m@thpack@bodybox=\hbox{#3}%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox%
   \else%
@@ -2847,10 +2851,10 @@
       \dp\m@thpack@bodybox=1ex%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \box\m@thpack@bodybox\hfill%
   \else%
@@ -2863,10 +2867,10 @@
       \dp\m@thpack@bodybox=1ex%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox\hfill%
   \else%
@@ -2879,18 +2883,18 @@
       \dp\m@thpack@bodybox=1ex%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \ht\m@thpack@bodybox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@bodybox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathalignlineskip%
+    \advance\m@thpack@tempdimenb by \mathpackmathalignlineskip%
     \dp\m@thpack@bodybox=\m@thpack@tempdimenb%
     \hfill\box\m@thpack@bodybox%
   \else%
   \ifx\m@thpack@opttok\rule%
-    \leaders\hrule height \m@thpack@rulewidth depth 0pt\hfill%
+    \leaders\hrule height \mathpackrulewidth depth 0pt\hfill%
   \else%
   \ifx\m@thpack@opttok\drule%
-    \leaders\vbox{\hrule width \m@thpack@rulewidth\vskip\m@thpack@rulesep\hrule width \m@thpack@rulewidth}\hfill%
+    \leaders\vbox{\hrule width \mathpackrulewidth\vskip\mathpackrulesep\hrule width \mathpackrulewidth}\hfill%
   \else%
   \ifx\m@thpack@opttok\null%
     #3%
@@ -3143,29 +3147,29 @@
       \let\m@thpack@lefttagbox=\m@thpack@boxb%
       \setbox\m@thpack@lefttagbox=\hbox{\m@thpack@lefttag}%
       \m@thpack@tempdimena=\ht\m@thpack@lefttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \ht\m@thpack@lefttagbox=\m@thpack@tempdimena%
       \m@thpack@tempdimena=\dp\m@thpack@lefttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \dp\m@thpack@lefttagbox=\m@thpack@tempdimena%
     \fi%
     \ifm@thpack@righttag%
       \let\m@thpack@righttagbox=\m@thpack@boxb%
       \setbox\m@thpack@righttagbox=\hbox{\m@thpack@righttag}%
       \m@thpack@tempdimena=\ht\m@thpack@righttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \ht\m@thpack@righttagbox=\m@thpack@tempdimena%
       \m@thpack@tempdimena=\dp\m@thpack@righttagbox%
-      \advance\m@thpack@tempdimena by \m@thpack@mathenvlineskip%
+      \advance\m@thpack@tempdimena by \mathpacklineskip%
       \dp\m@thpack@righttagbox=\m@thpack@tempdimena%
     \fi%
     \setbox\m@thpack@mathbox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
 %
     \m@thpack@tempdimena=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
-    \divide\m@thpack@tempdimena by 8\relax%
-    \ifdim\m@thpack@tempdimena>\m@thpack@maxlinemargin%
-      \m@thpack@tempdimena=\m@thpack@maxlinemargin%
+    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
+      \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
     \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
@@ -3174,33 +3178,33 @@
     \advance\m@thpack@tempdimenb by \m@thpack@tempdimena%
     \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\ht\m@thpack@mathbox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \ht\m@thpack@mathbox=\m@thpack@tempdimenb%
     \m@thpack@tempdimenb=\dp\m@thpack@mathbox%
-    \advance\m@thpack@tempdimenb by \m@thpack@mathenvlineskip%
+    \advance\m@thpack@tempdimenb by \mathpacklineskip%
     \dp\m@thpack@mathbox=\m@thpack@tempdimenb%
     \ifm@thpack@fleqn%
       \ifm@thpack@lefttag%
         \m@thpack@tempdimena=\wd\m@thpack@lefttagbox%
-        \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
-        \ifdim\m@thpack@tempdimena>\m@thpack@mathindent%
-          \halign to \displaywidth{\hbox to \displaywidth{##}\cr\box\m@thpack@lefttagbox\hfill\cr\hskip\m@thpack@mathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill\cr}%
+        \advance\m@thpack@tempdimena by \mathpacktagmargin%
+        \ifdim\m@thpack@tempdimena>\mathpackmathindent%
+          \halign to \displaywidth{\hbox to \displaywidth{##}\cr\box\m@thpack@lefttagbox\hfill\cr\hskip\mathpackmathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill\cr}%
         \else%
-          \hbox to \displaywidth{\rlap{\box\m@thpack@lefttagbox}\hskip\m@thpack@mathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill}%
+          \hbox to \displaywidth{\rlap{\box\m@thpack@lefttagbox}\hskip\mathpackmathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill}%
         \fi%
       \else%
         \ifm@thpack@righttag%
-          \m@thpack@tempdimena=\m@thpack@mathindent%
+          \m@thpack@tempdimena=\mathpackmathindent%
           \advance\m@thpack@tempdimena by \wd\m@thpack@mathbox%
-          \advance\m@thpack@tempdimena by \m@thpack@tagmargin%
+          \advance\m@thpack@tempdimena by \mathpacktagmargin%
           \advance\m@thpack@tempdimena by \wd\m@thpack@righttagbox%
           \ifdim\m@thpack@tempdimena>\displaywidth%
-            \halign to \displaywidth{\hbox to \displaywidth{##}\cr\hskip\m@thpack@mathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill\cr\hfill\box\m@thpack@righttagbox\cr}%
+            \halign to \displaywidth{\hbox to \displaywidth{##}\cr\hskip\mathpackmathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill\cr\hfill\box\m@thpack@righttagbox\cr}%
           \else%
-            \hbox to \displaywidth{\hskip\m@thpack@mathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill\llap{\box\m@thpack@righttagbox}}%
+            \hbox to \displaywidth{\hskip\mathpackmathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill\llap{\box\m@thpack@righttagbox}}%
           \fi%
         \else%
-          \hbox to \displaywidth{\hskip\m@thpack@mathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill}%
+          \hbox to \displaywidth{\hskip\mathpackmathindent\box\m@thpack@mathbox\hskip 0pt plus 1fill}%
         \fi%
       \fi%
     \else%
