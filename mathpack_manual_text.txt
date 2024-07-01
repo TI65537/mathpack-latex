@@ -177,7 +177,7 @@ mathenv
 ------------------------------------------------------------------------
 mathalign
 
-\mathalign{タグオプション}{template}{body} 表組コマンド
+\mathalign{template}{body} 表組コマンド
   template:
     \mathleft \mathpacktextstyleで指定されたスタイルで数式を左寄せで表示
     \mathcenter \mathpacktextstyleで指定されたスタイルで数式を中央寄せで表示
@@ -229,3 +229,5 @@ mathenvへのリダイレクトコマンド
 \alignenv{改ページオプション}{タグオプション}{body} \mathenv{改ページオプション}{\align{タグオプション}{body}}へリダイレクト
 
 ----------------------------------------------------------------------------
+mathalignへのリダイレクトコマンド
+\eqmathalign{template}{body} {\mahpackstdsidecolsep=0pt\mathalign{template}{body}}と同じ
