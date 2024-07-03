@@ -230,4 +230,4 @@ mathenvへのリダイレクトコマンド
 
 ----------------------------------------------------------------------------
 mathalignへのリダイレクトコマンド
-\eqmathalign{template}{body} {\mahpackstdsidecolsep=0pt\mathalign{template}{body}}と同じ
+\eqmathalign{template}{body} {\mathpackstdsidecolsep=0pt\mathalign{template}{body}}と同じ
