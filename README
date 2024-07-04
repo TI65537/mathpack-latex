@@ -2,8 +2,9 @@
 mathpack.sty 自作のディスプレイ数式用パッケージ
   mathpack_manual_text.txt 簡易リファレンス
 mathpacksetup.sty mathpack.styを使って定理用ラベルをセットアップする
-mathpackops.sty 自分が良く使う数学記号の定義
+mathpackops.sty 自分がよく使う数学記号の定義
 mystyle.cls 版面とpdfデータを設定するクラスファイル
+myreportstyle.cls 大学のレポート用クラス
 
 ライセンスについて
 LICENCEファイルを読んでください
