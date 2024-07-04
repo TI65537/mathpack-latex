@@ -207,6 +207,13 @@ mathalign
     \showrowsep
     \showrowcut
 
+----------------------------------------------------------------------------
+mathalignの亜種
+
+\eqmathalign{template}{body} 左右の\mathalignstdsidecolsep分のすき間がない
+
+\sidemathalign{#1}{#2}{template}{body} 左右の\mathalignstdsidecolsep分のすき間が右は#1左は#2に上書きされる
+
 ---------------------------------------------------------------------------
 align, mathalignの \showline, \showoutsideで使用可能なコマンド
 
@@ -227,7 +234,3 @@ mathenvへのリダイレクトコマンド
 \widelinesenv{改ページオプション}{タグオプション}{body} \mathenv{改ページオプション}{\widelines{タグオプション}{body}}へリダイレクト
 
 \alignenv{改ページオプション}{タグオプション}{body} \mathenv{改ページオプション}{\align{タグオプション}{body}}へリダイレクト
-
-----------------------------------------------------------------------------
-mathalignへのリダイレクトコマンド
-\eqmathalign{template}{body} {\mathpackstdsidecolsep=0pt\mathalign{template}{body}}と同じ

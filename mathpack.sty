@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{mathpack}[2024/03/19 mathpack: Advanced macros for display equation.]
+\ProvidesPackage{mathpack}[2024/07/05 mathpack: Advanced macros for display equation.]
 
 % Created by Tamaki ISII on 2024/03/19
 
@@ -216,7 +216,8 @@
   \m@thpack@checknextcmd%
 }
 
-\def\m@thpack@checkend{}
+\def\m@thpack@checkend@{}
+\def\m@thpack@checkend{\m@thpack@checkend@}
 
 \def\mathenv#1#2{%
   \ifvmode\ifdim\baselineskip>0pt\relax\vskip-\baselineskip\fi\leavevmode\fi%
@@ -2076,12 +2077,12 @@
   \m@thpack@checknextcmd%
 }
 
-\def\mathalign#1#2{%
+\def\sidemathalign#1#2#3#4{%
   \begingroup%
 %
   \offinterlineskip%
   \lineskip=0pt%
-  \tabskip=\mathpackstdsidecolsep%
+  \tabskip=#1\relax%
   \everycr{\noalign{\nobreak}}%
 %
   \let\m@thpack@bodybox=\m@thpack@boxa%
@@ -2433,7 +2434,7 @@
       \m@thpack@tempcmd%
     }%
 %
-    \m@thpack@mathaligntempcheck#1\m@thpack@checkend%
+    \m@thpack@mathaligntempcheck#3\m@thpack@checkend%
   \endgroup%
 %
   \let\m@thpack@numsig=##%
@@ -2469,9 +2470,17 @@
   }%
 %
   \def\multicols##1##2##3{\m@thpack@mathalignmulticols{##1}{##2}{##3}}%
-  \expandafter\vcenter\expandafter{\expandafter\halign\expandafter{\m@thpack@template\tabskip\mathpackstdsidecolsep\cr\m@thpack@mathalignchecknocr#2\m@thpack@checkend}}%
+  \expandafter\vcenter\expandafter{\expandafter\halign\expandafter{\m@thpack@template\tabskip#2\relax\cr\m@thpack@mathalignchecknocr#4\m@thpack@checkend}}%
 %
   \endgroup%
+}
+
+\def\mathalign#1#2{%
+    \sidemathalign{\mathpackstdsidecolsep}{\mathpackstdsidecolsep}{#1}{#2}%
+}
+
+\def\eqmathalign#1#2{%
+    \sidemathalign{0pt}{0pt}{#1}{#2}%
 }
 
 \def\m@thpack@alignmulticols#1#2#3{%
