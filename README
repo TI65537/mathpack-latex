@@ -5,6 +5,7 @@ mathpacksetup.sty mathpack.styを使って定理用ラベルをセットアッ�
 mathpackops.sty 自分がよく使う数学記号の定義
 mystyle.cls 版面とpdfデータを設定するクラスファイル
 myreportstyle.cls 大学のレポート用クラス
+  myreportstyle_example.tex 例
 
 ライセンスについて
 LICENCEファイルを読んでください
