@@ -1,0 +1,23 @@
+\documentclass{article}
+\usepackage{romannumber}
+
+\begin{document}
+\def\Rtest#1{
+  \ifnum#1>0\relax
+    \Romannumber{#1}%
+    \count255=#1\relax%
+    \advance\count255 by -1\relax%
+    \expandafter\Rtest\expandafter{\the\count255}%
+  \fi%
+}
+\Rtest{1449}
+\def\rtest#1{
+  \ifnum#1>0\relax
+    \romannumber{#1}%
+    \count255=#1\relax%
+    \advance\count255 by -1\relax%
+    \expandafter\rtest\expandafter{\the\count255}%
+  \fi%
+}
+\rtest{1449}
+\end{document}
