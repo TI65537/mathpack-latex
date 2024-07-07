@@ -3,6 +3,7 @@ mathpack.sty 自作のディスプレイ数式用パッケージ
   mathpack_manual_text.txt 簡易リファレンス
 mathpacksetup.sty mathpack.styを使って定理用ラベルをセットアップする
 mathpackops.sty 自分がよく使う数学記号の定義
+romannumber.sty ローマ数字を作る
 mystyle.cls 版面とpdfデータを設定するクラスファイル
 myreportstyle.cls 大学のレポート用クラス
   myreportstyle_example.tex 例
