@@ -1,0 +1,192 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{romannumber}[2024/07/07 create roman number.]
+
+% Created by Tamaki ISII on 2024/07/07
+
+\def\Romannumber#1{%
+    \count255=#1\relax%
+    \ifnum\count255<1000\relax%
+        \RomannumberD{\the\count255}%
+    \else%
+        \advance\count255 by -1000\relax%
+        M\kern-.1em%
+        \RomannumberM{\the\count255}%
+    \fi%
+}
+
+\def\RomannumberD#1{%
+    \count255=#1\relax%
+    \ifnum\count255<500\relax%
+        \RomannumberC{\the\count255}%
+    \else%
+        \advance\count255 by -500\relax%
+        C\kern-.1em%
+        \RomannumberC{\the\count255}%
+    \fi%
+}
+
+\def\RomannumberC#1{%
+    \count255=#1\relax%
+    \ifnum\count255<100\relax%
+        \RomannumberL{\the\count255}%
+    \else%
+        \ifnum\count255<400%
+            \advance\count255 by -100\relax%
+            C\kern-.1em%
+            \RomannumberC{\the\count255}%
+        \else%
+            \advance\count255 by -400\relax%
+            C\kern-.1em D\kern-.1em%
+            \RomannumberL{\the\count255}%
+        \fi%
+    \fi%
+}
+
+\def\RomannumberL#1{%
+    \count255=#1\relax%
+    \ifnum\count255<50\relax%
+        \RomannumberX{\the\count255}%
+    \else%
+        \advance\count255 by -50\relax%
+        L\kern-.1em%
+        \RomannumberX{\the\count255}%
+    \fi%
+}
+
+\def\RomannumberX#1{%
+    \count255=#1\relax%
+    \ifnum\count255<10\relax%
+        \RomannumberV{\the\count255}%
+    \else%
+        \ifnum\count255<40%
+            \advance\count255 by -10\relax%
+            X\kern-.1em%
+            \RomannumberX{\the\count255}%
+        \else%
+            \advance\count255 by -40\relax%
+            X\kern-.1em L\kern-.1em%
+            \RomannumberV{\the\count255}%
+        \fi%
+    \fi%
+}
+
+\def\RomannumberV#1{%
+    \count255=#1\relax%
+    \ifnum\count255<5\relax%
+        \RomannumberI{\the\count255}%
+    \else%
+        \advance\count255 by -5\relax%
+        V\kern-.1em%
+        \RomannumberI{\the\count255}%
+    \fi%
+}
+
+\def\RomannumberI#1{%
+    \count255=#1\relax%
+    \ifnum\count255<1\relax%
+    \else%
+        \ifnum\count255<4%
+            \advance\count255 by -1\relax%
+            I\kern-.1em%
+            \RomannumberI{\the\count255}%
+        \else%
+            \advance\count255 by -4\relax%
+            I\kern-.1em V\kern-.1em%
+        \fi%
+    \fi%
+    \unkern%
+}
+
+\def\romannumber#1{%
+    \count255=#1\relax%
+    \ifnum\count255<1000\relax%
+        \romannumberD{\the\count255}%
+    \else%
+        \advance\count255 by -1000\relax%
+        m\kern-.1em%
+        \romannumberM{\the\count255}%
+    \fi%
+}
+
+\def\romannumberD#1{%
+    \count255=#1\relax%
+    \ifnum\count255<500\relax%
+        \romannumberC{\the\count255}%
+    \else%
+        \advance\count255 by -500\relax%
+        c\kern-.1em%
+        \romannumberC{\the\count255}%
+    \fi%
+}
+
+\def\romannumberC#1{%
+    \count255=#1\relax%
+    \ifnum\count255<100\relax%
+        \romannumberL{\the\count255}%
+    \else%
+        \ifnum\count255<400%
+            \advance\count255 by -100\relax%
+            c\kern-.1em%
+            \romannumberC{\the\count255}%
+        \else%
+            \advance\count255 by -400\relax%
+            c\kern-.1em d\kern-.1em%
+            \romannumberL{\the\count255}%
+        \fi%
+    \fi%
+}
+
+\def\romannumberL#1{%
+    \count255=#1\relax%
+    \ifnum\count255<50\relax%
+        \romannumberX{\the\count255}%
+    \else%
+        \advance\count255 by -50\relax%
+        l\kern-.1em%
+        \romannumberX{\the\count255}%
+    \fi%
+}
+
+\def\romannumberX#1{%
+    \count255=#1\relax%
+    \ifnum\count255<10\relax%
+        \romannumberV{\the\count255}%
+    \else%
+        \ifnum\count255<40%
+            \advance\count255 by -10\relax%
+            x\kern-.1em%
+            \romannumberX{\the\count255}%
+        \else%
+            \advance\count255 by -40\relax%
+            x\kern-.1em l\kern-.1em%
+            \romannumberV{\the\count255}%
+        \fi%
+    \fi%
+}
+
+\def\romannumberV#1{%
+    \count255=#1\relax%
+    \ifnum\count255<5\relax%
+        \romannumberI{\the\count255}%
+    \else%
+        \advance\count255 by -5\relax%
+        v\kern-.1em%
+        \romannumberI{\the\count255}%
+    \fi%
+}
+
+\def\romannumberI#1{%
+    \count255=#1\relax%
+    \ifnum\count255<1\relax%
+    \else%
+        \ifnum\count255<4%
+            \advance\count255 by -1\relax%
+            i\kern-.1em%
+            \romannumberI{\the\count255}%
+        \else%
+            \advance\count255 by -4\relax%
+            i\kern-.1em v\kern-.1em%
+        \fi%
+    \fi%
+    \unkern%
+}
