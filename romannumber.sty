@@ -3,92 +3,112 @@
 
 % Created by Tamaki ISII on 2024/07/07
 
+\makeatletter
+
 \def\Romannumber#1{%
     \count255=#1\relax%
     \ifnum\count255<1000\relax%
-        \RomannumberD{\the\count255}%
+        \expandafter\RomannumberD@\expandafter{\the\count255}%
     \else%
         \advance\count255 by -1000\relax%
         M\kern-.1em%
-        \RomannumberM{\the\count255}%
+        \expandafter\Romannumber\expandafter{\the\count255}%
     \fi%
 }
 
-\def\RomannumberD#1{%
+\def\RomannumberD@#1{%
     \count255=#1\relax%
     \ifnum\count255<500\relax%
-        \RomannumberC{\the\count255}%
+        \expandafter\RomannumberC@\expandafter{\the\count255}%
     \else%
-        \advance\count255 by -500\relax%
-        C\kern-.1em%
-        \RomannumberC{\the\count255}%
+        \ifnum\count255<900%
+            \advance\count255 by -500\relax%
+            D\kern-.1em%
+            \expandafter\RomannumberC@\expandafter{\the\count255}%
+        \else%
+            \advance\count255 by -900\relax%
+            C\kern-.1em M\kern-.1em%
+            \expandafter\RomannumberC@\expandafter{\the\count255}%
+        \fi%
     \fi%
 }
 
-\def\RomannumberC#1{%
+\def\RomannumberC@#1{%
     \count255=#1\relax%
     \ifnum\count255<100\relax%
-        \RomannumberL{\the\count255}%
+        \expandafter\RomannumberL@\expandafter{\the\count255}%
     \else%
         \ifnum\count255<400%
             \advance\count255 by -100\relax%
             C\kern-.1em%
-            \RomannumberC{\the\count255}%
+            \expandafter\RomannumberC@\expandafter{\the\count255}%
         \else%
             \advance\count255 by -400\relax%
             C\kern-.1em D\kern-.1em%
-            \RomannumberL{\the\count255}%
+            \expandafter\RomannumberL@\expandafter{\the\count255}%
         \fi%
     \fi%
 }
 
-\def\RomannumberL#1{%
+\def\RomannumberL@#1{%
     \count255=#1\relax%
     \ifnum\count255<50\relax%
-        \RomannumberX{\the\count255}%
+        \expandafter\RomannumberX@\expandafter{\the\count255}%
     \else%
-        \advance\count255 by -50\relax%
-        L\kern-.1em%
-        \RomannumberX{\the\count255}%
+        \ifnum\count255<90\relax%
+            \advance\count255 by -50\relax%
+            L\kern-.1em%
+            \expandafter\RomannumberX@\expandafter{\the\count255}%
+        \else%
+            \advance\count255 by -90\relax%
+            X\kern-.1em C\kern-.1em%
+            \expandafter\RomannumberX@\expandafter{\the\count255}%
+        \fi%
     \fi%
 }
 
-\def\RomannumberX#1{%
+\def\RomannumberX@#1{%
     \count255=#1\relax%
     \ifnum\count255<10\relax%
-        \RomannumberV{\the\count255}%
+        \expandafter\RomannumberV@\expandafter{\the\count255}%
     \else%
         \ifnum\count255<40%
             \advance\count255 by -10\relax%
             X\kern-.1em%
-            \RomannumberX{\the\count255}%
+            \expandafter\RomannumberX@\expandafter{\the\count255}%
         \else%
             \advance\count255 by -40\relax%
             X\kern-.1em L\kern-.1em%
-            \RomannumberV{\the\count255}%
+            \expandafter\RomannumberV@\expandafter{\the\count255}%
         \fi%
     \fi%
 }
 
-\def\RomannumberV#1{%
+\def\RomannumberV@#1{%
     \count255=#1\relax%
     \ifnum\count255<5\relax%
-        \RomannumberI{\the\count255}%
+        \expandafter\RomannumberI@\expandafter{\the\count255}%
     \else%
-        \advance\count255 by -5\relax%
-        V\kern-.1em%
-        \RomannumberI{\the\count255}%
+        \ifnum\count255<9\relax%
+            \advance\count255 by -5\relax%
+            V\kern-.1em%
+            \expandafter\RomannumberI@\expandafter{\the\count255}%
+        \else%
+            \advance\count255 by -9\relax%
+            I\kern-.1em X\kern-.1em%
+            \expandafter\RomannumberI@\expandafter{\the\count255}%
+        \fi%
     \fi%
 }
 
-\def\RomannumberI#1{%
+\def\RomannumberI@#1{%
     \count255=#1\relax%
     \ifnum\count255<1\relax%
     \else%
         \ifnum\count255<4%
             \advance\count255 by -1\relax%
             I\kern-.1em%
-            \RomannumberI{\the\count255}%
+            \expandafter\RomannumberI@\expandafter{\the\count255}%
         \else%
             \advance\count255 by -4\relax%
             I\kern-.1em V\kern-.1em%
@@ -100,89 +120,107 @@
 \def\romannumber#1{%
     \count255=#1\relax%
     \ifnum\count255<1000\relax%
-        \romannumberD{\the\count255}%
+        \expandafter\romannumberD@\expandafter{\the\count255}%
     \else%
         \advance\count255 by -1000\relax%
         m\kern-.1em%
-        \romannumberM{\the\count255}%
+        \expandafter\romannumber\expandafter{\the\count255}%
     \fi%
 }
 
-\def\romannumberD#1{%
+\def\romannumberD@#1{%
     \count255=#1\relax%
     \ifnum\count255<500\relax%
-        \romannumberC{\the\count255}%
+        \expandafter\romannumberC@\expandafter{\the\count255}%
     \else%
-        \advance\count255 by -500\relax%
-        c\kern-.1em%
-        \romannumberC{\the\count255}%
+        \ifnum\count255<900%
+            \advance\count255 by -500\relax%
+            d\kern-.1em%
+            \expandafter\romannumberC@\expandafter{\the\count255}%
+        \else%
+            \advance\count255 by -900\relax%
+            c\kern-.1em m\kern-.1em%
+            \expandafter\romannumberC@\expandafter{\the\count255}%
+        \fi%
     \fi%
 }
 
-\def\romannumberC#1{%
+\def\romannumberC@#1{%
     \count255=#1\relax%
     \ifnum\count255<100\relax%
-        \romannumberL{\the\count255}%
+        \expandafter\romannumberL@\expandafter{\the\count255}%
     \else%
         \ifnum\count255<400%
             \advance\count255 by -100\relax%
             c\kern-.1em%
-            \romannumberC{\the\count255}%
+            \expandafter\romannumberC@\expandafter{\the\count255}%
         \else%
             \advance\count255 by -400\relax%
             c\kern-.1em d\kern-.1em%
-            \romannumberL{\the\count255}%
+            \expandafter\romannumberL@\expandafter{\the\count255}%
         \fi%
     \fi%
 }
 
-\def\romannumberL#1{%
+\def\romannumberL@#1{%
     \count255=#1\relax%
     \ifnum\count255<50\relax%
-        \romannumberX{\the\count255}%
+        \expandafter\romannumberX@\expandafter{\the\count255}%
     \else%
-        \advance\count255 by -50\relax%
-        l\kern-.1em%
-        \romannumberX{\the\count255}%
+        \ifnum\count255<90\relax%
+            \advance\count255 by -50\relax%
+            l\kern-.1em%
+            \expandafter\romannumberX@\expandafter{\the\count255}%
+        \else%
+            \advance\count255 by -90\relax%
+            x\kern-.1em c\kern-.1em%
+            \expandafter\romannumberX@\expandafter{\the\count255}%
+        \fi%
     \fi%
 }
 
-\def\romannumberX#1{%
+\def\romannumberX@#1{%
     \count255=#1\relax%
     \ifnum\count255<10\relax%
-        \romannumberV{\the\count255}%
+        \expandafter\romannumberV@\expandafter{\the\count255}%
     \else%
         \ifnum\count255<40%
             \advance\count255 by -10\relax%
             x\kern-.1em%
-            \romannumberX{\the\count255}%
+            \expandafter\romannumberX@\expandafter{\the\count255}%
         \else%
             \advance\count255 by -40\relax%
             x\kern-.1em l\kern-.1em%
-            \romannumberV{\the\count255}%
+            \expandafter\romannumberV@\expandafter{\the\count255}%
         \fi%
     \fi%
 }
 
-\def\romannumberV#1{%
+\def\romannumberV@#1{%
     \count255=#1\relax%
     \ifnum\count255<5\relax%
-        \romannumberI{\the\count255}%
+        \expandafter\romannumberI@\expandafter{\the\count255}%
     \else%
-        \advance\count255 by -5\relax%
-        v\kern-.1em%
-        \romannumberI{\the\count255}%
+        \ifnum\count255<9\relax%
+            \advance\count255 by -5\relax%
+            v\kern-.1em%
+            \expandafter\romannumberI@\expandafter{\the\count255}%
+        \else%
+            \advance\count255 by -9\relax%
+            I\kern-.1em x\kern-.1em%
+            \expandafter\romannumberI@\expandafter{\the\count255}%
+        \fi%
     \fi%
 }
 
-\def\romannumberI#1{%
+\def\romannumberI@#1{%
     \count255=#1\relax%
     \ifnum\count255<1\relax%
     \else%
         \ifnum\count255<4%
             \advance\count255 by -1\relax%
             i\kern-.1em%
-            \romannumberI{\the\count255}%
+            \expandafter\romannumberI@\expandafter{\the\count255}%
         \else%
             \advance\count255 by -4\relax%
             i\kern-.1em v\kern-.1em%
@@ -190,3 +228,5 @@
     \fi%
     \unkern%
 }
+
+\makeatother
