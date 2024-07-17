@@ -37,10 +37,10 @@
 \newdimen\mathpackrulesep align,mathalignの罫線の太さ
 \mathpackrulesep=1pt
 
-\newcount\mathpackmarginrate 数式の上下に自動的に挿入される空白の量を調整(大きいほど少なくなる)
+\newcount\mathpackmarginrate 数式の上下に自動的に挿入される空白の量を調整(大きいほど少なくなる)(0の場合は空白無し)
 \mathpackmarginrate=8\relax
 
-\newcount\mathpackmathalignmarginrate mathalignの行の上下に自動的に挿入される空白の量を調整(大きいほど少なくなる)
+\newcount\mathpackmathalignmarginrate mathalignの行の上下に自動的に挿入される空白の量を調整(大きいほど少なくなる)(0の場合は空白無し)
 \mathpackmathalignmarginrate=8\relax
 
 \let\mathpacktextstyle=\textstyle mathpackで使用されるテキスト数式スタイル
@@ -212,7 +212,7 @@ mathalignの亜種
 
 \eqmathalign{template}{body} 左右の\mathalignstdsidecolsep分のすき間がない
 
-\sidemathalign{#1}{#2}{template}{body} 左右の\mathalignstdsidecolsep分のすき間が右は#1左は#2に上書きされる
+\sidemathalign{#1}{#2}{template}{body} 左右の\mathalignstdsidecolsep分のすき間が右は#1左は#2で上書きされる
 
 ---------------------------------------------------------------------------
 align, mathalignの \showline, \showoutsideで使用可能なコマンド

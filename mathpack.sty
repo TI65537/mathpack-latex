@@ -610,7 +610,7 @@
     \fi%
     \m@thpack@tempdimena=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
-    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -953,7 +953,7 @@
     \fi%
     \m@thpack@tempdimena=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
-    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -1395,7 +1395,7 @@
     \fi%
     \m@thpack@tempdimena=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
-    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -1646,7 +1646,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -1672,7 +1672,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -1698,7 +1698,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -1724,7 +1724,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -1750,7 +1750,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -1776,7 +1776,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -1852,7 +1852,7 @@
         \setbox\m@thpack@bodybox=\hbox to \m@thpack@tempdimena{\m@thpack@numsig}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+        \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -2101,7 +2101,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -2129,7 +2129,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -2157,7 +2157,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -2185,7 +2185,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -2213,7 +2213,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -2241,7 +2241,7 @@
         \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{\m@thpack@numsig}\endgroup$}%
         \m@thpack@tempdimena=\ht\m@thpack@bodybox%
         \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-        \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+        \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
         \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
           \m@thpack@tempdimena=\mathpackmaxlinemargin%
         \fi%
@@ -2503,7 +2503,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -2525,7 +2525,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -2547,7 +2547,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -2569,7 +2569,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -2591,7 +2591,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -2613,7 +2613,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -2693,7 +2693,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -2715,7 +2715,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -2737,7 +2737,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpacktextstyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -2759,7 +2759,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -2781,7 +2781,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -2803,7 +2803,7 @@
     \setbox\m@thpack@bodybox=\hbox{\m@thpack@dimena=\mathsurround\mathsurround=0pt$\begingroup\mathsurround=\m@thpack@dimena\mathpackdisplaystyle{#3}\endgroup$}%
     \m@thpack@tempdimena=\ht\m@thpack@bodybox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@bodybox%
-    \divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax%
+    \ifnum\mathpackmathalignmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmathalignmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
@@ -3176,7 +3176,7 @@
 %
     \m@thpack@tempdimena=\ht\m@thpack@mathbox%
     \advance\m@thpack@tempdimena by \dp\m@thpack@mathbox%
-    \divide\m@thpack@tempdimena by \mathpackmarginrate\relax%
+    \ifnum\mathpackmarginrate=0\relax\m@thpack@tempdimena=0pt\else\divide\m@thpack@tempdimena by \mathpackmarginrate\relax\fi%
     \ifdim\m@thpack@tempdimena>\mathpackmaxlinemargin%
       \m@thpack@tempdimena=\mathpackmaxlinemargin%
     \fi%
