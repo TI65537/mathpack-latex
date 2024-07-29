@@ -1,5 +1,5 @@
 \NeedsTeXFormat{LaTeX2e}
-\ProvidesPackage{mathpack}[2024/07/18 mathpack: Advanced macros for display equation.]
+\ProvidesPackage{mathpack}[2024/07/29 mathpack: Advanced macros for display equation.]
 
 % Created by Tamaki ISII on 2024/03/19
 
@@ -66,12 +66,6 @@
 \let\mathpacktextstyle=\textstyle
 \let\mathpackdisplaystyle=\displaystyle
 
-\newif\ifm@thpack@lefttag
-%\def\m@thpack@lefttag{(lefttag)}
-
-\newif\ifm@thpack@righttag
-%\def\m@thpack@righttag{(righttag)}
-
 \def\mathpackstdtagtemplate#1{{\rm (#1)}}
 
 \def\mathpackstdlabeltemplate#1{eq.~#1}
@@ -123,6 +117,18 @@
 \DeclareOption{onlyrefs}{\m@thpack@onlyrefstrue}
 \DeclareOption*{\PackageWarningNoLine{mathpack}{Unknown Option \CurrentOption}}
 \ProcessOptions\relax
+
+
+
+
+\newif\ifm@thpack@lefttag
+%\def\m@thpack@lefttag{(lefttag)}
+
+\newif\ifm@thpack@righttag
+%\def\m@thpack@righttag{(righttag)}
+
+%\def\m@thpack@leftdim{}
+%\def\m@thpack@rightdim{}
 
 
 
@@ -2077,12 +2083,35 @@
   \m@thpack@checknextcmd%
 }
 
-\def\sidemathalign#1#2#3#4{%
+\def\m@thpack@mathalignoptioncheck{\futurelet\m@thpack@temptoken\m@thpack@mathalignoptioncheckbody}
+\def\m@thpack@mathalignoptioncheckbody{%
+  \def\m@thpack@checknextcmd{}%
+  \ifx\m@thpack@temptoken\leftdim\else%
+  \ifx\m@thpack@temptoken\rightdim\else%
+  \ifx\m@thpack@temptoken\m@thpack@checkspchar%
+    \def\m@thpack@checknextcmd{\expandafter\m@thpack@mathalignoptioncheck\m@thpack@checknextdel}%
+  \else%
+  \ifx\m@thpack@temptoken\m@thpack@checkend\else%
+    \PackageError{mathpack}{Ihouna option hikisuu mataha Option ga nai (mathalign option)}{Suusiki kannkyou (mathalign option) no option-mei ga tigaimasu. mataha option ga arimasen. kaigyou mo comment-out sitekudasai.}%
+  \fi\fi\fi\fi%
+  \m@thpack@checknextcmd%
+}
+
+\def\stdmathalign#1#2#3{%
   \begingroup%
+%
+  \def\m@thpack@leftdim{\mathpackstdsidecolsep}%
+  \def\m@thpack@rightdim{\mathpackstdsidecolsep}%
+%
+  \begingroup%
+    \def\leftdim##1{\global\def\m@thpack@leftdim{##1}}%
+    \def\rightdim##1{\global\def\m@thpack@rightdim{##1}}%
+    \m@thpack@mathalignoptioncheck#1\m@thpack@checkend%
+  \endgroup%
 %
   \offinterlineskip%
   \lineskip=0pt%
-  \tabskip=#1\relax%
+  \tabskip=\m@thpack@leftdim\relax%
   \everycr{\noalign{\nobreak}}%
 %
   \let\m@thpack@bodybox=\m@thpack@boxa%
@@ -2434,7 +2463,7 @@
       \m@thpack@tempcmd%
     }%
 %
-    \m@thpack@mathaligntempcheck#3\m@thpack@checkend%
+    \m@thpack@mathaligntempcheck#2\m@thpack@checkend%
   \endgroup%
 %
   \let\m@thpack@numsig=##%
@@ -2470,17 +2499,17 @@
   }%
 %
   \def\multicols##1##2##3{\m@thpack@mathalignmulticols{##1}{##2}{##3}}%
-  \expandafter\vcenter\expandafter{\expandafter\halign\expandafter{\m@thpack@template\tabskip#2\relax\cr\m@thpack@mathalignchecknocr#4\m@thpack@checkend}}%
+  \expandafter\vcenter\expandafter{\expandafter\halign\expandafter{\m@thpack@template\tabskip\m@thpack@rightdim\relax\cr\m@thpack@mathalignchecknocr#3\m@thpack@checkend}}%
 %
   \endgroup%
 }
 
 \def\mathalign#1#2{%
-    \sidemathalign{\mathpackstdsidecolsep}{\mathpackstdsidecolsep}{#1}{#2}%
+    \stdmathalign{}{#1}{#2}%
 }
 
 \def\eqmathalign#1#2{%
-    \sidemathalign{0pt}{0pt}{#1}{#2}%
+    \stdmathalign{\leftdim{0pt}\rightdim{0pt}}{#1}{#2}%
 }
 
 \def\m@thpack@alignmulticols#1#2#3{%
