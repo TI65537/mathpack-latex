@@ -175,9 +175,12 @@ mathenv
     \showpar{テキスト等} テキスト等を段落として挿入
 
 ------------------------------------------------------------------------
-mathalign
+stdmathalign
 
-\mathalign{template}{body} 表組コマンド
+\stdmathalign{余白オプション}{template}{body} 表組コマンド
+  余白オプション:
+    \leftdim{#1} 左の余白を#1にする。(設定しない場合は\mathpackstdsidecolsep)
+    \rightdim{#1} 右の余白を#1にする。(設定しない場合は\mathpackstdsidecolsep)
   template:
     \mathleft \mathpacktextstyleで指定されたスタイルで数式を左寄せで表示
     \mathcenter \mathpacktextstyleで指定されたスタイルで数式を中央寄せで表示
@@ -208,11 +211,11 @@ mathalign
     \showrowcut
 
 ----------------------------------------------------------------------------
-mathalignの亜種
+stdmathalignの亜種
+
+\mathalign{template}{body} 左右の余白が\mathalignstdsidecolsep
 
 \eqmathalign{template}{body} 左右の\mathalignstdsidecolsep分のすき間がない
-
-\sidemathalign{#1}{#2}{template}{body} 左右の\mathalignstdsidecolsep分のすき間が右は#1左は#2で上書きされる
 
 ---------------------------------------------------------------------------
 align, mathalignの \showline, \showoutsideで使用可能なコマンド
@@ -234,3 +237,10 @@ mathenvへのリダイレクトコマンド
 \widelinesenv{改ページオプション}{タグオプション}{body} \mathenv{改ページオプション}{\widelines{タグオプション}{body}}へリダイレクト
 
 \alignenv{改ページオプション}{タグオプション}{body} \mathenv{改ページオプション}{\align{タグオプション}{body}}へリダイレクト
+
+---------------------------------------------------------------------------
+singledispenv
+
+\singleddispenv{改ページオプション}{タグオプション}{body} 式番号に\eqno, \leqnoを使用 使い方は\displineenvと同じ
+
+---------------------------------------------------------------------------
