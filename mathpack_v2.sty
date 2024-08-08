@@ -1,0 +1,204 @@
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{mathpack_v2}[2024/08/07 mathpack: Advanced macros for display equation. version 2 !!!!]
+
+
+
+
+\catcode`@=11%  @を文字と見なす
+
+
+
+
+%  一般的なマクロ
+
+\def\m@thpack@spacemacro{ }%  下の二つのコマンドの定義に使う
+
+\expandafter\expandafter\expandafter\let\expandafter\expandafter\expandafter\m@thpack@space\expandafter\expandafter\expandafter%
+=\expandafter\m@thpack@spacemacro\m@thpack@spacemacro%  空白文字のトークン (\m@thpack@spaceの定義)
+
+\expandafter\def\expandafter\m@thpack@spacedel\m@thpack@spacemacro{}%  次の空白を一つ削除するマクロ (\m@thpack@spacedelの定義)
+
+
+
+
+%%%%
+%  \mathenvマクロ群 始まり
+
+\def\mathenv{%
+  \begingroup%  グルーピング開始
+  \futurelet\@temptoken\m@thpack@mathenv@optcheck%  次のトークンを読み込む
+}
+
+\def\m@thpack@mathenv@optcheck{%
+  \newif\if@prenobreak%  オプション変数の作成
+  \newif\if@postnobreak%
+  \begingroup%
+    \ifx\@temptoken[%  オプションの有り無し判定
+      \aftergroup\m@thpack@mathenv@opt%
+    \else%
+      \aftergroup\m@thpack@mathenv@body%
+    \fi%
+  \endgroup%
+}
+
+\def\m@thpack@mathenv@opt[#1]{%  オプション有りの場合  #1:オプションコマンド列
+  \begingroup%
+    \newif\if@prenobreak@read%  オプションを読み込み済みかの判定用
+    \newif\if@postnobreak@read%
+    \def\prenobreak{%
+      \if@prenobreak@read%
+        \PackageError{mathpack}{mathenv Option Error 1}{See Manual}%
+        %\prenobreakを二回書いたときのエラー
+      \else%
+        \aftergroup\@prenobreaktrue%
+        \@prenobreak@readtrue%
+      \fi%
+      \m@thpack@mathenv@optcommandcheck%
+    }%
+    \def\postnobreak{%
+      \if@postnobreak@read%
+        \PackageError{mathpack}{mathenv Option Error 2}{See Manual}%
+        %\postnobreakを二回書いたときのエラー
+      \else%
+        \aftergroup\@postnobreaktrue%
+        \@postnobreak@readtrue%
+      \fi%
+      \m@thpack@mathenv@optcommandcheck%
+    }%
+    \def\@checkend{\@checkend@body}%  チェックの終了を知らせる用
+    \def\@checkend@body{}%
+    \m@thpack@mathenv@optcommandcheck#1\@checkend%  この#1に\prenobreak, \postnobreakが入る
+  \endgroup%
+  \m@thpack@mathenv@body%
+}
+
+\def\m@thpack@mathenv@optcommandcheck{%
+  \futurelet\@temptoken\m@thpack@mathenv@optcommandcheck@body%  次のトークンを読み込む
+}
+
+\def\m@thpack@mathenv@optcommandcheck@body{%
+  \begingroup%
+    \ifx\@temptoken\prenobreak%
+    \else\ifx\@temptoken\postnobreak%
+    \else\ifx\@temptoken\@checkend%
+    \else\ifx\@temptoken\m@thpack@space%
+      \aftergroup\expandafter%  空白ならば次の空白を削除したうえで\m@thpack@mathenv@optcommandcheckを実行
+      \aftergroup\m@thpack@mathenv@optcommandcheck%
+      \aftergroup\m@thpack@spacedel%
+    \else%
+      \PackageError{mathpack}{mathenv Option Error 3}{See Manual}%
+      %オプションに\prenobreakまたは\postnobreak以外を書いたときのエラー
+    \fi\fi\fi\fi%
+  \endgroup%
+}
+
+\def\m@thpack@mathenv@body#1{%
+  \def\envtype{\m@thpack@mathenv@envtype}%
+  \m@thpack@mathenv@envtypecheck#1\envtype{@end}%
+  $$\halign to \displaywidth{##\cr}$$%
+  \endgroup%  グルーピング終了
+}
+
+\def\m@thpack@mathenv@envtypecheck{%
+  \futurelet\@temptoken\m@thpack@mathenv@envtypecheck@body%  次のトークンを読み込む 
+}
+
+\def\m@thpack@mathenv@envtypecheck@body{%  最初のトークンが\envtypeか確認
+  \begingroup%
+    \ifx\@temptoken\envtype%
+    \else\ifx\@temptoken\m@thpack@space%
+      \aftergroup\expandafter%  空白ならば次の空白を削除したうえで\m@thpack@mathenv@envtypecheckを実行
+      \aftergroup\m@thpack@mathenv@envtypecheck%
+      \aftergroup\m@thpack@spacedel%
+    \else%
+      \PackageError{mathpack}{mathenv Error 1}{See Manual}%
+      %mathenvの最初に\envtype以外のマクロを書いたときのエラー
+    \fi\fi%
+  \endgroup%
+}
+
+\def\m@thpack@mathenv@envtype{%
+  \futurelet\@temptoken\m@thpack@mathenv@envtype@optcheck%  次のトークンを読み込む
+}
+
+\def\m@thpack@mathenv@envtype@optcheck{%
+  \begingroup%
+    \ifx\@temptoken[%  オプションの有り無し判定
+      \aftergroup\m@thpack@mathenv@envtype@opt%
+    \else%
+      \aftergroup\m@thpack@mathenv@envtype@noopt%
+    \fi%
+  \endgroup%
+}
+
+\def\m@thpack@mathenv@envtype@opt[#1]#2{%
+  \begingroup%
+    \def\@disp{\@disp}%  #1との比較判定用
+    \def\@multi{\@multi}%
+    \def\@lines{\@lines}%
+    \def\@align{\@align}%
+    \expandafter\ifx\csname @#2\endcsname\@disp%
+      \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@disp{#1}{##1}\envtype}\@tempcmd}%
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    \else\expandafter\ifx\csname @#2\endcsname\@multi%
+      \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@multi{#1}{##1}\envtype}\@tempcmd}%
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    \else\expandafter\ifx\csname @#2\endcsname\@lines%
+      \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@lines{#1}{##1}\envtype}\@tempcmd}%
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    \else\expandafter\ifx\csname @#2\endcsname\@align%
+      \PackageError{mathpack}{mathenv Error 2}{See Manual}%
+      %alignはオプション付きでは使えないエラー
+    \else%
+      \PackageError{mathpack}{mathenv Error 3}{See Manual}%
+      %mathenvのタイプミスエラー
+    \fi\fi\fi\fi%
+  \endgroup%
+}
+
+\def\m@thpack@mathenv@envtype@noopt#1{%
+  \begingroup%
+    \def\@disp{\@disp}%  #1との比較判定用
+    \def\@multi{\@multi}%
+    \def\@lines{\@lines}%
+    \def\@align{\@align}%
+    \expandafter\ifx\csname @#1\endcsname\@disp%
+      \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@disp{}{##1}\envtype}\@tempcmd}%
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    \else\expandafter\ifx\csname @#1\endcsname\@multi%
+      \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@multi{}{##1}\envtype}\@tempcmd}%
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    \else\expandafter\ifx\csname @#1\endcsname\@lines%
+      \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@lines{}{##1}\envtype}\@tempcmd}%
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    \else\expandafter\ifx\csname @#1\endcsname\@align%
+      \global\toks1={\def\@tempcmd##1{\def\@tempcmd####1\envtype{\m@thpack@align{##1}{####1}\envtype}\@tempcmd}\@tempcmd}%
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    \else\expandafter\ifx\csname @#1\endcsname\@@end%
+    \else%
+      \PackageError{mathpack}{mathenv Error 3}{See Manual}%
+      %mathenvのタイプミスエラー
+    \fi\fi\fi\fi\fi%
+  \endgroup%
+}
+
+%  \mathenvマクロ群 終わり
+%%%%
+
+\def\m@thpack@disp#1#2{%
+  disp:#1:#2:%
+}
+
+\def\m@thpack@multi#1#2{%
+  multi:#1:#2:%
+}
+
+\def\m@thpack@lines#1#2{%
+  lines:#1:#2:%
+}
+
+\def\m@thpack@align#1#2{%
+  align:#1:#2:%
+}
+
+\catcode`@=12%  @のカテゴリーコードを通常に戻す
