@@ -22,7 +22,7 @@
 
 
 %%%%
-%  \mathenvマクロ群 始まり
+%  \mathenv本体マクロ群 始まり
 
 \def\mathenv{%
   \begingroup%  グルーピング開始
@@ -182,8 +182,52 @@
   \endgroup%
 }
 
-%  \mathenvマクロ群 終わり
+%  \mathenv本体マクロ群 終わり
 %%%%
+
+%%%%
+%  \mathenv tag生成マクロ群
+
+\def\m@thpack@tag#1{%
+  \newif\if@tagexists%  タグを付けるかどうか
+  \newif\if@outsidetag%  タグを強制改行するか
+  \def\@tag{}%  タグの内容を入れる
+  \begingroup%
+    \def\tag##1{%
+      \aftergroup\@tagexiststrue%
+      \global\toks1={\def\@tag{##1}}%
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    }%
+    \def\overtag##1{%
+      \aftergroup\@tagexiststrue%
+      \global\toks1={\def\@tag{##1}}%
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    }%
+    \def\notag{}%
+    \def\outside{%
+    }%
+    \def\label{%
+    }%
+    \def\overlabel{%
+    }%
+    \def\@checkend{\@checkend@body}%  チェックの終了を知らせる用
+    \def\@checkend@body{}%
+    \m@thpack@tagcheck#1\@checkend%
+    \if
+  \endgroup%
+}
+
+\def\m@thpack@tagcheck{%
+
+%  \mathenv tag生成マクロ群
+%%%%
+
+%%%%
+%
+
+\def\m@thpack@disp#1#2{%
+  \m@thpack@tagoptionset{#1}%
+}
 
 \def\m@thpack@disp#1#2{%
   disp:#1:#2:%
