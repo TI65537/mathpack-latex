@@ -186,7 +186,7 @@
 %%%%
 
 %%%%
-%  \mathenv tag生成マクロ群
+%  \mathenv tag生成マクロ群 始まり
 
 \def\m@thpack@tag#1{%
   \newif\if@tagexists%  タグを付けるかどうか
@@ -218,8 +218,26 @@
 }
 
 \def\m@thpack@tagcheck{%
+  \futurelet\@temptoken\m@thpack@tagcheck@body%  次のトークンを読み込む
+}
 
-%  \mathenv tag生成マクロ群
+\def\m@thpack@mathenv@tagcheck@body{%
+  \begingroup%
+    \ifx\@temptoken\prenobreak%
+    \else\ifx\@temptoken\postnobreak%
+    \else\ifx\@temptoken\@checkend%
+    \else\ifx\@temptoken\m@thpack@space%
+      \aftergroup\expandafter%  空白ならば次の空白を削除したうえで\m@thpack@mathenv@tagcheckを実行
+      \aftergroup\m@thpack@mathenv@tagcheck%
+      \aftergroup\m@thpack@spacedel%
+    \else%
+      \PackageError{mathpack}{for edit}{See Manual}%
+      %オプションに\prenobreakまたは\postnobreak以外を書いたときのエラー
+    \fi\fi\fi\fi%
+  \endgroup%
+}
+
+%  \mathenv tag生成マクロ群 終わり
 %%%%
 
 %%%%
