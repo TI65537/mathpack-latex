@@ -95,6 +95,12 @@
 \def\m@thpack@mathenv@body#1{%
   \def\envtype{\m@thpack@mathenv@envtype}%
   \m@thpack@mathenv@envtypecheck#1\envtype{@end}%
+  \if@prenobreak%  オプションに応じてペナルティを設定
+    \predisplaypenalty=\@M%
+  \fi%
+  \if@postnobreak%
+    \postdisplaypenalty=\@M%
+  \fi%
   $$\halign to \displaywidth{##\cr}$$%
   \endgroup%  グルーピング終了
 }
@@ -190,30 +196,31 @@
 
 \def\m@thpack@tag#1{%
   \newif\if@tagexists%  タグを付けるかどうか
-  \newif\if@outsidetag%  タグを強制改行するか
-  \def\@tag{}%  タグの内容を入れる
+  \@tagexiststrue%  デフォルトではタグを付ける
+  \newif\if@labelexists%  参照用ラベルを付けるかどうか
+  \def\@tag{後日実装}%  タグの内容を入れる
   \begingroup%
     \def\tag##1{%
-      \aftergroup\@tagexiststrue%
       \global\toks1={\def\@tag{##1}}%
       \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+      \m@thpack@tagcheck%
     }%
     \def\overtag##1{%
-      \aftergroup\@tagexiststrue%
       \global\toks1={\def\@tag{##1}}%
       \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+      \m@thpack@tagcheck%
     }%
-    \def\notag{}%
-    \def\outside{%
+    \def\notag{%
+      \aftergroup\@tagexistsfalse%
+      \m@thpack@tagcheck%
     }%
-    \def\label{%
+    \def\label{%後日実装
     }%
-    \def\overlabel{%
+    \def\overlabel{%後日実装
     }%
     \def\@checkend{\@checkend@body}%  チェックの終了を知らせる用
     \def\@checkend@body{}%
     \m@thpack@tagcheck#1\@checkend%
-    \if
   \endgroup%
 }
 
@@ -223,17 +230,20 @@
 
 \def\m@thpack@mathenv@tagcheck@body{%
   \begingroup%
-    \ifx\@temptoken\prenobreak%
-    \else\ifx\@temptoken\postnobreak%
+    \ifx\@temptoken\tag%
+    \else\ifx\@temptoken\overtag%
+    \else\ifx\@temptoken\notag%
+    \else\ifx\@temptoken\label%
+    \else\ifx\@temptoken\overlabel%
     \else\ifx\@temptoken\@checkend%
     \else\ifx\@temptoken\m@thpack@space%
       \aftergroup\expandafter%  空白ならば次の空白を削除したうえで\m@thpack@mathenv@tagcheckを実行
       \aftergroup\m@thpack@mathenv@tagcheck%
       \aftergroup\m@thpack@spacedel%
     \else%
-      \PackageError{mathpack}{for edit}{See Manual}%
-      %オプションに\prenobreakまたは\postnobreak以外を書いたときのエラー
-    \fi\fi\fi\fi%
+      \PackageError{mathpack}{mathenv tag Error 番号は後日実装}{See Manual}%
+      %タイプミスのエラー
+    \fi\fi\fi\fi\fi\fi\fi%
   \endgroup%
 }
 
@@ -242,6 +252,11 @@
 
 %%%%
 %
+
+% 注意事項
+% \mathsurrund の除去と再挿入
+% shortバージョンの動作
+% \lineskip 等の設定
 
 \def\m@thpack@disp#1#2{%
   \m@thpack@tagoptionset{#1}%
