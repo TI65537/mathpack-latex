@@ -9,6 +9,91 @@
 
 
 
+%  ファイルの読み込み
+
+\newread\m@thpack@mathpackaux
+\openin\m@thpack@mathpackaux=\jobname_mathpack.aux\relax%  auxファイルを読み込む
+
+\ifeof\m@thpack@mathpackaux%  空でないなら読み込む
+\else%
+  \input\jobname_mathpack.aux\relax%
+\fi
+
+\closein\m@thpack@mathpackaux%  auxファイルを閉じる
+
+\newwrite\m@thpack@mathpackaux%  auxファイルを書き込み用に開く
+\immediate\openout\m@thpack@mathpackaux=\jobname_mathpack.aux\relax
+
+
+
+
+% エラーと警告関係
+
+\def\m@thpack@warning#1#2{%  #1:警告見出し #2:警告本文
+  \begingroup%
+  \newlinechar=10\relax%
+  \message{Mathpack Warning: #1 at line \the\inputlineno^^J  #2^^J}%
+  \endgroup%
+}
+
+\def\m@thpack@error#1#2{%  #1:エラー見出し #2:ヘルプメッセージ
+  \begingroup%
+  \newlinechar=10\relax%
+  \errhelp{#2}%
+  \errmessage{Mathpack Error: #1}%
+  \endgroup%
+}
+
+
+
+
+%  タグ関係
+
+\newcount\mathpacktagnumber%  数式番号用
+\mathpacktagnumber=0\relax
+
+\def\mathpacktag{\the\mathpacktagnumber}
+%  数式タグの番号部分(例えば"(1)"の"1"の部分を想定)
+%  各自カスタマイズ可能(\edefで展開可能なもの)
+
+\def\mathpacktagstep{\global\advance\mathpacktagnumber by 1\relax}
+%  数式番号を進める
+%  数式番号の表示前に実行される
+%  各自カスタマイズ可能
+
+\def\mathpacktagtemplate#1{\noexpand\begingroup\noexpand\rm(#1)\noexpand\endgroup}
+%  数式番号のテンプレート部分(例えば"(1)"の"("と")"の部分を想定)
+%  #1には\mathpacktagが入る
+%  各自カスタマイズ可能(\edefで展開可能なもの)
+
+\def\mathpacklabeltemplate#1{eq.~#1}
+%  数式番号の参照時のテンプレート部分(この定義では"(1)"を参照すると"eq. 1"と表示される)
+%  #1には\mathpacktagが入る
+%  各自カスタマイズ可能(\edefで展開可能なもの)
+
+
+
+
+%  ラベル関係
+
+%  参照名nameに対し
+%  \m@thpack@label@body@nameは定義されていたら参照本体
+%  \m@thpack@label@refed@nameは定義されていたら参照されたこと
+%  を表す
+
+\def\mathpacklabelset#1#2{%  参照名#1に参照本体#2を設定
+  \expandafter\ifx\csname m@thpack@label@body@#1\endcsname\undefined%
+  \else%
+  \fi%
+}
+
+\def\mathpacklabelref#1{%  参照名#1を参照
+  \global\expandafter\def\csname m@thpack@label@refed@#1\endcsname{}%
+}
+
+
+
+
 %  一般的なマクロ
 
 \def\m@thpack@spacemacro{ }%  下の二つのコマンドの定義に使う
@@ -47,8 +132,7 @@
     \newif\if@postnobreak@read%
     \def\prenobreak{%
       \if@prenobreak@read%
-        \PackageError{mathpack}{mathenv Option Error 1}{See Manual}%
-        %\prenobreakを二回書いたときのエラー
+        \m@thpack@error{'\noexpand\prenobreak'を二回以上書いている ('\noexpand\mathenv'のオプション引数部)}{'\prenobreak'は1回まで!!}%
       \else%
         \aftergroup\@prenobreaktrue%
         \@prenobreak@readtrue%
@@ -57,8 +141,7 @@
     }%
     \def\postnobreak{%
       \if@postnobreak@read%
-        \PackageError{mathpack}{mathenv Option Error 2}{See Manual}%
-        %\postnobreakを二回書いたときのエラー
+        \m@thpack@error{'\noexpand\postnobreak'を二回以上書いている ('\noexpand\mathenv'のオプション引数部)}{'\postnobreak'は1回まで!!}%
       \else%
         \aftergroup\@postnobreaktrue%
         \@postnobreak@readtrue%
@@ -86,8 +169,7 @@
       \aftergroup\m@thpack@mathenv@optcommandcheck%
       \aftergroup\m@thpack@spacedel%
     \else%
-      \PackageError{mathpack}{mathenv Option Error 3}{See Manual}%
-      %オプションに\prenobreakまたは\postnobreak以外を書いたときのエラー
+      \m@thpack@error{不明なオプション ('\noexpand\mathenv'のオプション引数部)}{'\prenobreak', '\postnobreak'以外のオプションは書けません。^^Jタイプミスのチェックも忘れずに。}%
     \fi\fi\fi\fi%
   \endgroup%
 }
@@ -101,7 +183,13 @@
   \if@postnobreak%
     \postdisplaypenalty=\@M%
   \fi%
-  $$\halign to \displaywidth{##\cr}$$%
+  \ifvmode%  余分な空白を削除する(具体的には数式のみの段落で空行が入るのを防ぐ)
+    \nointerlineskip%
+  \fi%
+  $$%
+    \openup\jot%
+    \halign to \displaywidth{##\cr}%
+  $$%
   \endgroup%  グルーピング終了
 }
 
@@ -117,8 +205,7 @@
       \aftergroup\m@thpack@mathenv@envtypecheck%
       \aftergroup\m@thpack@spacedel%
     \else%
-      \PackageError{mathpack}{mathenv Error 1}{See Manual}%
-      %mathenvの最初に\envtype以外のマクロを書いたときのエラー
+      \m@thpack@error{'\noexpand\mathenv'の本引数は'\noexpand\envtype'で始める必要がある ('\noexpand\mathenv'の本引数部)}{'\mathenv'の本引数は'\envtype'で始める必要があります。^^Jタイプミスのチェックも忘れずに。}%
     \fi\fi%
   \endgroup%
 }
@@ -153,11 +240,9 @@
       \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@lines{#1}{##1}\envtype}\@tempcmd}%
       \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
     \else\expandafter\ifx\csname @#2\endcsname\@align%
-      \PackageError{mathpack}{mathenv Error 2}{See Manual}%
-      %alignはオプション付きでは使えないエラー
+      \m@thpack@error{'\noexpand\envtype\noexpand{align\noexpand}'にオプション引数を付けてはいけない ('\noexpand\envtype'のオプション引数部)}{'\envtype{align}'にオプション引数を付けてはいけません。}%
     \else%
-      \PackageError{mathpack}{mathenv Error 3}{See Manual}%
-      %mathenvのタイプミスエラー
+      \m@thpack@error{不明な環境名'#2' ('\noexpand\mathenv'の本引数部)}{そのような環境はありません。^^Jタイプミスのチェックも忘れずに。}%
     \fi\fi\fi\fi%
   \endgroup%
 }
@@ -182,8 +267,7 @@
       \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
     \else\expandafter\ifx\csname @#1\endcsname\@@end%
     \else%
-      \PackageError{mathpack}{mathenv Error 3}{See Manual}%
-      %mathenvのタイプミスエラー
+      \m@thpack@error{不明な環境名'#1' ('\noexpand\mathenv'の本引数部)}{そのような環境はありません。^^Jタイプミスのチェックも忘れずに。}%
     \fi\fi\fi\fi\fi%
   \endgroup%
 }
@@ -241,8 +325,7 @@
       \aftergroup\m@thpack@mathenv@tagcheck%
       \aftergroup\m@thpack@spacedel%
     \else%
-      \PackageError{mathpack}{mathenv tag Error 番号は後日実装}{See Manual}%
-      %タイプミスのエラー
+      \m@thpack@error{不明なオプション (数式タグオプション)}{入力された名前のオプションはありません。^^Jタイプミスのチェックも忘れずに。}%
     \fi\fi\fi\fi\fi\fi\fi%
   \endgroup%
 }
