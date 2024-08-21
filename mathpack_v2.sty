@@ -314,10 +314,11 @@
   \newif\if@labelexists%  参照用ラベルを付けるかどうか
   \def\@tag{\mathpacktagtemplate{\mathpacktag}}%  タグの内容を入れる用 デフォルトの値を代入
   \begingroup%
-    \newif\if@tag@read%
+    \newif\if@tag@read%  オプションを読み込み済みかの判定用
     \newif\if@label@read%
     \def\tag##1{%
       \if@tag@read%
+        \m@thpack@error{タグに関するオプションを二回以上書いている (タグオプション)}{'\tag', '\overtag', '\notag'の中から一つまで使うことができます。}%
       \else%
         \global\toks1={\def\@tag{\mathpacktagtemplate{##1}}}%
         \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
@@ -327,6 +328,7 @@
     }%
     \def\overtag##1{%
       \if@tag@read%
+        \m@thpack@error{タグに関するオプションを二回以上書いている (タグオプション)}{'\tag', '\overtag', '\notag'の中から一つまで使うことができます。}%
       \else%
         \global\toks1={\def\@tag{##1}}%
         \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
@@ -336,18 +338,20 @@
     }%
     \def\notag{%
       \if@tag@read%
+        \m@thpack@error{タグに関するオプションを二回以上書いている (タグオプション)}{'\tag', '\overtag', '\notag'の中から一つまで使うことができます。}%
       \else%
         \aftergroup\@tagexistsfalse%
         \@tag@readtrue%
       \fi%
       \m@thpack@tagcheck%
     }%
-    \def\label##1{%
+    \def\label##1{%編集中
       \m@thpack@tagcheck%
     }%
-    \def\overlabel##1##2{%
+    \def\overlabel##1##2{%編集中
       \m@thpack@tagcheck%
     }%
+    %tagstep問題を解決する
     \def\@checkend{\@checkend@body}%  チェックの終了を知らせる用
     \def\@checkend@body{}%
     \m@thpack@tagcheck#1\@checkend%
