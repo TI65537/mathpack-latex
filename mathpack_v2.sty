@@ -9,17 +9,24 @@
 
 
 
+%  パッケージオプション
+
+\newif\ifmathpackfleqn%  数式を左揃えにする
+\newif\ifmathpackleqno%  数式番号を左に付ける
+\newif\ifmathpackonlyrefs%  参照した数式のみに数式番号を付ける
+
+
+
+
 %  ファイルの読み込み
 
-\newread\m@thpack@mathpackaux
-\openin\m@thpack@mathpackaux=\jobname_mathpack.aux\relax%  auxファイルを読み込む
-
-\ifeof\m@thpack@mathpackaux%  空でないなら読み込む
+\newread\m@thpack@mathpackaux%  空でないかテストして\inputで読み込む
+\immediate\openin\m@thpack@mathpackaux=\jobname_mathpack.aux\relax%
+\ifeof\m@thpack@mathpackaux%
 \else%
+  \immediate\closein\m@thpack@mathpackaux%
   \input\jobname_mathpack.aux\relax%
 \fi
-
-\closein\m@thpack@mathpackaux%  auxファイルを閉じる
 
 \newwrite\m@thpack@mathpackaux%  auxファイルを書き込み用に開く
 \immediate\openout\m@thpack@mathpackaux=\jobname_mathpack.aux\relax
@@ -31,16 +38,17 @@
 
 \def\m@thpack@warning#1#2{%  #1:警告見出し #2:警告本文
   \begingroup%
-  \newlinechar=10\relax%
-  \message{Mathpack Warning: #1 at line \the\inputlineno^^J  #2^^J}%
+    \newlinechar=10\relax%
+    \message{Mathpack Warning: #1 at line \the\inputlineno^^J  #2^^J}%
   \endgroup%
 }
 
 \def\m@thpack@error#1#2{%  #1:エラー見出し #2:ヘルプメッセージ
   \begingroup%
-  \newlinechar=10\relax%
-  \errhelp{#2}%
-  \errmessage{Mathpack Error: #1}%
+    \newlinechar=10\relax%
+    \errorcontextlines=-1\relax%
+    \errhelp{#2}%
+    \errmessage{Mathpack Error: #1}%
   \endgroup%
 }
 
@@ -77,18 +85,40 @@
 %  ラベル関係
 
 %  参照名nameに対し
-%  \m@thpack@label@body@nameは定義されていたら参照本体
+%  \m@thpack@label@body@nameは参照本体
+%  \m@thpack@label@defed@nameは定義されていたら今回の実行中に定義されたこと
 %  \m@thpack@label@refed@nameは定義されていたら参照されたこと
 %  を表す
 
-\def\mathpacklabelset#1#2{%  参照名#1に参照本体#2を設定
-  \expandafter\ifx\csname m@thpack@label@body@#1\endcsname\undefined%
-  \else%
-  \fi%
+\def\mplabel#1#2{%  参照名#1に参照本体#2を設定
+  \begingroup%
+    \expandafter\ifx\csname m@thpack@label@defed@#1\endcsname\relax%  ラベルは設定済みかそうでないか
+      \expandafter\gdef\csname m@thpack@label@defed@#1\endcsname{}%  定義済みであることを知らせる
+      \toks0={\expandafter\gdef\csname m@thpack@label@body@#1\endcsname{#2}}%  参照本体を設定する
+      \immediate\write\m@thpack@mathpackaux{\the\toks0\relax}%  次回実行時用
+      \the\toks0\relax%  今回実行の残り用
+    \else%
+      \m@thpack@error{ラベル'#1'は既に定義済み (ラベル設定)}{その名前のラベルは既に使用されています。^^J違う名前に変更してください。}%
+    \fi%
+  \endgroup%
 }
 
-\def\mathpacklabelref#1{%  参照名#1を参照
-  \global\expandafter\def\csname m@thpack@label@refed@#1\endcsname{}%
+\def\mpref#1{%  参照名#1を参照
+  \begingroup%
+    \toks0={\expandafter\gdef\csname m@thpack@label@refed@#1\endcsname{}}%  参照済みであることを知らせる
+    \immediate\write\m@thpack@mathpackaux{\the\toks0\relax}%  次回実行時用
+    \the\toks0\relax%  今回実行の残り用
+  \endgroup%
+  \begingroup%
+    \expandafter\ifx\csname m@thpack@label@body@#1\endcsname\relax%  ラベルが未定義かどうか
+      \m@thpack@warning{ラベル'#1'は未定義 (ラベル設定)}{指定された名前のラベルが見つかりませんでした。再コンパイルしても表示される場合はタイプミスの可能性があります。}%
+      \global\toks1={???}%  仮テキスト???を使う
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    \else%
+      \global\toks1={\csname m@thpack@label@body@#1\endcsname}%  参照本体を使う
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    \fi%
+  \endgroup%
 }
 
 
@@ -282,25 +312,41 @@
   \newif\if@tagexists%  タグを付けるかどうか
   \@tagexiststrue%  デフォルトではタグを付ける
   \newif\if@labelexists%  参照用ラベルを付けるかどうか
-  \def\@tag{後日実装}%  タグの内容を入れる
+  \def\@tag{\mathpacktagtemplate{\mathpacktag}}%  タグの内容を入れる用 デフォルトの値を代入
   \begingroup%
+    \newif\if@tag@read%
+    \newif\if@label@read%
     \def\tag##1{%
-      \global\toks1={\def\@tag{##1}}%
-      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+      \if@tag@read%
+      \else%
+        \global\toks1={\def\@tag{\mathpacktagtemplate{##1}}}%
+        \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+        \@tag@readtrue%
+      \fi%
       \m@thpack@tagcheck%
     }%
     \def\overtag##1{%
-      \global\toks1={\def\@tag{##1}}%
-      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+      \if@tag@read%
+      \else%
+        \global\toks1={\def\@tag{##1}}%
+        \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+        \@tag@readtrue%
+      \fi%
       \m@thpack@tagcheck%
     }%
     \def\notag{%
-      \aftergroup\@tagexistsfalse%
+      \if@tag@read%
+      \else%
+        \aftergroup\@tagexistsfalse%
+        \@tag@readtrue%
+      \fi%
       \m@thpack@tagcheck%
     }%
-    \def\label{%後日実装
+    \def\label##1{%
+      \m@thpack@tagcheck%
     }%
-    \def\overlabel{%後日実装
+    \def\overlabel##1##2{%
+      \m@thpack@tagcheck%
     }%
     \def\@checkend{\@checkend@body}%  チェックの終了を知らせる用
     \def\@checkend@body{}%
