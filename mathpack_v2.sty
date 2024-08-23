@@ -11,9 +11,33 @@
 
 %  パッケージオプション
 
-\newif\ifmathpackfleqn%  数式を左揃えにする
-\newif\ifmathpackleqno%  数式番号を左に付ける
-\newif\ifmathpackonlyrefs%  参照した数式のみに数式番号を付ける
+%%  mathenvに関するもの
+\newif\ifmathenvfleqn%  数式を左揃えにする
+\newif\ifmathenvleqno%  数式番号を左に付ける
+\newif\ifmathenvonlyrefs%  参照した数式のみに数式番号を付ける
+
+
+
+
+%  パッケージ変数
+
+%%  mathenvに関するもの
+%%%  パッケージオプション関係
+\newdimen\mathenvindent
+
+%%%  行間設定
+\newdimen\mathenvbaselineskip
+\mathenvbaselineskip=\normalbaselineskip
+\newdimen\mathenvlineskiplimit
+\mathenvlineskiplimit=\normallineskiplimit
+\newdimen\mathenvlineskip
+\mathenvlineskip=\jot
+\newdimen\mathenvinterenvskip
+\mathenvinterenvskip=3\jot
+
+%%%  行間ペナルティ
+\newcount\mathenvintermathpenalty
+\newcount\mathenvinterenvpenalty
 
 
 
@@ -269,8 +293,9 @@
 
 \def\m@thpack@mathenv@envtype@opt[#1]#2{%
   \begingroup%
-    \def\@disp{\@disp}%  #1との比較判定用
+    \def\@disp{\@disp}%  #2との比較判定用
     \def\@multi{\@multi}%
+    \def\@multi{\@lmulti}%
     \def\@lines{\@lines}%
     \def\@align{\@align}%
     \expandafter\ifx\csname @#2\endcsname\@disp%
@@ -279,6 +304,9 @@
     \else\expandafter\ifx\csname @#2\endcsname\@multi%
       \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@multi{#1}{##1}\envtype}\@tempcmd}%
       \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    \else\expandafter\ifx\csname @#2\endcsname\@lmulti%
+      \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@lmulti{#1}{##1}\envtype}\@tempcmd}%
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
     \else\expandafter\ifx\csname @#2\endcsname\@lines%
       \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@lines{#1}{##1}\envtype}\@tempcmd}%
       \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
@@ -286,7 +314,7 @@
       \m@thpack@error{'\noexpand\envtype\noexpand{align\noexpand}'にオプション引数を付けてはいけない ('\noexpand\envtype'のオプション引数部)}{'\envtype{align}'にオプション引数を付けてはいけません。}%
     \else%
       \m@thpack@error{不明な環境名'#2' ('\noexpand\mathenv'の本引数部)}{そのような環境はありません。^^Jタイプミスのチェックも忘れずに。}%
-    \fi\fi\fi\fi%
+    \fi\fi\fi\fi\fi%
   \endgroup%
 }
 
@@ -294,6 +322,7 @@
   \begingroup%
     \def\@disp{\@disp}%  #1との比較判定用
     \def\@multi{\@multi}%
+    \def\@multi{\@lmulti}%
     \def\@lines{\@lines}%
     \def\@align{\@align}%
     \expandafter\ifx\csname @#1\endcsname\@disp%
@@ -301,6 +330,9 @@
       \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
     \else\expandafter\ifx\csname @#1\endcsname\@multi%
       \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@multi{}{##1}\envtype}\@tempcmd}%
+      \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+    \else\expandafter\ifx\csname @#1\endcsname\@lmulti%
+      \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@lmulti{}{##1}\envtype}\@tempcmd}%
       \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
     \else\expandafter\ifx\csname @#1\endcsname\@lines%
       \global\toks1={\def\@tempcmd##1\envtype{\m@thpack@lines{}{##1}\envtype}\@tempcmd}%
@@ -311,7 +343,7 @@
     \else\expandafter\ifx\csname @#1\endcsname\@@end%
     \else%
       \m@thpack@error{不明な環境名'#1' ('\noexpand\mathenv'の本引数部)}{そのような環境はありません。^^Jタイプミスのチェックも忘れずに。}%
-    \fi\fi\fi\fi\fi%
+    \fi\fi\fi\fi\fi\fi%
   \endgroup%
 }
 
@@ -461,6 +493,10 @@
   multi:#1:#2:%
 }
 
+\def\m@thpack@lmulti#1#2{%
+  lmulti:#1:#2:%
+}
+
 \def\m@thpack@lines#1#2{%
   lines:#1:#2:%
 }
@@ -468,5 +504,8 @@
 \def\m@thpack@align#1#2{%
   align:#1:#2:%
 }
+
+
+
 
 \catcode`@=12%  @のカテゴリーコードを通常に戻す
