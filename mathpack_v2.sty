@@ -357,20 +357,22 @@
   \newif\if@tagexists%  タグを付けるかどうか
   \@tagexiststrue%  デフォルトではタグを付ける
   \def\@tag{\mathpacktagtemplate{\mathpacktag}}%  タグの内容を入れる用 デフォルトの値を代入
-  \def\@label{\mathpacklabeltemplate{\mathpacktag}}%  ラベルの内容を入れる用 デフォルトの値を代入 使用されない可能性あり
   \begingroup%
+    \newif\if@labelexists%  ラベルを付けるかどうか
+    \newif\if@tagstep%  タグステップを行うか
+    \@tagsteptrue%  デフォルトでは行う
+    %  \@refnameに参照名を入れる
+    \def\@label{\mathpacklabeltemplate{\mathpacktag}}%  ラベルの内容を入れる用 デフォルトの値を代入 使用されない可能性あり
     \newif\if@tag@read%  オプションを読み込み済みかの判定用
-    \newif\if@label@read%
-    \newif\if@labelornotag@read%  \notagとラベル関係のオプションを同時に読み込まないようにする用
-    \global\toks1={\mathpacktagstep}%  デフォルトではタグをステップさせる ステップさせない場合は後で\toks1を上書き
-    \global\toks3={}%  \@tag, \@labelを上書き定義する場合は\toks3で行う
-    \global\toks5={}%  デフォルトではラベルは設定しない 設定する場合は\toks5を上書き
+    \newif\if@label@read%  読み込み済み判定兼ラベルが存在するかの判定
     \def\tag##1{%
       \if@tag@read%
         \m@thpack@error{タグに関するオプションを二回以上書いている (タグオプション)}{'\tag', '\overtag', '\notag'の中から一つまで使うことができます。}%
       \else%
-        \global\toks1={}%  タグをステップさせないようにする
-        \global\toks3={\def\@tag{\mathpacktagtemplate{##1}}\def\@label{\mathpacklabeltemplate{##1}}}%  \@tag, \@labelを上書き定義
+        \@tagstepfalse%
+        \global\toks1={\def\@tag{\mathpacktagtemplate{##1}}}%
+        \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+        \def\@label{\mathpacklabeltemplate{##1}}%
         \@tag@readtrue%
       \fi%
       \m@thpack@tagcheck%
@@ -379,8 +381,10 @@
       \if@tag@read%
         \m@thpack@error{タグに関するオプションを二回以上書いている (タグオプション)}{'\tag', '\overtag', '\notag'の中から一つまで使うことができます。}%
       \else%
-        \global\toks1={}%  タグをステップさせないようにする
-        \global\toks3={\def\@tag{##1}\def\@label{##1}}%  \@tag, \@labelを上書き定義
+        \@tagstepfalse%
+        \global\toks1={\def\@tag{##1}}%
+        \aftergroup\the\aftergroup\toks\aftergroup1\aftergroup\relax%
+        \def\@label{##1}%
         \@tag@readtrue%
       \fi%
       \m@thpack@tagcheck%
@@ -389,14 +393,10 @@
       \if@tag@read%
         \m@thpack@error{タグに関するオプションを二回以上書いている (タグオプション)}{'\tag', '\overtag', '\notag'の中から一つまで使うことができます。}%
       \else%
-        \if@labelornotag@read%
-          \m@thpack@error{'\noexpand\notag'とラベルに関するオプションは同時に使えない (タグオプション)}{'\notag'と'\label', '\overlabel'は同時に使用できません。}%
-        \else%
-          \global\toks1={}%  タグをステップさせないようにする
-          \aftergroup\@tagexistsfalse%
-          \@tag@readtrue%
-          \@labelornotag@readtrue%
-        \fi%
+        \@tagstepfalse%
+        \aftergroup\@tagexistsfalse%  グループ外用
+        \@tagexistsfalse%  グループ内用
+        \@tag@readtrue%
       \fi%
       \m@thpack@tagcheck%
     }%
@@ -404,19 +404,8 @@
       \if@label@read%
         \m@thpack@error{ラベルに関するオプションを二回以上書いている (タグオプション)}{'\label', '\overlabel'の中から一つまで使うことができます。}%
       \else%
-        \if@labelornotag@read%
-          \m@thpack@error{'\noexpand\notag'とラベルに関するオプションは同時に使えない (タグオプション)}{'\notag'と'\label', '\overlabel'は同時に使用できません。}%
-        \else%
-          \global\toks5={%  ラベルの設定を行う
-            \begingroup%
-              \edef\@edeflabel{\@label}%
-              \def\@tempcmd####1{\mplabel{##1}{####1}}%
-              \expandafter\@tempcmd\expandafter{\@edeflabel}%
-            \endgroup%
-          }%
-          \@label@readtrue%
-          \@labelornotag@readtrue%
-        \fi%
+        \def\@refname{##1}%
+        \@label@readtrue%
       \fi%
       \m@thpack@tagcheck%
     }%
@@ -424,29 +413,40 @@
       \if@label@read%
         \m@thpack@error{ラベルに関するオプションを二回以上書いている (タグオプション)}{'\label', '\overlabel'の中から一つまで使うことができます。}%
       \else%
-        \if@labelornotag@read%
-          \m@thpack@error{'\noexpand\notag'とラベルに関するオプションは同時に使えない (タグオプション)}{'\notag'と'\label', '\overlabel'は同時に使用できません。}%
-        \else%
-          \global\toks5={%  ラベルの設定を行う
-            \begingroup%
-              \edef\@edeflabel{##2}%
-              \def\@tempcmd####1{\mplabel{##1}{####1}}%
-              \expandafter\@tempcmd\expandafter{\@edeflabel}%
-            \endgroup%
-          }%
-          \@label@readtrue%
-          \@labelornotag@readtrue%
-        \fi%
+        \def\@refname{##1}%
+        \def\@label{##2}%
+        \@label@readtrue%
       \fi%
       \m@thpack@tagcheck%
     }%
     \def\@checkend{\@checkend@body}%  チェックの終了を知らせる用
     \def\@checkend@body{}%
     \m@thpack@tagcheck#1\@checkend%
+    \if@tagexists%
+    \else%
+      \if@label@read%  ラベルが存在しタグが存在しない場合(つまり\notagとタグに関するオプションが同時に使われている場合)
+        \m@thpack@error{'\noexpand\notag'とラベルに関するオプションは同時に使えない (タグオプション)}{'\notag'と'\label', '\overlabel'は同時に使用できません。}%
+      \fi%
+    \fi%
+    \if@tagstep%
+      \mathpacktagstep%
+    \fi%
+    \if@label@read%
+      \begingroup%
+        \edef\@edeflabel{\@label}%
+        \expandafter\expandafter\expandafter\mplabel\expandafter\expandafter\expandafter{\expandafter\@refname\expandafter}\expandafter{\@edeflabel}%
+      \endgroup%
+    \fi%
+    \ifmathenvonlyrefs%  onlyrefsの場合は状況に応じてタグを無くす
+      \if@label@read%
+        \expandafter\ifx\csname m@thpack@label@refed@\@refname\endcsname\relax%  ラベルはあるが参照されていない場合
+          \aftergroup\@tagexistsfalse%
+        \fi%
+      \else%  ラベルがない場合
+        \aftergroup\@tagexistsfalse%
+      \fi%
+    \fi%
   \endgroup%
-  \the\toks1\relax%  タグをステップさせるもしくは何もしない
-  \the\toks3\relax%  \@tagを上書き定義もしくは何もしない
-  \the\toks5\relax%  ラベルを設定するもしくは何もしない
 }
 
 \def\m@thpack@tagcheck{%
