@@ -32,12 +32,18 @@
 \mathenvlineskiplimit=\normallineskiplimit
 \newdimen\mathenvlineskip
 \mathenvlineskip=\jot
-\newdimen\mathenvinterenvskip%  \mathenv間の行間
+\newdimen\mathenvinterenvskip%  env間の行間
 \mathenvinterenvskip=3\jot
 
 %%%  行間ペナルティ
-\newcount\mathenvintermathpenalty
-\newcount\mathenvinterenvpenalty
+\newcount\mathenvintermultipenalty%  multi, lmultiの行間ペナルティ
+\mathenvintermultipenalty=\@M
+\newcount\mathenvinterlinespenalty%  linesの行間ペナルティ
+\mathenvinterlinespenalty=\@M
+\newcount\mathenvinteralignpenalty%  alignの行間ペナルティ
+\mathenvinteralignpenalty=\@M
+\newcount\mathenvinterenvpenalty%  env間の行間ペナルティ
+\mathenvinterenvpenalty=\@M
 
 
 
@@ -164,7 +170,7 @@
 
 \def\m@thpack@math#1{%  \mathsurroundを挿入しないインライン数式
   \begingroup%
-    \everymath{}%
+    \everymath={}%
     \dimen0=\mathsurround%
     \mathsurround=0sp%
     $\begingroup\mathsurround=\dimen0\relax#1\endgroup$%
@@ -243,8 +249,6 @@
 }
 
 \def\m@thpack@mathenv@body#1{%
-  \def\envtype{\m@thpack@mathenv@envtype}%
-  \m@thpack@mathenv@envtypecheck#1\envtype{@end}%
   \if@prenobreak%  オプションに応じてペナルティを設定
     \predisplaypenalty=\@M%
   \fi%
@@ -254,8 +258,15 @@
   \ifvmode%  余分な空白を削除する(具体的には数式のみの段落で空行が入るのを防ぐ)
     \nointerlineskip%
   \fi%
+  \def\@material##1{##1}%  \halignの要素を入れる用
+  \def\envtype{\m@thpack@mathenv@envtype}%
+  \m@thpack@mathenv@envtypecheck#1\envtype{@end}%  ここで\halignの要素を構築
+  \baselineskip=\mathenvbaselineskip%  行間を設定
+  \lineskip=\mathenvlineskip%
+  \lineskiplimit=\mathenvlineskiplimit%
   $$%
-    \halign to \displaywidth{##\cr}%
+    \def\@tempcmd##1{\halign to \displaywidth{####\cr##1}}%
+    \expandafter\@tempcmd\expandafter{\@material{}}%
   $$%
   \endgroup%  グルーピング終了
 }
@@ -482,10 +493,19 @@
 % ペナルティの挿入
 
 \def\m@thpack@disp#1#2{%
-  \m@thpack@tagoptionset{#1}%
-}
-
-\def\m@thpack@disp#1#2{%
+  \begingroup%
+    \def\@list{}%
+    \ifmathenvfleqn%
+    \else%
+    \fi%
+    \ifmathenvfleqn%
+      \hskip\mathenvindent%
+    \else%
+      \hfil%
+    \fi%
+    \m@thpack@mathenv@tag{#1}%
+    \global\toks1={}%
+  \endgroup%
   disp:#1:#2:%
 }
 
