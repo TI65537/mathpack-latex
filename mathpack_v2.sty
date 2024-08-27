@@ -48,6 +48,19 @@
 
 
 
+%  レジスターの確保
+
+%%  ボックス
+\newbox\m@thpack@boxa
+\newbox\m@thpack@boxb
+\newbox\m@thpack@boxc
+\newbox\m@thpack@boxd
+\newbox\m@thpack@boxe
+\newbox\m@thpack@boxf
+
+
+
+
 %  ファイルの読み込み
 
 \newread\m@thpack@mathpackaux%  空でないかテストして\inputで読み込む
@@ -265,8 +278,7 @@
   \lineskip=\mathenvlineskip%
   \lineskiplimit=\mathenvlineskiplimit%
   $$%
-    \def\@tempcmd##1{\halign to \displaywidth{####\cr##1}}%
-    \expandafter\@tempcmd\expandafter{\@material{}}%
+    \halign to \displaywidth{##\cr}%
   $$%
   \endgroup%  グルーピング終了
 }
@@ -489,22 +501,21 @@
 %
 
 % 注意事項
-% \lineskip 等の設定
 % ペナルティの挿入
+
+% タグに関する注意
+%
 
 \def\m@thpack@disp#1#2{%
   \begingroup%
-    \def\@list{}%
-    \ifmathenvfleqn%
-    \else%
-    \fi%
-    \ifmathenvfleqn%
-      \hskip\mathenvindent%
-    \else%
-      \hfil%
-    \fi%
-    \m@thpack@mathenv@tag{#1}%
-    \global\toks1={}%
+    \global\toks1={%
+      \noalign{%
+        \m@thpack@mathenv@tag{#1}%  タグを生成
+        \global\setbox\m@thpack@boxa=\hbox{\@tag}%  タグをboxaに入れる
+        \global\setbox\m@thpack@boxb=\hbox{#2}%  数式をboxbに入れる
+      }%
+      \ifcase\or\or\or
+    }%
   \endgroup%
   disp:#1:#2:%
 }
