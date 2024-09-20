@@ -268,8 +268,8 @@
   \if@postnobreak%
     \postdisplaypenalty=\@M%
   \fi%
-  \ifvmode%  余分な空白を削除する(具体的には数式のみの段落で空行が入るのを防ぐ)
-    \nointerlineskip%
+  \ifvmode%  段落が始まっていない場合は\noindentで開始する(\indentだとインデントのためのボックスが入り見栄えが悪くなる)
+    \noindent%
   \fi%
   \def\@material##1{##1}%  \halignの要素を入れる用
   \def\envtype{\m@thpack@mathenv@envtype}%
