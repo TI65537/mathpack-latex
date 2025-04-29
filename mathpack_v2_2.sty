@@ -1,0 +1,2306 @@
+%\NeedsTeXFormat{LaTeX2e}
+%\ProvidesPackage{mathpack_v2}[2024/08/07 mathpack: Advanced macros for display equation. version 2 !!!!]
+
+
+
+
+\catcode`@=11%  @を文字と見なす
+
+
+
+
+%  \mathenv, \m@thpack@ で始まる名前はグローバルレベルで定義されるものに使用する(後者は内部使用限定)
+%  \m@thpack@@ で始まる名前はローカルレベルで定義されるものに使用する(内部使用限定)
+%  全ての識別子は前述の方法で修飾する
+%  全てのスクラッチレジスターは未知のマクロ、ボックス設定等で破壊されると仮定する
+
+
+
+
+%  パッケージオプション
+
+%%  mathenvに関するもの
+\newif\ifmathenvtag%  数式にデフォルトでタグを付けるか
+\mathenvtagtrue%
+\newif\ifmathenvfleqn%  数式を左揃えにするか
+\newif\ifmathenvleqno%  数式番号を左に付けるか
+\newif\ifmathenvonlyrefs%  参照した数式のみに数式番号を付けるか
+
+
+
+
+%  パッケージ変数
+
+%%  mathenvに関するもの
+%%%  パッケージオプション関係
+\newtoks\mathenvdisplaytoks%  各ディスプレイ数式の先頭に挿入されるトークン
+\newtoks\mathenvmathtoks%  各インライン数式の先頭に挿入されるトークン%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%必要性が不明
+\newtoks\mathenvaligndisplaytoks%  align環境での各ディスプレイ数式の先頭に挿入されるトークン
+\newtoks\mathenvalignmathtoks%  align環境での各インライン数式の先頭に挿入されるトークン
+\newtoks\mathenvaligntexttoks%  align環境での各テキストの先頭に挿入されるトークン
+\newdimen\mathenvindent%  fleqn時のインデント量
+\mathenvindent=2cm
+
+%%%  行間設定
+\newdimen\mathenvopenupamount%  \mathenv開始時に\openupで使用する量
+\mathenvopenupamount=\jot
+\newskip\mathenvinterenvskip% \mathenvの各\envtype間に追加で加えられる垂直スペースの量
+\mathenvinterenvskip=3\jot
+
+%%%  行間ペナルティ
+\newcount\mathenvinterlinespenalty%  lines, multi, lmultiの行間ペナルティ
+\mathenvinterlinespenalty=100123%10000
+\newcount\mathenvinteralignpenalty%  alignの行間ペナルティ
+\mathenvinteralignpenalty=100456%10000
+\newcount\mathenvinterenvpenalty%  各\envtypeの行間ペナルティ
+\mathenvinterenvpenalty=99
+
+
+
+
+%  空白トークン
+
+\def\m@thpack@spacemacro{ }%  下のコマンドの定義に使う
+
+\expandafter\expandafter\expandafter\let\expandafter\expandafter\expandafter\m@thpack@space\expandafter\expandafter\expandafter%
+=\expandafter\m@thpack@spacemacro\m@thpack@spacemacro%  空白文字のトークン (\m@thpack@spaceの定義)
+
+
+
+
+%  特殊トークンリストを伴うグルーピングマクロ
+
+\newtoks\m@thpack@aftergrouptoks%  \m@thpack@endgroupを実行した際に展開される  ローカル使用専用
+
+\def\m@thpack@begingroup{\begingroup\m@thpack@aftergrouptoks={}}%  \m@thpack@aftergrouptoksを初期化しグループを開始
+
+\def\m@thpack@endgroup{\expandafter\endgroup\the\m@thpack@aftergrouptoks}%  グループ終了後に\m@thpack@aftergrouptoksの中身が実行される
+
+
+
+
+%  空白を削除するマクロ
+
+\def\m@thpack@afterspacedel#1{%  次の空白トークンを一つ削除し#1を実行するマクロ
+  \m@thpack@begingroup\m@thpack@aftergrouptoks={#1}\expandafter\m@thpack@afterspacedel@body\number0%  数値が次の空白を一個吸着する性質を利用
+}
+
+\def\m@thpack@afterspacedel@body0{\m@thpack@endgroup}
+
+
+
+
+%  連続する空白を削除するマクロ
+
+\def\m@thpack@afterspacesdel#1{%  次に続くスペースを除去した後#1を実行する
+  \m@thpack@begingroup%
+  \m@thpack@aftergrouptoks={#1}%  #1はグループ終了後に実行
+  \m@thpack@afterspacesdel@repeatpart%
+}
+
+\def\m@thpack@afterspacesdel@repeatpart{%
+  \m@thpack@begingroup%
+    \futurelet\m@thpack@@temptoken\m@thpack@afterspacesdel@body%  次のトークンを読み込む
+}
+
+\def\m@thpack@afterspacesdel@body{%
+    \ifcat\noexpand\m@thpack@@temptoken\m@thpack@space%
+      \m@thpack@aftergrouptoks={\m@thpack@afterspacedel{\m@thpack@afterspacesdel@repeatpart}}%  空白の場合は除去して再検査
+    \else%
+      \m@thpack@aftergrouptoks={\m@thpack@endgroup}%  \m@thpack@afterspacesdelの#1が実行される
+    \fi%
+  \m@thpack@endgroup%
+}
+
+
+
+
+%  連続する空白を展開しながら削除するマクロ
+
+\def\m@thpack@exafterspacesdel#1{%  次に続く展開可能なトークンを展開しながらスペースを除去した後#1を実行する
+  \m@thpack@begingroup%
+  \m@thpack@aftergrouptoks={#1}%  #1はグループ終了後に実行
+  \m@thpack@exafterspacesdel@repeatpart%
+}
+
+\def\m@thpack@exafterspacesdel@repeatpart{%
+  \m@thpack@begingroup%
+    \futurelet\m@thpack@@temptoken\m@thpack@exafterspacesdel@body%  次のトークンを読み込む
+}%
+
+\def\m@thpack@exafterspacesdel@readcs#1#2#3#4#5#6#7#8\relax{%  文字列を読み込み、最初の数文字を保持するマクロを作成する
+  \def\m@thpack@@vi{#1#2#3#4#5#6}%
+  \def\m@thpack@@vii{#1#2#3#4#5#6#7}%
+}
+
+\def\m@thpack@exafterspacesdel@readcsall#1\relax{%  文字列を読み込み、文字列全体を保持するマクロを作成する
+  \def\m@thpack@@all{#1}%
+}
+
+\begingroup%
+  \def\m@thpack@@tempmac{}%
+  \expandafter\m@thpack@exafterspacesdel@readcs\meaning\m@thpack@@tempmac\relax%  \meaning比較用定数(マクロ)
+  \global\let\m@thpack@exafterspacesdel@const@mac=\m@thpack@@vi%
+  \long\def\m@thpack@@tempmac{}%
+  \expandafter\m@thpack@exafterspacesdel@readcs\meaning\m@thpack@@tempmac\relax%
+  \global\let\m@thpack@exafterspacesdel@const@lmac=\m@thpack@@vi%
+  \outer\def\m@thpack@@tempmac{}%
+  \expandafter\m@thpack@exafterspacesdel@readcs\meaning\m@thpack@@tempmac\relax%
+  \global\let\m@thpack@exafterspacesdel@const@omac=\m@thpack@@vii%
+  \long\outer\def\m@thpack@@tempmac{}%
+  \expandafter\m@thpack@exafterspacesdel@readcs\meaning\m@thpack@@tempmac\relax%
+  \global\let\m@thpack@exafterspacesdel@const@lomac=\m@thpack@@vi%
+\endgroup
+
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@if\expandafter{\string\if}%  \meaning比較用定数(条件)
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifcat\expandafter{\string\ifcat}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifx\expandafter{\string\ifx}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifcase\expandafter{\string\ifcase}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifnum\expandafter{\string\ifnum}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifodd\expandafter{\string\ifodd}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifhmode\expandafter{\string\ifhmode}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifvmode\expandafter{\string\ifvmode}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifmmode\expandafter{\string\ifmmode}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifinner\expandafter{\string\ifinner}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifdim\expandafter{\string\ifdim}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifvoid\expandafter{\string\ifvoid}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifhbox\expandafter{\string\ifhbox}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifvbox\expandafter{\string\ifvbox}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@ifeof\expandafter{\string\ifeof}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@iftrue\expandafter{\string\iftrue}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@iffalse\expandafter{\string\iffalse}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@fi\expandafter{\string\fi}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@else\expandafter{\string\else}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@or\expandafter{\string\or}
+
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@number\expandafter{\string\number}%  \meaning比較用定数(マクロと条件以外)
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@romannumeral\expandafter{\string\romannumeral}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@string\expandafter{\string\string}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@fontname\expandafter{\string\fontname}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@jobname\expandafter{\string\jobname}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@meaning\expandafter{\string\meaning}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@the\expandafter{\string\the}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@csname\expandafter{\string\csname}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@expandafter\expandafter{\string\expandafter}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@noexpand\expandafter{\string\noexpand}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@topmark\expandafter{\string\topmark}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@botmark\expandafter{\string\botmark}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@firstmark\expandafter{\string\firstmark}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@splitfirstmark\expandafter{\string\splitfirstmark}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@splitbotmark\expandafter{\string\splitbotmark}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@input\expandafter{\string\input}
+\expandafter\def\expandafter\m@thpack@exafterspacesdel@const@endinput\expandafter{\string\endinput}
+
+\def\m@thpack@exafterspacesdel@body{%
+    \expandafter\m@thpack@exafterspacesdel@readcs\meaning\m@thpack@@temptoken.......\relax%  \m@thpack@@vi, \m@thpack@@viiを設定
+    \expandafter\m@thpack@exafterspacesdel@readcsall\meaning\m@thpack@@temptoken\relax%  \m@thpack@@allを設定
+    \m@thpack@aftergrouptoks={\expandafter\m@thpack@exafterspacesdel@repeatpart}%  グループ終了時の処理を展開し再度展開可能かテストする処理にする
+    \ifx\m@thpack@@vi\m@thpack@exafterspacesdel@const@mac%  \m@thpack@@temptokenが展開可能かテスト
+    \else\ifx\m@thpack@@vi\m@thpack@exafterspacesdel@const@lmac%
+    \else\ifx\m@thpack@@vii\m@thpack@exafterspacesdel@const@omac%
+    \else\ifx\m@thpack@@vi\m@thpack@exafterspacesdel@const@lomac%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@if%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifcat%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifx%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifcase%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifnum%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifodd%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifhmode%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifvmode%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifmmode%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifinner%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifdim%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifvoid%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifhbox%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifvbox%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@ifeof%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@iftrue%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@iffalse%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@fi%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@else%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@or%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@number%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@romannumeral%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@string%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@fontname%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@jobname%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@meaning%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@the%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@csname%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@expandafter%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@noexpand%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@topmark%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@botmark%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@firstmark%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@splitfirstmark%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@splitbotmark%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@input%
+    \else\ifx\m@thpack@@all\m@thpack@exafterspacesdel@const@endinput%
+    \else\ifcat\noexpand\m@thpack@@temptoken\m@thpack@space%
+      \m@thpack@aftergrouptoks={\m@thpack@afterspacedel{\m@thpack@exafterspacesdel@repeatpart}}%  空白の場合は除去して再検査する処理に置き換える
+    \else%
+      \m@thpack@aftergrouptoks={\m@thpack@endgroup}%  展開不可能な場合は\m@thpack@exafterspacesdelの#1が実行される
+    \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@endgroup%
+}
+
+
+
+
+%  安全な数値の代入
+
+\def\m@thpack@safesetnumber#1#2{%  #1: 代入先  #2: 代入するもの
+  \afterassignment\m@thpack@safesetnumber@trash%  代入するものに続く不要なものを削除する
+  #1=#2\relax\m@thpack@@end{#2}%
+}
+
+\def\m@thpack@safesetnumber@trash#1\m@thpack@@end#2{%
+  \begingroup%
+    \def\m@thpack@@tempcmd{#1}%
+    \def\m@thpack@@relaxcmd{\relax}%
+    \ifx\m@thpack@@tempcmd\m@thpack@@relaxcmd\else%  代入が正常に行われなかった場合警告を出す
+      \m@thpack@warning{不正な代入}{'#2'は数値として正常に代入されなかった。}
+    \fi%
+  \endgroup%
+}
+
+%  安全なグルーの代入
+
+\def\m@thpack@safesetglue#1#2{%  #1: 代入先  #2: 代入するもの
+  \afterassignment\m@thpack@safesetglue@trash%  代入するものに続く不要なものを削除する
+  #1=#2\relax\m@thpack@@end{#2}%
+}
+
+\def\m@thpack@safesetglue@trash#1\m@thpack@@end#2{%
+  \begingroup%
+    \def\m@thpack@@tempcmd{#1}%
+    \def\m@thpack@@relaxcmd{\relax}%
+    \ifx\m@thpack@@tempcmd\m@thpack@@relaxcmd\else%  代入が正常に行われなかった場合警告を出す
+      \m@thpack@warning{不正な代入}{'#2'はグルーとして正常に代入されなかった。}
+    \fi%
+  \endgroup%
+}
+
+
+
+
+%  レジスターの確保
+
+\newbox\m@thpack@boxla%  ローカル使用専用
+\newbox\m@thpack@boxlb%  ローカル使用専用
+\newbox\m@thpack@boxga%  グローバル使用専用(短期使用用)
+\newtoks\m@thpack@toksga%  グローバル使用専用(短期使用用)
+\newcount\m@thpack@countla%  ローカル使用専用
+\newcount\m@thpack@countlb%  ローカル使用専用
+\newcount\m@thpack@countga%  グローバル使用専用(短期使用用)
+\newdimen\m@thpack@dimenla%  ローカル使用専用
+\newdimen\m@thpack@dimenlb%  ローカル使用専用
+\newdimen\m@thpack@dimenga%  グローバル使用専用(短期使用用)
+\newskip\m@thpack@skipga%  グローバル使用専用(短期使用用)
+
+
+
+
+%  定数
+
+\def\m@thpack@quad{\fontdimen6\textfont2 }%  数式のスペーシングに使用
+
+
+
+
+%  ファイルの読み込み
+
+\newread\m@thpack@mathpackaux%  空でないかテストして\inputで読み込む
+\immediate\openin\m@thpack@mathpackaux=\jobname_mathpack.aux\relax%
+\ifeof\m@thpack@mathpackaux%
+\else%
+  \immediate\closein\m@thpack@mathpackaux%
+  \input\jobname_mathpack.aux\relax%
+\fi
+
+\newwrite\m@thpack@mathpackaux%  auxファイルを書き込み用に開く
+\immediate\openout\m@thpack@mathpackaux=\jobname_mathpack.aux\relax
+
+
+
+
+% エラーと警告関係
+
+\def\m@thpack@warning#1#2{%  #1:警告見出し #2:警告本文
+  \begingroup%
+    \newlinechar=10 %
+    \message{Mathpack Warning: #1 at line \the\inputlineno^^J  #2^^J}%
+  \endgroup%
+}
+
+\def\m@thpack@error#1#2{%  #1:エラー見出し #2:ヘルプメッセージ
+  \begingroup%
+    \newlinechar=10 %
+    \errorcontextlines=-1 %
+    \errhelp{#2}%
+    \errmessage{Mathpack Error: #1}%
+  \endgroup%
+}
+
+
+
+
+%  タグ関係
+
+\newcount\mathpacktagnumber%  数式番号用
+\mathpacktagnumber=0 %
+
+\def\mathpacktag{\the\mathpacktagnumber}
+%  数式タグの番号部分(例えば"(1)"の"1"の部分を想定)
+%  各自カスタマイズ可能(\edefで展開可能なもの)
+
+\def\mathpacktagstep{\global\advance\mathpacktagnumber by 1 }
+%  数式番号を進める
+%  数式番号の表示前に実行される
+%  各自カスタマイズ可能
+
+\def\mathpacktagtemplate#1{\noexpand\begingroup\noexpand\rm(#1)\noexpand\endgroup}
+%  数式番号のテンプレート部分(例えば"(1)"の"("と")"の部分を想定)
+%  #1には\mathpacktagが入る
+%  各自カスタマイズ可能(\edefで展開可能なもの)
+
+\def\mathpacklabeltemplate#1{eq.~#1}
+%  数式番号の参照時のテンプレート部分(この定義では"(1)"を参照すると"eq. 1"と表示される)
+%  #1には\mathpacktagが入る
+%  各自カスタマイズ可能(\edefで展開可能なもの)
+
+
+
+
+%  ラベル関係
+
+%  参照名nameに対し
+%  \m@thpack@label@body@nameは参照本体
+%  \m@thpack@label@defed@nameは定義されていたら今回の実行中に定義されたこと
+%  \m@thpack@label@refed@nameは定義されていたら参照されたこと
+%  を表す
+
+\def\mplabel#1#2{%  参照名#1に参照本体#2を設定
+  \expandafter\ifx\csname m@thpack@label@defed@#1\endcsname\relax%  ラベルは設定済みかそうでないか
+    \expandafter\gdef\csname m@thpack@label@defed@#1\endcsname{}%  定義済みであることを知らせる
+    \global\m@thpack@toksga={\expandafter\gdef\csname m@thpack@label@body@#1\endcsname{#2}}%  参照本体を設定する
+    \immediate\write\m@thpack@mathpackaux{\the\m@thpack@toksga}%  次回実行時用
+    \the\m@thpack@toksga%  今回実行の残り用
+  \else%
+    \m@thpack@error{ラベル'#1'は既に定義済み (ラベル設定)}{その名前のラベルは既に使用されています。^^J違う名前に変更してください。}%
+  \fi%
+}
+
+\def\mpref#1{%  参照名#1を参照
+  \global\m@thpack@toksga={\expandafter\gdef\csname m@thpack@label@refed@#1\endcsname{}}%  参照済みであることを知らせる
+  \immediate\write\m@thpack@mathpackaux{\the\m@thpack@toksga}%  次回実行時用
+  \the\m@thpack@toksga%  今回実行の残り用
+  \m@thpack@begingroup%
+    \expandafter\ifx\csname m@thpack@label@body@#1\endcsname\relax%  ラベルが未定義かどうか
+      \m@thpack@warning{ラベル'#1'は未定義 (ラベル設定)}{指定された名前のラベルが見つかりませんでした。再コンパイルしても表示される場合はタイプミスの可能性があります。}%
+      \m@thpack@aftergrouptoks={???}%  仮テキスト???を使う
+    \else%
+      \m@thpack@aftergrouptoks={\csname m@thpack@label@body@#1\endcsname}%  参照本体を使う
+    \fi%
+  \m@thpack@endgroup%
+}
+
+
+
+
+%  条件分岐
+
+\def\m@thpack@makeif#1{%  \newifは\outer指定されているため、その制限がないものを自作した
+  \expandafter\def\csname#1false\endcsname{\expandafter\let\csname if#1\endcsname=\iffalse}%
+  \expandafter\def\csname#1true\endcsname{\expandafter\let\csname if#1\endcsname=\iftrue}%
+  \csname#1false\endcsname%
+}
+
+
+
+
+%  数式ボックス生成用コマンド
+
+\def\m@thpack@basemathbox@begin{%  基本の数式ボックス
+  \hbox\bgroup%
+    \begingroup%
+      \m@thpack@dimenla=\mathsurround%
+      \mathsurround=0sp%
+      \everymath={}%
+      $\begingroup\mathsurround=\m@thpack@dimenla%
+}
+
+\def\m@thpack@basemathbox@end{%
+      \endgroup$%
+    \endgroup%
+  \egroup%
+}
+
+\def\m@thpack@tagbox#1{%  タグ用の数式ボックス
+  \m@thpack@basemathbox@begin\textstyle#1\m@thpack@basemathbox@end%
+}
+
+\def\m@thpack@displaybox@begin{%  数式のディスプレイ部分用 (開始)
+  \hbox\bgroup%
+    \begingroup%
+      \m@thpack@dimenla=\mathsurround%
+      \mathsurround=0sp%
+      \everymath={}%
+      $\begingroup\mathsurround=\m@thpack@dimenla%
+      \displaystyle\the\mathenvdisplaytoks%
+}
+
+\def\m@thpack@displaybox@end{%  数式のディスプレイ部分用 (終了)
+      \endgroup$%
+    \endgroup%
+  \egroup%
+}
+
+
+
+
+%%%%
+%  \mathenv本体マクロ群 始まり
+
+\def\mathenv{%
+  \begingroup%  グルーピング開始
+  \m@thpack@makeif{m@thpack@@prenobreak}%  オプション変数の作成
+  \m@thpack@makeif{m@thpack@@postnobreak}%
+  \begingroup%
+    \futurelet\m@thpack@@temptoken\m@thpack@mathenv@optcheck%  次のトークンを読み込む
+}
+
+\def\m@thpack@mathenv@optcheck{%
+    \ifx\m@thpack@@temptoken[%  オプションの有り無し判定
+      \aftergroup\m@thpack@mathenv@opt%
+    \else%
+      \aftergroup\m@thpack@mathenv@body%
+    \fi%
+  \endgroup%
+}
+
+\def\m@thpack@mathenv@opt[#1]{%  オプション有りの場合  #1:オプションコマンド列
+  \begingroup%
+    \m@thpack@makeif{m@thpack@@prenobreak@read}%  オプションを読み込み済みかの判定用
+    \m@thpack@makeif{m@thpack@@postnobreak@read}%
+    \def\prenobreak{%
+      \ifm@thpack@@prenobreak@read%
+        \m@thpack@error{'\noexpand\prenobreak'を二回以上書いている ('\noexpand\mathenv'のオプション引数部)}{'\prenobreak'は1回まで!!}%
+      \else%
+        \aftergroup\m@thpack@@prenobreaktrue%
+        \m@thpack@@prenobreak@readtrue%
+      \fi%
+      \m@thpack@mathenv@optcommandcheck%
+    }%
+    \def\postnobreak{%
+      \ifm@thpack@@postnobreak@read%
+        \m@thpack@error{'\noexpand\postnobreak'を二回以上書いている ('\noexpand\mathenv'のオプション引数部)}{'\postnobreak'は1回まで!!}%
+      \else%
+        \aftergroup\m@thpack@@postnobreaktrue%
+        \m@thpack@@postnobreak@readtrue%
+      \fi%
+      \m@thpack@mathenv@optcommandcheck%
+    }%
+    \def\m@thpack@@checkend{\m@thpack@@checkend@body}%  チェックの終了を知らせる用
+    \def\m@thpack@@checkend@body{}%
+    \m@thpack@mathenv@optcommandcheck#1\m@thpack@@checkend%  この#1に\prenobreak, \postnobreakが入る
+  \endgroup%
+  \m@thpack@mathenv@body%
+}
+
+\def\m@thpack@mathenv@optcommandcheck{%
+  \begingroup%
+    \m@thpack@afterspacesdel{\futurelet\m@thpack@@temptoken\m@thpack@mathenv@optcommandcheck@body}%  空白を削除した後に次のトークンを読み込む
+}
+
+\def\m@thpack@mathenv@optcommandcheck@body{%
+    \ifx\m@thpack@@temptoken\prenobreak%
+    \else\ifx\m@thpack@@temptoken\postnobreak%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@checkend%
+    \else%
+      \aftergroup\m@thpack@mathenv@optcommandcheck@error%
+    \fi\fi\fi%
+  \endgroup%
+}
+
+\def\m@thpack@mathenv@optcommandcheck@error#1{%
+  \m@thpack@error{不明なオプション'\noexpand#1' ('\noexpand\mathenv'のオプション引数部)}{'\prenobreak', '\postnobreak'以外のオプションは書けません。^^Jタイプミスのチェックも忘れずに。}%
+}
+
+\newtoks\m@thpack@mathenv@interenvpenaltiestoks%  env間のペナルティ類を挿入するために使用するトークンレジスター
+
+\def\m@thpack@mathenv@body{%
+  \ifm@thpack@@prenobreak%  オプションに応じてペナルティを設定
+    \predisplaypenalty=10000 %
+  \fi%
+  \ifm@thpack@@postnobreak%
+    \postdisplaypenalty=10000 %
+  \fi%
+  \ifvmode%  段落が始まっていない場合は\noindentで開始する(\indentだとインデントのためのボックスが入り見栄えが悪くなる)
+    \noindent%
+  \fi%
+  \def\envtype{\noexpand\m@thpack@mathenv@envtypescanstop\m@thpack@envtype}%  \noexpandは\m@thpack@exafterspacesdelによる展開の抑止用
+  \openup\mathenvopenupamount%  行間を設定
+  \tabskip=0pt plus 0pt minus 0pt %
+  \everycr={}%
+  \everydisplay={}%
+  \global\m@thpack@mathenv@interenvpenaltiestoks={}%  env間のペナルティ類を挿入するために使用(最初のenvではペナルティ類を入れる必要がないため初期化を兼ねて空に設定)
+  \def\m@thpack@@envtypestart{}%  各\envtypeの最初に挿入されるマクロ(最初の\envtypeでは何も入れる必要がないため空に設定)
+  $$%
+    \halign\bgroup%  この\halignは\endmathenvで閉じる
+      ##\cr%
+      \noalign\bgroup%\m@thpack@mathenv@envtypecheck%  ここの\noalignは\m@thpack@mathenv@envtypecheckで閉じる
+      \begingroup%
+        \m@thpack@exafterspacesdel{\futurelet\m@thpack@@temptoken\m@thpack@mathenv@envtypecheck}%  \mathenvの後の最初のトークンが\envtypeか確認するために、展開しながら空白を削除した後に次のトークンを読み込む
+}
+
+\def\m@thpack@mathenv@envtypescanstop{\m@thpack@mathenv@envtypescanstop@body}%  \envtypeの定義, \m@thpack@mathenv@envtypecheckと\m@thpack@envtype@linescr@envtypecheck@bodyでの比較に使用
+
+\def\m@thpack@mathenv@envtypescanstop@body{}
+
+\def\m@thpack@mathenv@envtypecheck{%
+        \ifx\m@thpack@@temptoken\m@thpack@mathenv@envtypescanstop%  トークンが\envtypeか確認する(\envtypeの中で最初の展開不可能なトークンである\m@thpack@mathenv@envtypescanstopと同等か比較している)
+          \aftergroup\egroup%  \m@thpack@mathenv@bodyの\halignの最初の\noalignをここで閉じる
+        \else%
+          \m@thpack@error{'\noexpand\mathenv'の本引数は'\noexpand\envtype'で始める必要がある ('\noexpand\mathenv'の本引数部)}{'\mathenv'の本引数は'\envtype'で始める必要があります。^^Jタイプミスのチェックも忘れずに。}%
+        \fi%
+      \endgroup%
+}
+
+\def\endmathenv{%
+      \envtype{@end}%
+    \egroup%  \m@thpack@mathenv@bodyの\halignをここで閉じる
+  $$%
+  \endgroup%  グルーピング終了
+}
+
+%  \mathenv本体マクロ群 終わり
+%%%%
+
+%%%%
+%  \envtype用tag生成マクロ群 始まり
+
+\def\m@thpack@gentag#1{%  このマクロにより、条件m@thpack@@tagexists, m@thpack@@tagbreakとマクロ\m@thpack@@tagが生成され、ラベル等の設定が行われる  #1はタグオプションの列
+  \m@thpack@makeif{m@thpack@@tagexists}%  タグを付けるかどうか
+  \ifmathenvtag%  初期値を設定
+    \m@thpack@@tagexiststrue%
+  \else%
+    \m@thpack@@tagexistsfalse%
+  \fi%
+  \m@thpack@makeif{m@thpack@@tagbreak}%  タグを別行に置くか
+  \def\m@thpack@@tag{\mathpacktagtemplate{\mathpacktag}}%  タグの内容を入れる用 デフォルトの値を代入
+  \m@thpack@begingroup%
+    \m@thpack@makeif{m@thpack@@labelexists}%  ラベルを付けるかどうか
+    \m@thpack@makeif{m@thpack@@tagstep}%  タグステップを行うか
+    \ifmathenvtag%  初期値を設定
+      \m@thpack@@tagsteptrue%
+    \else%
+      \m@thpack@@tagstepfalse%
+    \fi%
+    %  \m@thpack@@refnameに参照名を入れる
+    \def\m@thpack@@label{\mathpacklabeltemplate{\mathpacktag}}%  ラベルの内容を入れる用 デフォルトの値を代入 使用されない可能性あり
+    \m@thpack@makeif{m@thpack@@tag@read}%  タグに関するオプションを読み込み済みかの判定用
+    \m@thpack@makeif{m@thpack@@label@read}%  読み込み済み判定兼ラベルが存在するかの判定用
+    \m@thpack@makeif{m@thpack@@tagbreak@read}%  \tagbreakオプションが読み込み済みかの判定用
+    \def\tag{%
+      \begingroup%
+        \futurelet\m@thpack@@temptoken\m@thpack@@tag@check%  次のトークンを読み込む
+    }%
+    \def\m@thpack@@tag@check{%
+        \ifx\m@thpack@@temptoken\bgroup%  引数がブレースで囲われていることを確認
+          \aftergroup\m@thpack@@tag@body%
+        \else%
+          \m@thpack@error{'\noexpand\tag'にはブレースで囲われた引数が必要 (タグオプション)}{引数がない場合は付けてください。^^Jブレースで囲っていない場合は囲ってください。('\tag a'は'\tag{a}'の様に書き直す)}%
+        \fi%
+      \endgroup%
+    }%
+    \def\m@thpack@@tag@body##1{%
+      \ifm@thpack@@tag@read%
+        \m@thpack@error{タグに関するオプションを二回以上書いている (タグオプション)}{'\tag', '\overtag', '\yestag', '\notag'の中から一つまで使うことができます。}%
+      \else%
+        \m@thpack@@tagstepfalse%
+        \m@thpack@aftergrouptoks={\def\m@thpack@@tag{\mathpacktagtemplate{##1}}}%  \m@thpack@gentagの最後の\endgroupの地点で展開される
+        \def\m@thpack@@label{\mathpacklabeltemplate{##1}}%
+        \m@thpack@@tag@readtrue%
+      \fi%
+      \m@thpack@gentag@optcheck%
+    }%
+    \def\overtag{%
+      \begingroup%
+        \futurelet\m@thpack@@temptoken\m@thpack@@overtag@check%  次のトークンを読み込む
+    }%
+    \def\m@thpack@@overtag@check{%
+        \ifx\m@thpack@@temptoken\bgroup%  引数がブレースで囲われていることを確認
+          \aftergroup\m@thpack@@overtag@body%
+        \else%
+          \m@thpack@error{'\noexpand\overtag'にはブレースで囲われた引数が必要 (タグオプション)}{引数がない場合は付けてください。^^Jブレースで囲っていない場合は囲ってください。('\overtag a'は'\overtag{a}'の様に書き直す)}%
+        \fi%
+      \endgroup%
+    }%
+    \def\m@thpack@@overtag@body##1{%
+      \ifm@thpack@@tag@read%
+        \m@thpack@error{タグに関するオプションを二回以上書いている (タグオプション)}{'\tag', '\overtag', '\yestag', '\notag'の中から一つまで使うことができます。}%
+      \else%
+        \m@thpack@@tagstepfalse%
+        \m@thpack@aftergrouptoks={\def\m@thpack@@tag{##1}}%  \m@thpack@gentagの最後の\endgroupの地点で展開される
+        \def\m@thpack@@label{##1}%
+        \m@thpack@@tag@readtrue%
+      \fi%
+      \m@thpack@gentag@optcheck%
+    }%
+    \def\yestag{%
+      \ifm@thpack@@tag@read%
+        \m@thpack@error{タグに関するオプションを二回以上書いている (タグオプション)}{'\tag', '\overtag', '\yestag', '\notag'の中から一つまで使うことができます。}%
+      \else%
+        \m@thpack@@tagsteptrue%
+        \aftergroup\m@thpack@@tagexiststrue%  グループ外用
+        \m@thpack@@tagexiststrue%  グループ内用
+        \m@thpack@@tag@readtrue%
+      \fi%
+      \m@thpack@gentag@optcheck%
+    }%
+    \def\notag{%
+      \ifm@thpack@@tag@read%
+        \m@thpack@error{タグに関するオプションを二回以上書いている (タグオプション)}{'\tag', '\overtag', '\yestag', '\notag'の中から一つまで使うことができます。}%
+      \else%
+        \m@thpack@@tagstepfalse%
+        \aftergroup\m@thpack@@tagexistsfalse%  グループ外用
+        \m@thpack@@tagexistsfalse%  グループ内用
+        \m@thpack@@tag@readtrue%
+      \fi%
+      \m@thpack@gentag@optcheck%
+    }%
+    \def\label{%
+      \begingroup%
+        \futurelet\m@thpack@@temptoken\m@thpack@@label@check%  次のトークンを読み込む
+    }%
+    \def\m@thpack@@label@check{%
+        \ifx\m@thpack@@temptoken\bgroup%  引数がブレースで囲われていることを確認
+          \aftergroup\m@thpack@@label@body%
+        \else%
+          \m@thpack@error{'\noexpand\label'にはブレースで囲われた引数が必要 (タグオプション)}{引数がない場合は付けてください。^^Jブレースで囲っていない場合は囲ってください。('\label a'は'\label{a}'の様に書き直す)}%
+        \fi%
+      \endgroup%
+    }%
+    \def\m@thpack@@label@body##1{%
+      \ifm@thpack@@label@read%
+        \m@thpack@error{ラベルに関するオプションを二回以上書いている (タグオプション)}{'\label', '\overlabel'の中から一つまで使うことができます。}%
+      \else%
+        \def\m@thpack@@refname{##1}%
+        \m@thpack@@label@readtrue%
+      \fi%
+      \m@thpack@gentag@optcheck%
+    }%
+    \def\overlabel{%  第1引数用
+      \begingroup%
+        \futurelet\m@thpack@@temptoken\m@thpack@@overlabel@i@check%  次のトークンを読み込む
+    }%
+    \def\m@thpack@@overlabel@i@check{%  第1引数用
+        \ifx\m@thpack@@temptoken\bgroup%  引数がブレースで囲われていることを確認
+          \aftergroup\m@thpack@@overlabel@ii%
+        \else%
+          \m@thpack@error{'\noexpand\overlabel'にはブレースで囲われた1つめの引数が必要 (タグオプション)}{引数がない場合は付けてください。('\overlabel'には合計2つの引数が必要です)^^Jブレースで囲っていない場合は囲ってください。('\overlabel a'は'\overlabel{a}'の様に書き直す)}%
+        \fi%
+      \endgroup%
+    }%
+    \def\m@thpack@@overlabel@ii##1{%  第2引数用
+      \m@thpack@begingroup%
+        \def\m@thpack@@tempcmd{\m@thpack@@overlabel@ii@check{##1}}%
+        \futurelet\m@thpack@@temptoken\m@thpack@@tempcmd%  次のトークンを読み込む
+    }%
+    \def\m@thpack@@overlabel@ii@check##1{%  第2引数用
+        \ifx\m@thpack@@temptoken\bgroup%  引数がブレースで囲われていることを確認
+          \m@thpack@aftergrouptoks={\m@thpack@@overlabel@body{##1}}%
+        \else%
+          \m@thpack@error{'\noexpand\overlabel'にはブレースで囲われた2つめの引数が必要 (タグオプション)}{引数が足りない場合は付けてください。('\overlabel'には合計2つの引数が必要です)^^Jブレースで囲っていない場合は囲ってください。('\overlabel{a}b'は'\overlabel{a}{b}'の様に書き直す)}%
+        \fi%
+      \m@thpack@endgroup%
+    }%
+    \def\m@thpack@@overlabel@body##1##2{%
+      \ifm@thpack@@label@read%
+        \m@thpack@error{ラベルに関するオプションを二回以上書いている (タグオプション)}{'\label', '\overlabel'の中から一つまで使うことができます。}%
+      \else%
+        \def\m@thpack@@refname{##1}%
+        \def\m@thpack@@label{##2}%
+        \m@thpack@@label@readtrue%
+      \fi%
+      \m@thpack@gentag@optcheck%
+    }%
+    \def\tagbreak{%
+      \ifm@thpack@@tagbreak@read%
+        \m@thpack@error{'\noexpand\tagbreak'オプションを二回以上書いている (タグオプション)}{'\tagbreak'を書けるのは一回までです。}%
+      \else%
+        \aftergroup\m@thpack@@tagbreaktrue%
+        \m@thpack@@tagbreak@readtrue%
+      \fi%
+      \m@thpack@gentag@optcheck%
+    }%
+    \def\m@thpack@@checkend{\m@thpack@@checkend@body}%  チェックの終了を知らせる用
+    \def\m@thpack@@checkend@body{}%
+    \m@thpack@gentag@optcheck#1\m@thpack@@checkend%
+    \ifm@thpack@@tagexists\else%
+      \ifm@thpack@@label@read%  ラベルが存在しタグが存在しない場合
+        \m@thpack@error{タグがない場合はラベルに関するオプションは使えない (タグオプション)}{タグがない場合は'\label', '\overlabel'は同時に使用できません。^^J'\notag'を使っていたり、'ifmathenvtag'がfalseになっていたりしませんか?}%
+      \fi%
+    \fi%
+    \ifm@thpack@@tagstep%
+      \mathpacktagstep%
+    \fi%
+    \ifm@thpack@@label@read%
+      \begingroup%
+        \edef\m@thpack@@edeflabel{\m@thpack@@label}%
+        \expandafter\expandafter\expandafter\mplabel\expandafter\expandafter\expandafter{\expandafter\m@thpack@@refname\expandafter}\expandafter{\m@thpack@@edeflabel}%
+      \endgroup%
+    \fi%
+    \ifmathenvonlyrefs%  onlyrefsの場合は状況に応じてタグを無くす
+      \ifm@thpack@@label@read%
+        \expandafter\ifx\csname m@thpack@label@refed@\m@thpack@@refname\endcsname\relax%  ラベルはあるが参照されていない場合
+          \aftergroup\m@thpack@@tagexistsfalse%
+        \fi%
+      \else%  ラベルがない場合
+        \aftergroup\m@thpack@@tagexistsfalse%
+      \fi%
+    \fi%
+  \m@thpack@endgroup%
+}
+
+\def\m@thpack@gentag@optcheck{%
+  \begingroup%
+    \m@thpack@afterspacesdel{\futurelet\m@thpack@@temptoken\m@thpack@gentag@optcheck@body}%  空白を削除した後に次のトークンを読み込む
+}
+
+\def\m@thpack@gentag@optcheck@body{%
+    \ifx\m@thpack@@temptoken\tag%
+    \else\ifx\m@thpack@@temptoken\overtag%
+    \else\ifx\m@thpack@@temptoken\yestag%
+    \else\ifx\m@thpack@@temptoken\notag%
+    \else\ifx\m@thpack@@temptoken\label%
+    \else\ifx\m@thpack@@temptoken\overlabel%
+    \else\ifx\m@thpack@@temptoken\tagbreak%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@checkend%
+    \else%
+      \aftergroup\m@thpack@gentag@optcheck@error%
+    \fi\fi\fi\fi\fi\fi\fi\fi%
+  \endgroup%
+}
+
+\def\m@thpack@gentag@optcheck@error#1{%
+  \m@thpack@error{不明なオプション'\noexpand#1' (数式タグオプション)}{入力された名前のオプションはありません。^^Jタイプミスのチェックも忘れずに。}%
+}
+
+%  \envtype用tag生成マクロ群 終わり
+%%%%
+
+%%%%
+%  \mathenv \envtypeマクロ群
+
+\def\m@thpack@envtype{%
+  \m@thpack@@envtypestart%
+  \noalign\bgroup%  この\noalignは\m@thpack@envtype@optか\m@thpack@envtype@nooptで閉じる
+  \begingroup%
+    \futurelet\m@thpack@@temptoken\m@thpack@envtype@optcheck%  次のトークンを読み込む
+}
+
+\def\m@thpack@envtype@optcheck{%
+    \ifx\m@thpack@@temptoken[%  オプションの有り無し判定
+      \aftergroup\m@thpack@envtype@opt%
+    \else%
+      \aftergroup\m@thpack@envtype@noopt%
+    \fi%
+  \endgroup%
+}
+
+\def\m@thpack@envtype@opt[#1]#2{%
+  \m@thpack@begingroup%
+    \def\m@thpack@@disp{\m@thpack@@disp}%  #2との比較判定用
+    \def\m@thpack@@multi{\m@thpack@@multi}%
+    \def\m@thpack@@cmulti{\m@thpack@@cmulti}%
+    \def\m@thpack@@lines{\m@thpack@@lines}%
+    \def\m@thpack@@align{\m@thpack@@align}%
+    \def\m@thpack@@eqnalign{\m@thpack@@eqnalign}%  \m@thpack@envtypeの\nolignはグループ終了時に閉じる
+    \expandafter\let\expandafter\m@thpack@@temptoken\expandafter=\csname m@thpack@@#2\endcsname%
+    \ifx\m@thpack@@temptoken\m@thpack@@disp%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@disp{#1}}%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@multi%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@multi{#1}}%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@cmulti%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@cmulti{#1}}%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@lines%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@lines{#1}}%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@align%
+      \m@thpack@error{'\noexpand\envtype\noexpand{align\noexpand}'にオプション引数を付けてはいけない ('\noexpand\envtype'のオプション引数部)}{'\envtype{align}'にオプション引数を付けてはいけません。}%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@eqnalign%
+      \m@thpack@error{'\noexpand\envtype\noexpand{eqnalign\noexpand}'にオプション引数を付けてはいけない ('\noexpand\envtype'のオプション引数部)}{'\envtype{eqnalign}'にオプション引数を付けてはいけません。}%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@align}%
+    \else%
+      \m@thpack@error{不明な環境名'#2' ('\noexpand\mathenv'の本引数部)}{そのような環境はありません。^^Jタイプミスのチェックも忘れずに。}%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@disp{}}%
+    \fi\fi\fi\fi\fi\fi%
+  \m@thpack@endgroup%
+}
+
+\def\m@thpack@envtype@noopt#1{%
+  \m@thpack@begingroup%
+    \def\m@thpack@@disp{\m@thpack@@disp}%  #1との比較判定用
+    \def\m@thpack@@multi{\m@thpack@@multi}%
+    \def\m@thpack@@cmulti{\m@thpack@@cmulti}%
+    \def\m@thpack@@lines{\m@thpack@@lines}%
+    \def\m@thpack@@align{\m@thpack@@align}%
+    \def\m@thpack@@eqnalign{\m@thpack@@eqnalign}%
+    \def\m@thpack@@@end{\m@thpack@@@end}%  \m@thpack@envtypeの\nolignはグループ終了時に閉じる
+    \expandafter\let\expandafter\m@thpack@@temptoken\expandafter=\csname m@thpack@@#1\endcsname%
+    \ifx\m@thpack@@temptoken\m@thpack@@disp%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@disp{}}%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@multi%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@multi{}}%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@cmulti%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@cmulti{}}%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@lines%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@lines{}}%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@align%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@align}%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@eqnalign%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@eqnalign}%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@@end%
+      \m@thpack@aftergrouptoks={\egroup}%
+    \else%
+      \m@thpack@error{不明な環境名'#1' ('\noexpand\mathenv'の本引数部)}{そのような環境はありません。^^Jタイプミスのチェックも忘れずに。}%
+      \m@thpack@aftergrouptoks={\egroup\m@thpack@envtype@disp{}}%
+    \fi\fi\fi\fi\fi\fi\fi%
+  \m@thpack@endgroup%
+}
+
+\def\m@thpack@envtype@interenvtypematerials{%  env間のペナルティ類
+  \noalign{\penalty\mathenvinterenvpenalty\vskip\mathenvinterenvskip}%
+}
+
+\def\m@thpack@envtype@disp#1{%
+  \the\m@thpack@mathenv@interenvpenaltiestoks%  最初の\envtypeでなければ、ここでペナルティ類が挿入される
+  \noalign\bgroup%
+  \m@thpack@gentag{#1}%  タグ生成
+  \ifm@thpack@@tagexists%  ボックス作成時、レジスターが不定になる可能性に注意
+    \everyhbox={}%
+    \setbox\m@thpack@boxla=\m@thpack@tagbox{\m@thpack@@tag}%  タグのボックス
+  \fi%
+  \def\m@thpack@@envtypestart{%  次の\envtypeで実行するもの
+    \m@thpack@displaybox@end%  数式のボックスの構築を終える
+    \everyhbox={}%
+    \ifmathenvfleqn%
+      \def\m@thpack@@resize{%  \box\m@thpack@boxgaの圧縮を行う
+        \global\m@thpack@dimenga=\displaywidth%
+        \global\advance\m@thpack@dimenga by -\mathenvindent%
+        \ifdim\wd\m@thpack@boxga>\m@thpack@dimenga%
+          \global\setbox\m@thpack@boxga=\hbox to \m@thpack@dimenga{\unhbox\m@thpack@boxga}%
+        \fi%
+      }%
+      \ifm@thpack@@tagexists%
+        \ifmathenvleqno%
+          \def\m@thpack@@notsameline{%  数式とタグが別行にある場合の処理
+            \moveright\displayindent\box\m@thpack@boxla\nobreak%  表示
+            \global\m@thpack@dimenga=\displayindent%
+            \global\advance\m@thpack@dimenga by \mathenvindent%
+            \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+          }%
+          \m@thpack@@resize%
+          \ifm@thpack@@tagbreak%
+            \m@thpack@@notsameline%
+          \else%
+            \global\m@thpack@dimenga=\wd\m@thpack@boxla%
+            \global\advance\m@thpack@dimenga by \m@thpack@quad%
+            \ifdim\m@thpack@dimenga>\mathenvindent%  タグが収まらない場合は別行に移す
+              \m@thpack@@notsameline%
+            \else%
+              \moveright\displayindent\hbox{%  表示
+                \global\m@thpack@dimenga=\mathenvindent%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxla%
+                \kern\m@thpack@dimenga%
+                \box\m@thpack@boxga%
+              }%
+            \fi%
+          \fi%
+        \else%
+          \def\m@thpack@@notsameline{%  数式とタグが別行にある場合の処理
+            \m@thpack@@resize%
+            \global\m@thpack@dimenga=\displayindent%  表示
+            \global\advance\m@thpack@dimenga by \mathenvindent%
+            \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+            \nobreak%
+            \global\m@thpack@dimenga=\displayindent%
+            \global\advance\m@thpack@dimenga by \displaywidth%
+            \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+            \moveright\m@thpack@dimenga\box\m@thpack@boxla%
+          }%
+          \ifm@thpack@@tagbreak%
+            \m@thpack@@notsameline%
+          \else%
+            \def\m@thpack@@sameline{%  数式とタグが同行にある場合の処理
+              \global\m@thpack@dimenga=\displayindent%  表示
+              \global\advance\m@thpack@dimenga by \mathenvindent%
+              \moveright\m@thpack@dimenga\hbox{%
+                \global\m@thpack@dimenga=\displaywidth%
+                \global\advance\m@thpack@dimenga by -\mathenvindent%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+                \box\m@thpack@boxga%
+                \kern\m@thpack@dimenga%
+                \box\m@thpack@boxla%
+              }%
+            }%
+            \global\m@thpack@dimenga=\displaywidth%
+            \global\advance\m@thpack@dimenga by -\mathenvindent%
+            \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+            \global\advance\m@thpack@dimenga by -\m@thpack@quad%
+            \ifdim\wd\m@thpack@boxga>\m@thpack@dimenga%  タグと数式を同行にすると問題か
+              \begingroup%
+                \hbadness=10000 %  オーバーフル警告を無効にする
+                \hfuzz=\maxdimen%
+                \global\setbox\m@thpack@boxga=\hbox to \m@thpack@dimenga{\unhbox\m@thpack@boxga}%  収まりきらない場合は圧縮
+              \endgroup%
+              \ifnum\badness=1000000 %  圧縮が失敗したか
+                \global\setbox\m@thpack@boxga=\hbox{\unhbox\m@thpack@boxga}%  失敗したら自然長に戻す
+                \m@thpack@@notsameline%
+              \else%
+                \global\setbox\m@thpack@boxga=\hbox to \m@thpack@dimenga{\unhbox\m@thpack@boxga}%  オーバーフル警告のために再度ボックスを構築
+                \m@thpack@@sameline%
+              \fi%
+            \else%
+              \m@thpack@@sameline%
+            \fi%
+          \fi%
+        \fi%
+      \else%
+        \m@thpack@@resize%
+        \global\m@thpack@dimenga=\displayindent%  表示
+        \global\advance\m@thpack@dimenga by \mathenvindent%
+        \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+      \fi%
+    \else%
+      \def\m@thpack@@resize{%
+        \ifdim\wd\m@thpack@boxga>\displaywidth%
+          \global\setbox\m@thpack@boxga=\hbox to \displaywidth{\unhbox\m@thpack@boxga}%
+        \fi%
+      }%
+      \ifm@thpack@@tagexists%
+        \def\m@thpack@@notsameline{%  数式とタグが別行にある場合の処理
+          \m@thpack@@resize%
+          \ifmathenvleqno%
+            \moveright\displayindent\box\m@thpack@boxla\nobreak%  表示
+            \global\m@thpack@dimenga=\displaywidth%
+            \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+            \global\divide\m@thpack@dimenga by 2 %
+            \global\advance\m@thpack@dimenga by \displayindent%
+            \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+          \else%
+            \global\m@thpack@dimenga=\displaywidth%  表示
+            \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+            \global\divide\m@thpack@dimenga by 2 %
+            \global\advance\m@thpack@dimenga by \displayindent%
+            \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+            \nobreak%
+            \global\m@thpack@dimenga=\displayindent%
+            \global\advance\m@thpack@dimenga by \displaywidth%
+            \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+            \moveright\m@thpack@dimenga\box\m@thpack@boxla%
+          \fi%
+        }%
+        \ifm@thpack@@tagbreak%
+          \m@thpack@@notsameline%
+        \else%
+          \def\m@thpack@@sameline{%  数式とタグが同行にある場合の処理
+            \ifmathenvleqno%
+              \moveright\displayindent\hbox{%  表示
+                \global\m@thpack@dimenga=\displaywidth%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+                \global\divide\m@thpack@dimenga by 2 %
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxla%
+                \kern\m@thpack@dimenga%
+                \box\m@thpack@boxga%
+              }%
+            \else%
+              \global\m@thpack@dimenga=\displaywidth%  表示
+              \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+              \global\divide\m@thpack@dimenga by 2 %
+              \global\advance\m@thpack@dimenga by \displayindent%
+              \moveright\m@thpack@dimenga\hbox{%
+                \global\m@thpack@dimenga=\displaywidth%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+                \global\divide\m@thpack@dimenga by 2 %
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxga%
+                \kern\m@thpack@dimenga%
+                \box\m@thpack@boxla%
+              }%
+            \fi%
+          }%
+          \global\m@thpack@dimenga=\displaywidth%
+          \global\advance\m@thpack@dimenga by -2\wd\m@thpack@boxla%
+          \global\advance\m@thpack@dimenga by -2\m@thpack@quad%
+          \ifdim\wd\m@thpack@boxga>\m@thpack@dimenga%  タグと数式を同行にすると問題か
+            \begingroup%
+              \hbadness=10000 %  オーバーフル警告を無効にする
+              \hfuzz=\maxdimen%
+              \global\setbox\m@thpack@boxga=\hbox to \m@thpack@dimenga{\unhbox\m@thpack@boxga}%  収まりきらない場合は圧縮
+            \endgroup%
+            \ifnum\badness=1000000 %  圧縮が失敗したか
+              \global\setbox\m@thpack@boxga=\hbox{\unhbox\m@thpack@boxga}%  失敗したら自然長に戻す
+              \m@thpack@@notsameline%
+            \else%
+              \global\setbox\m@thpack@boxga=\hbox to \m@thpack@dimenga{\unhbox\m@thpack@boxga}%  オーバーフル警告のために再度ボックスを構築
+              \m@thpack@@sameline%
+            \fi%
+          \else%
+            \m@thpack@@sameline%
+          \fi%
+        \fi%
+      \else%
+        \m@thpack@@resize%
+        \global\m@thpack@dimenga=\displaywidth%  表示
+        \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+        \global\divide\m@thpack@dimenga by 2 %
+        \global\advance\m@thpack@dimenga by \displayindent%
+        \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+      \fi%
+    \fi%
+    \global\m@thpack@mathenv@interenvpenaltiestoks={\m@thpack@envtype@interenvtypematerials}%  次の\envtypeでペナルティ類を挿入
+    \egroup%  \m@thpack@envtype@dispの\noalignを閉じる
+  }%
+  \everyhbox={}%
+  \global\setbox\m@thpack@boxga=\m@thpack@displaybox@begin%  数式のボックスの構築を始める  次の\envtypeで構築を終える
+}
+
+\def\m@thpack@envtype@multi#1{%
+  \m@thpack@envtype@linesbase{#1}\m@thpack@envtype@multi@linescr\m@thpack@envtype@multi@setting\m@thpack@envtype@multi@putboxproc\m@thpack@envtype@multi@envtypestart%
+}
+
+\def\m@thpack@envtype@multi@linescr{%
+  \m@thpack@envtype@multi@endline%  数式のボックスの構築を終了し関連する処理を行う
+  \m@thpack@envtype@linescr@envtypecheck%
+}
+
+\def\m@thpack@envtype@multi@endline{%  数式のボックスの構築を終了するときに行う処理
+  \m@thpack@displaybox@end%
+  \ifnum\m@thpack@countla=0 %
+    \ifm@thpack@@tagexists%
+      \ifmathenvleqno%  leqnoかつnot fleqnの場合の改行するかしないかの決定を行う  その他の場合は\m@thpack@envtype@multi@putboxprocで決定する
+        \ifmathenvfleqn\else%
+          \global\m@thpack@dimenga=\wd\m@thpack@boxga%
+          \global\advance\m@thpack@dimenga by 2\m@thpack@quad%
+          \global\advance\m@thpack@dimenga by \wd\m@thpack@boxla%
+          \ifdim\m@thpack@dimenga>\displaywidth%
+            \m@thpack@@tagbreaktrue%
+          \fi%
+        \fi%
+      \fi%
+    \fi%
+  \else%
+    \global\m@thpack@dimenga=\wd\m@thpack@boxga%
+    \ifm@thpack@@tagexists%
+      \ifmathenvleqno%  各場合に応じてインデント量を縮めながら調節する
+        \m@thpack@@notaglineindent%
+      \else%
+        \m@thpack@dimenlb=\m@thpack@dimenla%  タグを改行しない場合のインデントは改行する場合のインデントで初期化する
+        \ifmathenvfleqn%
+          \m@thpack@@notaglineindent@fleqn%
+          \global\m@thpack@dimenga=\wd\m@thpack@boxga%
+          \global\advance\m@thpack@dimenga by \m@thpack@countla\m@thpack@dimenlb%
+          \global\advance\m@thpack@dimenga by \mathenvindent%
+          \global\advance\m@thpack@dimenga by \m@thpack@quad%
+          \global\advance\m@thpack@dimenga by \wd\m@thpack@boxla%
+          \ifdim\m@thpack@dimenga>\displaywidth%
+            \global\advance\m@thpack@dimenga by -\displaywidth%
+            \global\divide\m@thpack@dimenga by \m@thpack@countla%
+            \advance\m@thpack@dimenlb by -\m@thpack@dimenga%
+            \ifdim\m@thpack@dimenlb<0pt %
+              \m@thpack@dimenlb=0pt %
+            \fi%
+          \fi%
+        \else%
+          \m@thpack@@notaglineindent@notfleqn%
+          \global\m@thpack@dimenga=\wd\m@thpack@boxga%
+          \global\advance\m@thpack@dimenga by \m@thpack@countla\m@thpack@dimenlb%
+          \global\advance\m@thpack@dimenga by 2\m@thpack@quad%
+          \global\advance\m@thpack@dimenga by \wd\m@thpack@boxla%
+          \ifdim\m@thpack@dimenga>\displaywidth%
+            \global\advance\m@thpack@dimenga by -\displaywidth%
+            \global\divide\m@thpack@dimenga by \m@thpack@countla%
+            \advance\m@thpack@dimenlb by -\m@thpack@dimenga%
+            \ifdim\m@thpack@dimenlb<0pt %
+              \m@thpack@dimenlb=0pt %
+            \fi%
+          \fi%
+        \fi%
+      \fi%
+    \else%
+      \m@thpack@@notaglineindent%
+    \fi%
+  \fi%
+  \advance\m@thpack@countla by 1 %  数式の個数に1加える
+  \expandafter\def\expandafter\m@thpack@@putboxproc\expandafter{\m@thpack@@putboxproc%  \m@thpack@@putboxprocに処理を追加
+    \global\setbox\m@thpack@boxga=\lastbox%  \m@thpack@boxgaに\m@thpack@envtype@multi@putboxprocで\unvboxしたボックスを入れる
+    \ifm@thpack@@tagexists%
+      \ifmathenvleqno%  各場合に応じて\m@thpack@boxlbに数式を配置  \m@thpack@dimenlbには最後に配置したボックスの深さを保存
+        \ifnum\m@thpack@countga=0 %  最初の数式を処理している場合
+          \ifmathenvfleqn%
+            \ifm@thpack@@tagbreak%
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{%
+                \moveright\displayindent\box\m@thpack@boxla%
+                \nobreak%
+                \global\m@thpack@dimenga=\displayindent%
+                \global\advance\m@thpack@dimenga by \mathenvindent%
+                \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              }%
+            \else%
+              \global\setbox\m@thpack@boxga=\hbox{%
+                \global\m@thpack@dimenga=\mathenvindent%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxla%
+                \kern\m@thpack@dimenga%
+                \box\m@thpack@boxga%
+              }%
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{\moveright\displayindent\box\m@thpack@boxga}%
+            \fi%
+          \else%
+            \ifm@thpack@@tagbreak%
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{%
+                \moveright\displayindent\box\m@thpack@boxla%
+                \nobreak%
+                \global\m@thpack@dimenga=\displayindent%
+                \global\advance\m@thpack@dimenga by \m@thpack@quad%
+                \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              }%
+            \else%
+              \global\setbox\m@thpack@boxga=\hbox{\box\m@thpack@boxla\kern\m@thpack@quad\box\m@thpack@boxga}%
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{\moveright\displayindent\box\m@thpack@boxga}%
+            \fi%
+          \fi%
+        \else%
+          \m@thpack@@putnotagline%
+        \fi%
+        \ifnum\m@thpack@countga=\m@thpack@countla%  最後の数式を処理している場合
+          \unvbox\m@thpack@boxlb%
+        \fi%
+      \else%
+        \ifnum\m@thpack@countga=\m@thpack@countla%  最後の数式を処理している場合
+          \unvbox\m@thpack@boxlb%  今まで構築した数式を展開
+          \prevdepth=\m@thpack@dimenlb%  \prevdepthを正規化
+          \ifnum\m@thpack@countga=0 \else%  最後の数式が最初の数式でもある場合を考慮
+            \penalty\mathenvinterlinespenalty%
+          \fi%
+          \ifmathenvfleqn%
+            \ifm@thpack@@tagbreak%
+              \global\m@thpack@dimenga=\displayindent%
+              \global\advance\m@thpack@dimenga by \mathenvindent%
+              \global\advance\m@thpack@dimenga by \m@thpack@countga\m@thpack@dimenla%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              \nobreak%
+              \global\m@thpack@dimenga=\displayindent%
+              \global\advance\m@thpack@dimenga by \displaywidth%
+              \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxla%
+            \else%
+              \global\m@thpack@dimenga=\displayindent%
+              \global\advance\m@thpack@dimenga by \mathenvindent%
+              \global\advance\m@thpack@dimenga by \m@thpack@countga\m@thpack@dimenla%
+              \moveright\m@thpack@dimenga\hbox{%
+                \global\m@thpack@dimenga=\displaywidth%
+                \global\advance\m@thpack@dimenga by -\mathenvindent%
+                \global\advance\m@thpack@dimenga by -\m@thpack@countga\m@thpack@dimenla%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxga\kern\m@thpack@dimenga\box\m@thpack@boxla%
+              }%
+            \fi%
+          \else%
+            \ifm@thpack@@tagbreak%
+              \global\m@thpack@dimenga=\displayindent%
+              \global\advance\m@thpack@dimenga by \m@thpack@quad%
+              \global\advance\m@thpack@dimenga by \m@thpack@countga\m@thpack@dimenla%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              \nobreak%
+              \global\m@thpack@dimenga=\displayindent%
+              \global\advance\m@thpack@dimenga by \displaywidth%
+              \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxla%
+            \else%
+              \global\m@thpack@dimenga=\displayindent%
+              \global\advance\m@thpack@dimenga by \m@thpack@quad%
+              \global\advance\m@thpack@dimenga by \m@thpack@countga\m@thpack@dimenla%
+              \moveright\m@thpack@dimenga\hbox{%
+                \global\m@thpack@dimenga=\displaywidth%
+                \global\advance\m@thpack@dimenga by -\m@thpack@quad%
+                \global\advance\m@thpack@dimenga by -\m@thpack@countga\m@thpack@dimenla%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxga\kern\m@thpack@dimenga\box\m@thpack@boxla%
+              }%
+            \fi%
+          \fi%
+        \else%
+          \m@thpack@@putnotagline%
+        \fi%
+      \fi%
+    \else%
+      \m@thpack@@putnotagline%
+      \ifnum\m@thpack@countga=\m@thpack@countla%  最後の数式を処理している場合
+        \unvbox\m@thpack@boxlb%
+      \fi%
+    \fi%
+    \global\advance\m@thpack@countga by 1 %  次の数式の処理に進む
+  }%
+  \everyvbox={}%
+  \setbox\m@thpack@boxlb=\vbox{\box\m@thpack@boxga\unvbox\m@thpack@boxlb}%  \m@thpack@boxlbに現在の数式を追加
+}
+
+\def\m@thpack@envtype@multi@setting{%
+  \m@thpack@countla=0 %  数式の個数を数える
+  \m@thpack@dimenla=\displaywidth%  タグを改行する場合のインデント量を保存(タグ無し, leqnoの場合は改行にかかわらず使用)  インデント量は最大にしておく  \m@thpack@dimenlbにはタグを改行しない場合のインデント量を保存(タグ無し, leqnoの場合は使用しない)
+  \def\m@thpack@@notaglineindent{%  タグが無い行又はタグが無いとみなしても問題ない行のインデント量の設定
+    \ifmathenvfleqn%
+      \m@thpack@@notaglineindent@fleqn%
+    \else%
+      \m@thpack@@notaglineindent@notfleqn%
+    \fi%
+  }%
+  \def\m@thpack@@notaglineindent@fleqn{%  fleqnのときのタグが無い行又はタグが無いとみなしても問題ない行のインデント量の設定
+    \global\advance\m@thpack@dimenga by \m@thpack@countla\m@thpack@dimenla%
+    \global\advance\m@thpack@dimenga by \mathenvindent%
+    \global\advance\m@thpack@dimenga by \m@thpack@quad%
+    \ifdim\m@thpack@dimenga>\displaywidth%
+      \global\advance\m@thpack@dimenga by -\displaywidth%
+      \global\divide\m@thpack@dimenga by \m@thpack@countla%
+      \advance\m@thpack@dimenla by -\m@thpack@dimenga%
+      \ifdim\m@thpack@dimenla<0pt %
+        \m@thpack@dimenla=0pt %
+      \fi%
+    \fi%
+  }%
+  \def\m@thpack@@notaglineindent@notfleqn{%  fleqnでないときのタグが無い行又はタグが無いとみなしても問題ない行のインデント量の設定
+    \global\advance\m@thpack@dimenga by \m@thpack@countla\m@thpack@dimenla%
+    \global\advance\m@thpack@dimenga by 2\m@thpack@quad%
+    \ifdim\m@thpack@dimenga>\displaywidth%
+      \global\advance\m@thpack@dimenga by -\displaywidth%
+      \global\divide\m@thpack@dimenga by \m@thpack@countla%
+      \advance\m@thpack@dimenla by -\m@thpack@dimenga%
+      \ifdim\m@thpack@dimenla<0pt %
+        \m@thpack@dimenla=0pt %
+      \fi%
+    \fi%
+  }%
+}
+
+\def\m@thpack@envtype@multi@putboxproc{%
+  \everyhbox={}%
+  \everyvbox={}%
+  \unvbox\m@thpack@boxlb%  次の処理のために数式の列のボックスを展開しておく  この後\m@thpack@boxlbは処理が完了したボックスを入れるために使用
+  \advance\m@thpack@countla by -1 %  この操作により\m@thpack@countla=\m@thpack@countgaのとき最後の数式を処理している
+  \global\m@thpack@countga=0 %  現在処理している数式の番数を数える
+  \ifm@thpack@@tagexists%
+    \ifmathenvleqno%  改行するかしないかの決定を行う  leqnoかつnot fleqnの場合は\m@thpack@envtype@multi@endlineで決定する
+      \ifmathenvfleqn%
+        \global\m@thpack@dimenga=\wd\m@thpack@boxla%
+        \global\advance\m@thpack@dimenga by \m@thpack@quad%
+        \ifdim\m@thpack@dimenga>\mathenvindent%
+          \m@thpack@@tagbreaktrue%
+        \fi%
+      \fi%
+    \else%
+      \ifdim\m@thpack@dimenlb<2\m@thpack@quad%  改行しない場合のインデント量が少なすぎる場合
+        \m@thpack@@tagbreaktrue%  タグは改行する
+      \fi%
+      \ifm@thpack@@tagbreak\else%
+        \m@thpack@dimenla=\m@thpack@dimenlb%  \m@thpack@dimenlaを改行しない場合のインデントに更新する
+      \fi%
+    \fi%
+  \fi%
+  \m@thpack@dimenlb=-1000pt %  \m@thpack@dimenlbを用いて最初の配置時の\prevdepthを設定する場合に、\baselineskipの追加を抑制する
+  \setbox\m@thpack@boxlb=\vbox{}%  \m@thpack@boxlbの初期化
+  \def\m@thpack@@putnotagline{%  タグが無い行のボックス配置
+    \ifmathenvfleqn%
+      \setbox\m@thpack@boxlb=\vbox{%
+        \unvbox\m@thpack@boxlb%
+        \prevdepth=\m@thpack@dimenlb%  \prevdepthを正規化
+        \ifnum\m@thpack@countga=0 \else%
+          \penalty\mathenvinterlinespenalty%
+        \fi%
+        \global\m@thpack@dimenga=\displayindent%
+        \global\advance\m@thpack@dimenga by \mathenvindent%
+        \global\advance\m@thpack@dimenga by \m@thpack@countga\m@thpack@dimenla%
+        \moveright\m@thpack@dimenga\copy\m@thpack@boxga%
+      }%
+      \m@thpack@dimenlb=\dp\m@thpack@boxga%
+    \else%
+      \setbox\m@thpack@boxlb=\vbox{%
+        \unvbox\m@thpack@boxlb%
+        \prevdepth=\m@thpack@dimenlb%  \prevdepthを正規化
+        \ifnum\m@thpack@countga=0 \else%
+          \penalty\mathenvinterlinespenalty%
+        \fi%
+        \global\m@thpack@dimenga=\displayindent%
+        \global\advance\m@thpack@dimenga by \m@thpack@quad%
+        \global\advance\m@thpack@dimenga by \m@thpack@countga\m@thpack@dimenla%
+        \moveright\m@thpack@dimenga\copy\m@thpack@boxga%
+      }%
+      \m@thpack@dimenlb=\dp\m@thpack@boxga%
+    \fi%
+  }%
+}
+
+\def\m@thpack@envtype@multi@envtypestart{%
+  \m@thpack@envtype@multi@endline%  数式のボックスの構築を終了し関連する処理を行う
+  \m@thpack@@putboxproc%  数式ボックスを配置する
+  \global\m@thpack@mathenv@interenvpenaltiestoks={\m@thpack@envtype@interenvtypematerials}%  次の\envtypeでペナルティ類を挿入
+  \egroup%  \m@thpack@envtype@linesbaseの\noalignを閉じる
+}
+
+\def\m@thpack@envtype@cmulti#1{%
+  \m@thpack@envtype@linesbase{#1}\m@thpack@envtype@cmulti@linescr\m@thpack@envtype@cmulti@setting\m@thpack@envtype@cmulti@putboxproc\m@thpack@envtype@cmulti@envtypestart%
+}
+
+\def\m@thpack@envtype@cmulti@linescr{%
+  \m@thpack@envtype@cmulti@endline%  数式のボックスの構築を終了し関連する処理を行う
+  \m@thpack@envtype@linescr@envtypecheck%
+}
+
+\def\m@thpack@envtype@cmulti@endline{%  数式のボックスの構築を終了するときに行う処理
+  \m@thpack@displaybox@end%
+  \ifmathenvfleqn\else%
+    \global\m@thpack@dimenga=2\m@thpack@quad%
+    \global\multiply\m@thpack@dimenga by \m@thpack@countla%
+    \global\advance\m@thpack@dimenga by \wd\m@thpack@boxga%
+    \ifdim\m@thpack@dimenga>\m@thpack@dimenla%  最大長を超えるならばそれを最大長にする
+      \m@thpack@dimenla=\m@thpack@dimenga%
+    \fi%
+  \fi%
+  \advance\m@thpack@countla by 1 %  数式の個数に1加える
+  \expandafter\def\expandafter\m@thpack@@putboxproc\expandafter{\m@thpack@@putboxproc%  \m@thpack@@putboxprocに処理を追加
+    \global\setbox\m@thpack@boxga=\lastbox%  \m@thpack@boxgaに\m@thpack@envtype@cmulti@putboxprocで\unvboxしたボックスを入れる
+    \ifm@thpack@@tagexists%
+      \ifmathenvleqno%  各場合に応じて\m@thpack@boxlbに数式を配置  \m@thpack@dimenlbには最後に配置したボックスの深さを保存
+        \ifnum\m@thpack@countga=0 %  最初の数式を処理している場合
+          \ifmathenvfleqn%
+            \global\m@thpack@dimenga=\wd\m@thpack@boxla%  改行するかしないかの決定を行う
+            \global\advance\m@thpack@dimenga by \m@thpack@quad%
+            \ifdim\m@thpack@dimenga>\mathenvindent%
+              \m@thpack@@tagbreaktrue%
+            \fi%
+            \ifm@thpack@@tagbreak%  タグの改行に応じて数式を配置
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{%
+                \moveright\displayindent\box\m@thpack@boxla%
+                \nobreak%
+                \global\m@thpack@dimenga=\displayindent%
+                \global\advance\m@thpack@dimenga by \mathenvindent%
+                \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              }%
+            \else%
+              \global\setbox\m@thpack@boxga=\hbox{%
+                \global\m@thpack@dimenga=\mathenvindent%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxla%
+                \kern\m@thpack@dimenga%
+                \box\m@thpack@boxga%
+              }%
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{\moveright\displayindent\box\m@thpack@boxga}%
+            \fi%
+          \else%
+            \global\m@thpack@dimenga=2\wd\m@thpack@boxla%  改行するかしないかの決定を行う
+            \global\advance\m@thpack@dimenga by 2\m@thpack@quad%
+            \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+            \ifdim\m@thpack@dimenga>\displaywidth%
+              \m@thpack@@tagbreaktrue%
+            \fi%
+            \ifm@thpack@@tagbreak%  タグの改行に応じて数式を配置
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{%
+                \moveright\displayindent\box\m@thpack@boxla%
+                \nobreak%
+                \global\m@thpack@dimenga=\displaywidth%
+                \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+                \global\divide\m@thpack@dimenga by 2 %
+                \global\advance\m@thpack@dimenga by \displayindent%
+                \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              }%
+            \else%
+              \global\setbox\m@thpack@boxga=\hbox{%
+                \global\m@thpack@dimenga=\displaywidth%
+                \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+                \global\divide\m@thpack@dimenga by 2 %
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxla%
+                \kern\m@thpack@dimenga%
+                \box\m@thpack@boxga%
+              }%
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{\moveright\displayindent\box\m@thpack@boxga}%
+            \fi%
+          \fi%
+        \else%
+          \m@thpack@@putnotagline%
+        \fi%
+        \ifnum\m@thpack@countga=\m@thpack@countla%  最後の数式を処理している場合
+          \unvbox\m@thpack@boxlb%
+        \fi%
+      \else%
+        \ifnum\m@thpack@countga=\m@thpack@countla%  最後の数式を処理している場合
+          \unvbox\m@thpack@boxlb%  今まで構築した数式を展開
+          \prevdepth=\m@thpack@dimenlb%  \prevdepthを正規化
+          \ifnum\m@thpack@countga=0 \else%  最後の数式が最初の数式でもある場合を考慮
+            \penalty\mathenvinterlinespenalty%
+          \fi%
+          \ifmathenvfleqn%
+            \global\m@thpack@dimenga=2\m@thpack@quad%  改行するかしないかの決定を行う
+            \global\multiply\m@thpack@dimenga by \m@thpack@countga%
+            \global\advance\m@thpack@dimenga by \mathenvindent%
+            \global\advance\m@thpack@dimenga by \m@thpack@quad%
+            \global\advance\m@thpack@dimenga by \wd\m@thpack@boxga%
+            \ifdim\m@thpack@dimenga>\displaywidth%
+              \m@thpack@@tagbreaktrue%
+            \fi%
+            \ifm@thpack@@tagbreak%  タグの改行に応じて数式を配置
+              \global\m@thpack@dimenga=2\m@thpack@quad%
+              \global\multiply\m@thpack@dimenga by \m@thpack@countga%
+              \global\advance\m@thpack@dimenga by \displayindent%
+              \global\advance\m@thpack@dimenga by \mathenvindent%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              \nobreak%
+              \global\m@thpack@dimenga=\displayindent%
+              \global\advance\m@thpack@dimenga by \displaywidth%
+              \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxla%
+            \else%
+              \global\m@thpack@dimenga=2\m@thpack@quad%
+              \global\multiply\m@thpack@dimenga by \m@thpack@countga%
+              \global\advance\m@thpack@dimenga by \displayindent%
+              \global\advance\m@thpack@dimenga by \mathenvindent%
+              \moveright\m@thpack@dimenga\hbox{%
+                \global\m@thpack@dimenga=-2\m@thpack@quad%
+                \global\multiply\m@thpack@dimenga by \m@thpack@countga%
+                \global\advance\m@thpack@dimenga by \displaywidth%
+                \global\advance\m@thpack@dimenga by -\mathenvindent%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxga\kern\m@thpack@dimenga\box\m@thpack@boxla%
+              }%
+            \fi%
+          \else%
+            \global\m@thpack@dimenga=\displaywidth%  改行するかしないかの決定を行う
+            \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+            \global\divide\m@thpack@dimenga by 2 %
+            \begingroup%  \m@thpack@dimenlaを仮変数として計算
+              \m@thpack@dimenla=2\m@thpack@quad%
+              \multiply\m@thpack@dimenla by \m@thpack@countga%
+              \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+            \endgroup%
+            \global\advance\m@thpack@dimenga by \wd\m@thpack@boxga%
+            \global\advance\m@thpack@dimenga by \m@thpack@quad%
+            \global\advance\m@thpack@dimenga by \wd\m@thpack@boxla%
+            \ifdim\m@thpack@dimenga>\displaywidth%
+              \m@thpack@@tagbreaktrue%
+            \fi%
+            \ifm@thpack@@tagbreak%  タグの改行に応じて数式を配置
+              \global\m@thpack@dimenga=\displaywidth%
+              \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+              \global\divide\m@thpack@dimenga by 2 %
+              \global\advance\m@thpack@dimenga by \displayindent%
+              \begingroup%  \m@thpack@dimenlaを仮変数として計算
+                \m@thpack@dimenla=2\m@thpack@quad%
+                \multiply\m@thpack@dimenla by \m@thpack@countga%
+                \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+              \endgroup%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              \nobreak%
+              \global\m@thpack@dimenga=\displayindent%
+              \global\advance\m@thpack@dimenga by \displaywidth%
+              \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxla%
+            \else%
+              \global\m@thpack@dimenga=\displaywidth%
+              \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+              \global\divide\m@thpack@dimenga by 2 %
+              \global\advance\m@thpack@dimenga by \displayindent%
+              \begingroup%  \m@thpack@dimenlaを仮変数として計算
+                \m@thpack@dimenla=2\m@thpack@quad%
+                \multiply\m@thpack@dimenla by \m@thpack@countga%
+                \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+              \endgroup%
+              \moveright\m@thpack@dimenga\hbox{%
+                \global\m@thpack@dimenga=\displaywidth%
+                \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+                \global\divide\m@thpack@dimenga by 2 %
+                \begingroup%  \m@thpack@dimenlaを仮変数として計算
+                  \m@thpack@dimenla=-2\m@thpack@quad%
+                  \multiply\m@thpack@dimenla by \m@thpack@countga%
+                  \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+                \endgroup%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxga\kern\m@thpack@dimenga\box\m@thpack@boxla%
+              }%
+            \fi%
+          \fi%
+        \else%
+          \m@thpack@@putnotagline%
+        \fi%
+      \fi%
+    \else%
+      \m@thpack@@putnotagline%
+      \ifnum\m@thpack@countga=\m@thpack@countla%  最後の数式を処理している場合
+        \unvbox\m@thpack@boxlb%
+      \fi%
+    \fi%
+    \global\advance\m@thpack@countga by 1 %  次の数式の処理に進む
+  }%
+  \everyvbox={}%
+  \setbox\m@thpack@boxlb=\vbox{\box\m@thpack@boxga\unvbox\m@thpack@boxlb}%  \m@thpack@boxlbに現在の数式を追加
+}
+
+\def\m@thpack@envtype@cmulti@setting{%
+  \m@thpack@countla=0 %  数式の個数を数える
+  \m@thpack@dimenla=0pt %  数式の最大幅を保存(fleqnの場合は使用しない)
+}
+
+\def\m@thpack@envtype@cmulti@putboxproc{%
+  \everyhbox={}%
+  \everyvbox={}%
+  \unvbox\m@thpack@boxlb%  次の処理のために数式の列のボックスを展開しておく  この後\m@thpack@boxlbは処理が完了したボックスを入れるために使用
+  \advance\m@thpack@countla by -1 %  この操作により\m@thpack@countla=\m@thpack@countgaのとき最後の数式を処理している
+  \global\m@thpack@countga=0 %  現在処理している数式の番数を数える
+  \m@thpack@dimenlb=-1000pt %  \m@thpack@dimenlbを用いて最初の配置時の\prevdepthを設定する場合に、\baselineskipの追加を抑制する
+  \setbox\m@thpack@boxlb=\vbox{}%  \m@thpack@boxlbの初期化
+  \def\m@thpack@@putnotagline{%  タグが無い行のボックス配置
+    \ifmathenvfleqn%
+      \setbox\m@thpack@boxlb=\vbox{%
+        \unvbox\m@thpack@boxlb%
+        \prevdepth=\m@thpack@dimenlb%  \prevdepthを正規化
+        \ifnum\m@thpack@countga=0 \else%
+          \penalty\mathenvinterlinespenalty%
+        \fi%
+        \global\m@thpack@dimenga=2\m@thpack@quad%
+        \global\multiply\m@thpack@dimenga by \m@thpack@countga%
+        \global\advance\m@thpack@dimenga by \displayindent%
+        \global\advance\m@thpack@dimenga by \mathenvindent%
+        \moveright\m@thpack@dimenga\copy\m@thpack@boxga%
+      }%
+      \m@thpack@dimenlb=\dp\m@thpack@boxga%
+    \else%
+      \setbox\m@thpack@boxlb=\vbox{%
+        \unvbox\m@thpack@boxlb%
+        \prevdepth=\m@thpack@dimenlb%  \prevdepthを正規化
+        \ifnum\m@thpack@countga=0 \else%
+          \penalty\mathenvinterlinespenalty%
+        \fi%
+        \global\m@thpack@dimenga=\displaywidth%
+        \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+        \global\divide\m@thpack@dimenga by 2 %
+        \global\advance\m@thpack@dimenga by \displayindent%
+        \begingroup%  \m@thpack@dimenlaを仮変数として計算
+          \m@thpack@dimenla=2\m@thpack@quad%
+          \multiply\m@thpack@dimenla by \m@thpack@countga%
+          \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+        \endgroup%
+        \moveright\m@thpack@dimenga\copy\m@thpack@boxga%
+      }%
+      \m@thpack@dimenlb=\dp\m@thpack@boxga%
+    \fi%
+  }%
+}
+
+\def\m@thpack@envtype@cmulti@envtypestart{%
+  \m@thpack@envtype@cmulti@endline%  数式のボックスの構築を終了し関連する処理を行う
+  \m@thpack@@putboxproc%  数式ボックスを配置する
+  \global\m@thpack@mathenv@interenvpenaltiestoks={\m@thpack@envtype@interenvtypematerials}%  次の\envtypeでペナルティ類を挿入
+  \egroup%  \m@thpack@envtype@linesbaseの\noalignを閉じる
+}
+
+\def\m@thpack@envtype@lines#1{%
+  \m@thpack@envtype@linesbase{#1}\m@thpack@envtype@lines@linescr\m@thpack@envtype@lines@setting\m@thpack@envtype@lines@putboxproc\m@thpack@envtype@lines@envtypestart%
+}
+
+\def\m@thpack@envtype@lines@linescr{%
+  \m@thpack@begingroup%
+    \futurelet\m@thpack@@temptoken\m@thpack@envtype@lines@linescr@optcheck%  次のトークンを読み込む
+}
+
+\def\m@thpack@envtype@lines@linescr@optcheck{%
+    \ifx\m@thpack@@temptoken[%  オプションの有り無し判定
+      \aftergroup\m@thpack@envtype@lines@linescr@opt%
+    \else%
+      \aftergroup\m@thpack@envtype@lines@linescr@noopt%
+    \fi%
+  \m@thpack@endgroup%
+}
+
+\def\m@thpack@envtype@lines@linescr@opt[#1]{%
+  \m@thpack@envtype@lines@endline{#1}%  数式のボックスの構築を終了し関連する処理を行う
+  \m@thpack@envtype@linescr@envtypecheck%
+}
+
+\def\m@thpack@envtype@lines@linescr@noopt{%
+  \m@thpack@envtype@lines@endline{0}%  数式のボックスの構築を終了し関連する処理を行う
+  \m@thpack@envtype@linescr@envtypecheck%
+}
+
+\def\m@thpack@envtype@lines@endline#1{%  数式のボックスの構築を終了するときに行う処理  #1はインデント量を表す整数
+  \m@thpack@displaybox@end%
+  \m@thpack@safesetnumber\m@thpack@countlb{#1}%  \m@thpack@countlbをインデント量に設定
+  \ifmathenvfleqn\else%
+    \global\m@thpack@dimenga=2\m@thpack@quad%
+    \global\multiply\m@thpack@dimenga by \m@thpack@countlb%
+    \global\advance\m@thpack@dimenga by \wd\m@thpack@boxga%
+    \ifdim\m@thpack@dimenga>\m@thpack@dimenla%  最大長を超えるならばそれを最大長にする
+      \m@thpack@dimenla=\m@thpack@dimenga%
+    \fi%
+  \fi%
+  \advance\m@thpack@countla by 1 %  数式の個数に1加える
+  \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@@putboxproc\expandafter\expandafter\expandafter{\expandafter\m@thpack@@putboxproc%  \m@thpack@@putboxprocに処理を追加
+    \expandafter\m@thpack@countlb\expandafter=\the\m@thpack@countlb\relax%  \m@thpack@countlbをインデント量に設定  \expandafterの作用に注意
+    \global\setbox\m@thpack@boxga=\lastbox%  \m@thpack@boxgaに\m@thpack@envtype@lines@putboxprocで\unvboxしたボックスを入れる
+    \ifm@thpack@@tagexists%
+      \ifmathenvleqno%  各場合に応じて\m@thpack@boxlbに数式を配置  \m@thpack@dimenlbには最後に配置したボックスの深さを保存
+        \ifnum\m@thpack@countga=0 %  最初の数式を処理している場合
+          \ifmathenvfleqn%
+            \global\m@thpack@dimenga=\mathenvindent%  改行するかしないかの決定を行う
+            \begingroup%  \m@thpack@dimenlaを仮変数として計算
+              \m@thpack@dimenla=2\m@thpack@quad%
+              \multiply\m@thpack@dimenla by \m@thpack@countlb%
+              \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+            \endgroup%
+            \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+            \global\advance\m@thpack@dimenga by -\m@thpack@quad%
+            \ifdim\m@thpack@dimenga<0pt %
+              \m@thpack@@tagbreaktrue%
+            \fi%
+            \ifm@thpack@@tagbreak%  タグの改行に応じて数式を配置
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{%
+                \moveright\displayindent\box\m@thpack@boxla%
+                \nobreak%
+                \global\m@thpack@dimenga=2\m@thpack@quad%
+                \global\multiply\m@thpack@dimenga by \m@thpack@countlb%
+                \global\advance\m@thpack@dimenga by \displayindent%
+                \global\advance\m@thpack@dimenga by \mathenvindent%
+                \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              }%
+            \else%
+              \global\setbox\m@thpack@boxga=\hbox{%
+                \global\m@thpack@dimenga=2\m@thpack@quad%
+                \global\multiply\m@thpack@dimenga by \m@thpack@countlb%
+                \global\advance\m@thpack@dimenga by \mathenvindent%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxla%
+                \kern\m@thpack@dimenga%
+                \box\m@thpack@boxga%
+              }%
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{\moveright\displayindent\box\m@thpack@boxga}%
+            \fi%
+          \else%
+            \global\m@thpack@dimenga=\displaywidth%  改行するかしないかの決定を行う
+            \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+            \global\divide\m@thpack@dimenga by 2 %
+            \begingroup%  \m@thpack@dimenlaを仮変数として計算
+              \m@thpack@dimenla=2\m@thpack@quad%
+              \multiply\m@thpack@dimenla by \m@thpack@countlb%
+              \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+            \endgroup%
+            \global\advance\m@thpack@dimenga by -\m@thpack@quad%
+            \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+            \ifdim\m@thpack@dimenga<0pt %
+              \m@thpack@@tagbreaktrue%
+            \fi%
+            \ifm@thpack@@tagbreak%  タグの改行に応じて数式を配置
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{%
+                \moveright\displayindent\box\m@thpack@boxla%
+                \nobreak%
+                \global\m@thpack@dimenga=\displaywidth%
+                \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+                \global\divide\m@thpack@dimenga by 2 %
+                \global\advance\m@thpack@dimenga by \displayindent%
+                \begingroup%  \m@thpack@dimenlaを仮変数として計算
+                  \m@thpack@dimenla=2\m@thpack@quad%
+                  \multiply\m@thpack@dimenla by \m@thpack@countlb%
+                  \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+                \endgroup%
+                \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              }%
+            \else%
+              \global\setbox\m@thpack@boxga=\hbox{%
+                \global\m@thpack@dimenga=\displaywidth%
+                \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+                \global\divide\m@thpack@dimenga by 2 %
+                \begingroup%  \m@thpack@dimenlaを仮変数として計算
+                  \m@thpack@dimenla=2\m@thpack@quad%
+                  \multiply\m@thpack@dimenla by \m@thpack@countlb%
+                  \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+                \endgroup%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxla%
+                \kern\m@thpack@dimenga%
+                \box\m@thpack@boxga%
+              }%
+              \m@thpack@dimenlb=\dp\m@thpack@boxga%
+              \setbox\m@thpack@boxlb=\vbox{\moveright\displayindent\box\m@thpack@boxga}%
+            \fi%
+          \fi%
+        \else%
+          \m@thpack@@putnotagline%
+        \fi%
+        \ifnum\m@thpack@countga=\m@thpack@countla%  最後の数式を処理している場合
+          \unvbox\m@thpack@boxlb%
+        \fi%
+      \else%
+        \ifnum\m@thpack@countga=\m@thpack@countla%  最後の数式を処理している場合
+          \unvbox\m@thpack@boxlb%  今まで構築した数式を展開
+          \prevdepth=\m@thpack@dimenlb%  \prevdepthを正規化
+          \ifnum\m@thpack@countga=0 \else%  最後の数式が最初の数式でもある場合を考慮
+            \penalty\mathenvinterlinespenalty%
+          \fi%
+          \ifmathenvfleqn%
+            \global\m@thpack@dimenga=2\m@thpack@quad%  改行するかしないかの決定を行う
+            \global\multiply\m@thpack@dimenga by \m@thpack@countlb%
+            \global\advance\m@thpack@dimenga by \mathenvindent%
+            \global\advance\m@thpack@dimenga by \m@thpack@quad%
+            \global\advance\m@thpack@dimenga by \wd\m@thpack@boxga%
+            \ifdim\m@thpack@dimenga>\displaywidth%
+              \m@thpack@@tagbreaktrue%
+            \fi%
+            \ifm@thpack@@tagbreak%  タグの改行に応じて数式を配置
+              \global\m@thpack@dimenga=2\m@thpack@quad%
+              \global\multiply\m@thpack@dimenga by \m@thpack@countlb%
+              \global\advance\m@thpack@dimenga by \displayindent%
+              \global\advance\m@thpack@dimenga by \mathenvindent%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              \nobreak%
+              \global\m@thpack@dimenga=\displayindent%
+              \global\advance\m@thpack@dimenga by \displaywidth%
+              \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxla%
+            \else%
+              \global\m@thpack@dimenga=2\m@thpack@quad%
+              \global\multiply\m@thpack@dimenga by \m@thpack@countlb%
+              \global\advance\m@thpack@dimenga by \displayindent%
+              \global\advance\m@thpack@dimenga by \mathenvindent%
+              \moveright\m@thpack@dimenga\hbox{%
+                \global\m@thpack@dimenga=-2\m@thpack@quad%
+                \global\multiply\m@thpack@dimenga by \m@thpack@countlb%
+                \global\advance\m@thpack@dimenga by \displaywidth%
+                \global\advance\m@thpack@dimenga by -\mathenvindent%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxga\kern\m@thpack@dimenga\box\m@thpack@boxla%
+              }%
+            \fi%
+          \else%
+            \global\m@thpack@dimenga=\displaywidth%  改行するかしないかの決定を行う
+            \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+            \global\divide\m@thpack@dimenga by 2 %
+            \begingroup%  \m@thpack@dimenlaを仮変数として計算
+              \m@thpack@dimenla=2\m@thpack@quad%
+              \multiply\m@thpack@dimenla by \m@thpack@countlb%
+              \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+            \endgroup%
+            \global\advance\m@thpack@dimenga by \wd\m@thpack@boxga%
+            \global\advance\m@thpack@dimenga by \m@thpack@quad%
+            \global\advance\m@thpack@dimenga by \wd\m@thpack@boxla%
+            \ifdim\m@thpack@dimenga>\displaywidth%
+              \m@thpack@@tagbreaktrue%
+            \fi%
+            \ifm@thpack@@tagbreak%  タグの改行に応じて数式を配置
+              \global\m@thpack@dimenga=\displaywidth%
+              \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+              \global\divide\m@thpack@dimenga by 2 %
+              \global\advance\m@thpack@dimenga by \displayindent%
+              \begingroup%  \m@thpack@dimenlaを仮変数として計算
+                \m@thpack@dimenla=2\m@thpack@quad%
+                \multiply\m@thpack@dimenla by \m@thpack@countlb%
+                \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+              \endgroup%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxga%
+              \nobreak%
+              \global\m@thpack@dimenga=\displayindent%
+              \global\advance\m@thpack@dimenga by \displaywidth%
+              \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+              \moveright\m@thpack@dimenga\box\m@thpack@boxla%
+            \else%
+              \global\m@thpack@dimenga=\displaywidth%
+              \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+              \global\divide\m@thpack@dimenga by 2 %
+              \global\advance\m@thpack@dimenga by \displayindent%
+              \begingroup%  \m@thpack@dimenlaを仮変数として計算
+                \m@thpack@dimenla=2\m@thpack@quad%
+                \multiply\m@thpack@dimenla by \m@thpack@countlb%
+                \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+              \endgroup%
+              \moveright\m@thpack@dimenga\hbox{%
+                \global\m@thpack@dimenga=\displaywidth%
+                \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+                \global\divide\m@thpack@dimenga by 2 %
+                \begingroup%  \m@thpack@dimenlaを仮変数として計算
+                  \m@thpack@dimenla=-2\m@thpack@quad%
+                  \multiply\m@thpack@dimenla by \m@thpack@countlb%
+                  \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+                \endgroup%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+                \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxla%
+                \box\m@thpack@boxga\kern\m@thpack@dimenga\box\m@thpack@boxla%
+              }%
+            \fi%
+          \fi%
+        \else%
+          \m@thpack@@putnotagline%
+        \fi%
+      \fi%
+    \else%
+      \m@thpack@@putnotagline%
+      \ifnum\m@thpack@countga=\m@thpack@countla%  最後の数式を処理している場合
+        \unvbox\m@thpack@boxlb%
+      \fi%
+    \fi%
+    \global\advance\m@thpack@countga by 1 %  次の数式の処理に進む
+  }%
+  \everyvbox={}%
+  \setbox\m@thpack@boxlb=\vbox{\box\m@thpack@boxga\unvbox\m@thpack@boxlb}%  \m@thpack@boxlbに現在の数式を追加
+}
+
+\def\m@thpack@envtype@lines@setting{%
+  \m@thpack@countla=0 %  数式の個数を数える
+  \m@thpack@dimenla=0pt %  数式の最大幅を保存(fleqnの場合は使用しない)
+}
+
+\def\m@thpack@envtype@lines@putboxproc{%
+  \everyhbox={}%
+  \everyvbox={}%
+  \unvbox\m@thpack@boxlb%  次の処理のために数式の列のボックスを展開しておく  この後\m@thpack@boxlbは処理が完了したボックスを入れるために使用
+  \advance\m@thpack@countla by -1 %  この操作により\m@thpack@countla=\m@thpack@countgaのとき最後の数式を処理している
+  \global\m@thpack@countga=0 %  現在処理している数式の番数を数える
+  \m@thpack@dimenlb=-1000pt %  \m@thpack@dimenlbを用いて最初の配置時の\prevdepthを設定する場合に、\baselineskipの追加を抑制する
+  \setbox\m@thpack@boxlb=\vbox{}%  \m@thpack@boxlbの初期化
+  \def\m@thpack@@putnotagline{%  タグが無い行のボックス配置
+    \ifmathenvfleqn%
+      \setbox\m@thpack@boxlb=\vbox{%
+        \unvbox\m@thpack@boxlb%
+        \prevdepth=\m@thpack@dimenlb%  \prevdepthを正規化
+        \ifnum\m@thpack@countga=0 \else%
+          \penalty\mathenvinterlinespenalty%
+        \fi%
+        \global\m@thpack@dimenga=2\m@thpack@quad%
+        \global\multiply\m@thpack@dimenga by \m@thpack@countlb%
+        \global\advance\m@thpack@dimenga by \displayindent%
+        \global\advance\m@thpack@dimenga by \mathenvindent%
+        \moveright\m@thpack@dimenga\copy\m@thpack@boxga%
+      }%
+      \m@thpack@dimenlb=\dp\m@thpack@boxga%
+    \else%
+      \setbox\m@thpack@boxlb=\vbox{%
+        \unvbox\m@thpack@boxlb%
+        \prevdepth=\m@thpack@dimenlb%  \prevdepthを正規化
+        \ifnum\m@thpack@countga=0 \else%
+          \penalty\mathenvinterlinespenalty%
+        \fi%
+        \global\m@thpack@dimenga=\displaywidth%
+        \global\advance\m@thpack@dimenga by -\m@thpack@dimenla%
+        \global\divide\m@thpack@dimenga by 2 %
+        \global\advance\m@thpack@dimenga by \displayindent%
+        \begingroup%  \m@thpack@dimenlaを仮変数として計算
+          \m@thpack@dimenla=2\m@thpack@quad%
+          \multiply\m@thpack@dimenla by \m@thpack@countlb%
+          \global\advance\m@thpack@dimenga by \m@thpack@dimenla%
+        \endgroup%
+        \moveright\m@thpack@dimenga\copy\m@thpack@boxga%
+      }%
+      \m@thpack@dimenlb=\dp\m@thpack@boxga%
+    \fi%
+  }%
+}
+
+\def\m@thpack@envtype@lines@envtypestart{%
+  \m@thpack@envtype@lines@endline{0}%  数式のボックスの構築を終了し関連する処理を行う
+  \m@thpack@@putboxproc%  数式ボックスを配置する
+  \global\m@thpack@mathenv@interenvpenaltiestoks={\m@thpack@envtype@interenvtypematerials}%  次の\envtypeでペナルティ類を挿入
+  \egroup%  \m@thpack@envtype@linesbaseの\noalignを閉じる
+}
+
+\def\m@thpack@envtype@linesbase#1#2#3#4#5{%
+  \the\m@thpack@mathenv@interenvpenaltiestoks%  最初の\envtypeでなければ、ここでペナルティ類が挿入される
+  \noalign\bgroup%
+  \m@thpack@gentag{#1}%  タグ生成
+  \ifm@thpack@@tagexists%  ボックス作成時、レジスターが不定になる可能性に注意
+    \everyhbox={}%
+    \setbox\m@thpack@boxla=\m@thpack@tagbox{\m@thpack@@tag}%  タグのボックス
+  \fi%
+  \let\\=#2%
+  \everyvbox={}%
+  \setbox\m@thpack@boxlb=\vbox{}%  数式の列を保存する用
+  #3%
+  \let\m@thpack@@putboxproc=#4%  数式ボックスを配置する処理を\m@thpack@@putboxproc再定義しながら構築する
+  \let\m@thpack@@envtypestart=#5%  次の\envtypeで実行するもの
+  \everyhbox={}%
+  \global\setbox\m@thpack@boxga=\m@thpack@displaybox@begin%  数式のボックスの構築を始める
+}
+
+\def\m@thpack@envtype@linescr@envtypecheck{%
+  \m@thpack@begingroup%
+    \m@thpack@exafterspacesdel{\futurelet\m@thpack@@temptoken\m@thpack@envtype@linescr@envtypecheck@body}%  展開しながら空白を削除した後に次のトークンを読み込む
+}
+
+\def\m@thpack@envtype@linescr@envtypecheck@body{%
+    \ifx\m@thpack@@temptoken\m@thpack@mathenv@envtypescanstop%  トークンが\envtypeか確認する(\envtypeの中で最初の展開不可能なトークンである\m@thpack@mathenv@envtypescanstopと同等か比較している)
+      \m@thpack@aftergrouptoks={%
+        \def\m@thpack@@envtypestart{%  \m@thpack@@envtypestartを更新する
+          \m@thpack@@putboxproc%  数式ボックスを配置する
+          \global\m@thpack@mathenv@interenvpenaltiestoks={\m@thpack@envtype@interenvtypematerials}%  次の\envtypeでペナルティ類を挿入
+          \egroup%  \m@thpack@envtype@linesbaseの\noalignを閉じる
+        }%
+      }%
+    \else%
+      \m@thpack@aftergrouptoks={\everyhbox={}\global\setbox\m@thpack@boxga=\m@thpack@displaybox@begin}%  数式のボックスの構築を始める
+    \fi%
+  \m@thpack@endgroup%
+}
+
+\def\m@thpack@envtype@align#1{%
+  \the\m@thpack@mathenv@interenvpenaltiestoks%  最初の\envtypeでなければ、ここでペナルティ類が挿入される
+  \noalign\bgroup%
+  \def\m@thpack@@envtypestart{%  次の\envtypeで実行するもの
+    \cr\egroup%  \m@thpack@envtype@alignの\halignを閉じる
+    \global\m@thpack@mathenv@interenvpenaltiestoks={\m@thpack@envtype@interenvtypematerials}%  次の\envtypeでペナルティ類を挿入
+    \egroup%  \m@thpack@envtype@alignの\noalignを閉じる
+  }%
+  \let\tag=\relax%  タグオプションをリラックスにしてアリメント要素の最初での展開を防止する
+  \let\overtag=\relax%
+  \let\yestag=\relax%
+  \let\notag=\relax%
+  \let\label=\relax%
+  \let\overlabel=\relax%
+  \let\tagbreak=\relax%
+  \let\\=\m@thpack@envtype@aligncr%
+  \everycr={}%
+  \m@thpack@gentemplate{#1}%
+  \tabskip=0pt %
+  \global\m@thpack@dimenga=\displayindent%
+  \global\advance\m@thpack@dimenga by \displaywidth%
+  \halign to \m@thpack@dimenga\bgroup\span\m@thpack@@template\cr%  \halignを開始
+}
+
+\def\m@thpack@envtype@aligncr{%
+  {\ifnum`}=0 \fi%  グルーピングを開始 同時にブレースカウンターのmaster counterを増やす
+    \m@thpack@exafterspacesdel{\futurelet\m@thpack@@temptoken\m@thpack@envtype@aligncr@body}%  展開しながら空白を削除した後に次のトークンを読み込む
+}
+
+\def\m@thpack@envtype@aligncr@body{%
+    \ifx\m@thpack@@temptoken\m@thpack@mathenv@envtypescanstop\else%  トークンが\envtypeか確認する(\envtypeの中で最初の展開不可能なトークンである\m@thpack@mathenv@envtypescanstopと同等か比較している)
+      \aftergroup\cr%  次のトークンが\envtypeでない場合は行を終了する
+      \aftergroup\noalign\aftergroup{\aftergroup\penalty\aftergroup\mathenvinteralignpenalty\aftergroup}%  align用行間ペナルティを挿入
+    \fi%
+  \ifnum`{=0 \fi}%  グルーピングを終了 同時にブレースカウンターのmaster counterを減らす
+}
+
+\def\m@thpack@envtype@eqnalign{%
+  \noalign\bgroup%
+  \def\m@thpack@@envtypestart{%  次の\envtypeで実行するもの
+    \egroup%  \m@thpack@envtype@eqnalignの\noalignを閉じる
+  }%
+  \envtype{align}{\Rdisp\ldisp}%
+}
+
+%  \mathenv \envtypeマクロ群 終わり
+%%%%
+
+%%%%
+%  \envtype align用テンプレート生成マクロ群 始まり
+
+\def\m@thpack@gentemplate#1{%  このマクロにより、テンプレートの内容を持つマクロ\m@thpack@@templateと最初の\tabskipの値を持つマクロ\m@thpack@@tabskipが生成される  \m@tpack@@numsigは#に設定される  #1はテンプレートオプションの列
+  \def\m@thpack@@template{}%
+  \m@thpack@begingroup%
+    \m@thpack@makeif{m@thpack@@entryset}%
+    \m@thpack@makeif{m@thpack@@infinitepreambleset}%
+    \m@thpack@makeif{m@thpack@@colskipset}%
+    \def\m@thpack@@templatebase##1##2{%  テンプレートオプションを定義するためのマクロ
+      \def##1{%
+        \expandafter\m@thpack@aftergrouptoks\expandafter=\expandafter{\the\m@thpack@aftergrouptoks%
+          \expandafter\def\expandafter\m@thpack@@template\expandafter{\m@thpack@@template%
+            &\m@thpack@template@resetalign%
+            \everyhbox={}%
+            ##2%
+          }%
+        }%
+        \ifm@thpack@@entryset\else%
+          \ifm@thpack@@infinitepreambleset\else%  エントリーが初めて設定された場合
+            \expandafter\m@thpack@aftergrouptoks\expandafter=\expandafter{\the\m@thpack@aftergrouptoks%  タグ処理部で使われた\tabskipを0ptに戻す
+              \expandafter\def\expandafter\m@thpack@@template\expandafter{\m@thpack@@template%
+                \tabskip=0pt plus 0pt minus 0pt %
+              }%
+            }%
+          \fi%
+        \fi%
+        \m@thpack@@entrysettrue%
+        \m@thpack@@colskipsetfalse%
+      }%
+    }%
+    \m@thpack@@templatebase\Ldisp{\m@thpack@basemathbox@begin\displaystyle\the\mathenvaligndisplaytoks\m@thpack@@numsig\m@thpack@basemathbox@end\hfil}%  各テンプレートオプションを作成
+    \m@thpack@@templatebase\Cdisp{\hfil\m@thpack@basemathbox@begin\displaystyle\the\mathenvaligndisplaytoks\m@thpack@@numsig\m@thpack@basemathbox@end\hfil}%
+    \m@thpack@@templatebase\Rdisp{\hfil\m@thpack@basemathbox@begin\displaystyle\the\mathenvaligndisplaytoks\m@thpack@@numsig\m@thpack@basemathbox@end}%
+    \m@thpack@@templatebase\ldisp{\m@thpack@basemathbox@begin\displaystyle\the\mathenvaligndisplaytoks{}\m@thpack@@numsig\m@thpack@basemathbox@end\hfil}%
+    \m@thpack@@templatebase\cdisp{\hfil\m@thpack@basemathbox@begin\displaystyle\the\mathenvaligndisplaytoks{}\m@thpack@@numsig\m@thpack@basemathbox@end\hfil}%
+    \m@thpack@@templatebase\rdisp{\hfil\m@thpack@basemathbox@begin\displaystyle\the\mathenvaligndisplaytoks{}\m@thpack@@numsig\m@thpack@basemathbox@end}%
+    \m@thpack@@templatebase\Lmath{\m@thpack@basemathbox@begin\textstyle\the\mathenvalignmathtoks\m@thpack@@numsig\m@thpack@basemathbox@end\hfil}%
+    \m@thpack@@templatebase\Cmath{\hfil\m@thpack@basemathbox@begin\textstyle\the\mathenvalignmathtoks\m@thpack@@numsig\m@thpack@basemathbox@end\hfil}%
+    \m@thpack@@templatebase\Rmath{\hfil\m@thpack@basemathbox@begin\textstyle\the\mathenvalignmathtoks\m@thpack@@numsig\m@thpack@basemathbox@end}%
+    \m@thpack@@templatebase\lmath{\m@thpack@basemathbox@begin\textstyle\the\mathenvalignmathtoks{}\m@thpack@@numsig\m@thpack@basemathbox@end\hfil}%
+    \m@thpack@@templatebase\cmath{\hfil\m@thpack@basemathbox@begin\textstyle\the\mathenvalignmathtoks{}\m@thpack@@numsig\m@thpack@basemathbox@end\hfil}%
+    \m@thpack@@templatebase\rmath{\hfil\m@thpack@basemathbox@begin\textstyle\the\mathenvalignmathtoks{}\m@thpack@@numsig\m@thpack@basemathbox@end}%
+    \m@thpack@@templatebase\ltext{\hbox\bgroup\the\mathenvaligntexttoks\m@thpack@@numsig\egroup\hfil}%
+    \m@thpack@@templatebase\ctext{\hfil\hbox\bgroup\the\mathenvaligntexttoks\m@thpack@@numsig\egroup\hfil}%
+    \m@thpack@@templatebase\rtext{\hfil\hbox\bgroup\the\mathenvaligntexttoks\m@thpack@@numsig\egroup}%
+    \def\colskip{%
+      \begingroup%
+        \futurelet\m@thpack@@temptoken\m@thpack@@colskip@check%  次のトークンを読み込む
+    }%
+    \def\m@thpack@@colskip@check{%
+        \ifx\m@thpack@@temptoken\bgroup%  引数がブレースで囲われていることを確認
+          \aftergroup\m@thpack@@colskip@body%
+        \else%
+          \m@thpack@error{'\noexpand\colskip'にはブレースで囲われた引数が必要 (alignテンプレートオプション)}{引数がない場合は付けてください。^^Jブレースで囲っていない場合は囲ってください。('\colskip{10pt}'の様に書く)}%
+        \fi%
+      \endgroup%
+    }%
+    \def\m@thpack@@colskip@body##1{%
+      \ifm@thpack@@colskipset%
+        \m@thpack@error{'\noexpand\colskip'オプションを連続して二回以上書いている (alignテンプレートオプション)}{連続する'\colskip'オプションの内どちらかを削除してください。}%
+      \else%
+        \ifm@thpack@@entryset%
+          \m@thpack@safesetglue{\global\m@thpack@skipga}{##1}%
+          \expandafter\expandafter\expandafter\m@thpack@aftergrouptoks\expandafter\expandafter\expandafter=\expandafter\expandafter\expandafter{%
+            \expandafter\the\expandafter\m@thpack@aftergrouptoks%
+            \expandafter\expandafter\expandafter\def\expandafter\expandafter\expandafter\m@thpack@@template\expandafter\expandafter\expandafter{%
+              \expandafter\m@thpack@@template%
+              \expandafter\tabskip\expandafter=\the\m@thpack@skipga%
+            }%
+          }%
+          \m@thpack@@colskipsettrue%
+        \else%
+          \ifm@thpack@@infinitepreambleset%
+            \m@thpack@error{'\noexpand\colskip'オプションを'\noexpand\infinite'の直後に書いている (alignテンプレートオプション)}{エントリー(例えば、'\Ldisp')を'\colskip'の前に追加するか、'\colskip'を削除してください。}%
+          \else%
+            \m@thpack@error{'\noexpand\colskip'オプションをテンプレートの初めに書いている (alignテンプレートオプション)}{エントリー(例えば、'\Ldisp')を'\colskip'の前に追加するか、'\colskip'を削除してください。}%
+          \fi%
+        \fi%
+      \fi%
+    }%
+    \def\infinite{%
+      \expandafter\m@thpack@aftergrouptoks\expandafter=\expandafter{\the\m@thpack@aftergrouptoks%
+        \expandafter\def\expandafter\m@thpack@@template\expandafter{\m@thpack@@template%
+          &%
+        }%
+      }%
+      \m@thpack@@entrysetfalse%
+      \m@thpack@@infinitepreamblesettrue%
+    }%
+    \def\m@thpack@@checkend{\m@thpack@@checkend@body}%  チェックの終了を知らせる用
+    \def\m@thpack@@checkend@body{}%
+    \expandafter\m@thpack@aftergrouptoks\expandafter=\expandafter{\the\m@thpack@aftergrouptoks%  テンプレートの最初にタグの処理部を追加
+      \expandafter\def\expandafter\m@thpack@@template\expandafter{\m@thpack@@template%
+        \m@thpack@template@resetalign%
+        \m@thpack@gentag{\m@thpack@@numsig}%  タグ生成
+        \ifm@thpack@@tagexists%  ボックス作成時、レジスターが不定になる可能性に注意
+          \everyhbox={}%
+          \global\setbox\m@thpack@boxga=\m@thpack@tagbox{\m@thpack@@tag}%  タグのボックス
+        \fi%
+        \ifmathenvleqno%  数式タグを配置して、インデントを行う
+          \global\m@thpack@dimenga=\displayindent%
+          \ifmathenvfleqn%
+            \global\advance\m@thpack@dimenga by \mathenvindent%
+          \fi%
+          \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+          \box\m@thpack@boxga%
+          \kern\m@thpack@dimenga%
+        \else%
+          \global\m@thpack@dimenga=\displayindent%
+          \global\m@thpack@dimenga=\displaywidth%
+          \global\advance\m@thpack@dimenga by -\wd\m@thpack@boxga%
+          \kern\m@thpack@dimenga%
+          \box\m@thpack@boxga%
+          \global\m@thpack@dimenga=\displaywidth%
+          \ifmathenvfleqn%
+            \global\advance\m@thpack@dimenga by -\mathenvindent%
+          \fi%
+          \kern-\m@thpack@dimenga%
+        \fi%
+        \tabskip=%
+          \ifmathenvfleqn%
+            0pt %
+          \else%
+            0pt plus 1fil %  次の\fiはminusが無いから展開される
+          \fi%
+      }%
+    }%
+    \m@thpack@gentemplate@optcheck#1\m@thpack@@checkend%  オプションを処理
+    \ifm@thpack@@entryset\else%  必要なエントリーが設定されていない場合
+      \ifm@thpack@@infinitepreambleset%
+        \m@thpack@error{無限テンプレートの繰り返し部分には1つ以上のエントリーが必要 (alignテンプレートオプション)}{1つ以上のエントリー(例えば、'\Ldisp')をテンプレートの最後に追加してください。}%
+      \else%
+        \m@thpack@error{テンプレート全体には1つ以上のエントリーが必要 (alignテンプレートオプション)}{1つ以上のエントリー(例えば、'\Ldisp')をテンプレートに追加してください。}%
+      \fi%
+      \expandafter\m@thpack@aftergrouptoks\expandafter=\expandafter{\the\m@thpack@aftergrouptoks%  エラー時には緊急用のテンプレートを追加する
+        \expandafter\def\expandafter\m@thpack@@template\expandafter{\m@thpack@@template%
+          &\m@tpack@numsig%
+        }%
+      }%
+    \fi%
+    \ifm@thpack@@colskipset%  テンプレートの最後が\colskipの場合
+      \m@thpack@error{'\noexpand\colskip'オプションをテンプレートの最後に書いている (alignテンプレートオプション)}{エントリー(例えば、'\Ldisp')を'\colskip'の後に追加するか、'\colskip'を削除してください。}%
+    \fi%
+    \expandafter\m@thpack@aftergrouptoks\expandafter=\expandafter{\the\m@thpack@aftergrouptoks%  テンプレートの最後に\tabskipを追加
+      \expandafter\def\expandafter\m@thpack@@template\expandafter{\m@thpack@@template%
+        \tabskip=0pt plus 1fil minus 0pt %
+      }%
+    }%
+  \m@thpack@endgroup%
+  \let\m@thpack@@numsig=##%
+}
+
+\def\m@thpack@gentemplate@optcheck{%
+  \begingroup%
+    \m@thpack@afterspacesdel{\futurelet\m@thpack@@temptoken\m@thpack@gentemplate@optcheck@body}%  空白を削除した後に次のトークンを読み込む
+}
+
+\def\m@thpack@gentemplate@optcheck@body{%
+    \ifx\m@thpack@@temptoken\Ldisp%
+    \else\ifx\m@thpack@@temptoken\Cdisp%
+    \else\ifx\m@thpack@@temptoken\Rdisp%
+    \else\ifx\m@thpack@@temptoken\ldisp%
+    \else\ifx\m@thpack@@temptoken\cdisp%
+    \else\ifx\m@thpack@@temptoken\rdisp%
+    \else\ifx\m@thpack@@temptoken\Lmath%
+    \else\ifx\m@thpack@@temptoken\Cmath%
+    \else\ifx\m@thpack@@temptoken\Rmath%
+    \else\ifx\m@thpack@@temptoken\lmath%
+    \else\ifx\m@thpack@@temptoken\cmath%
+    \else\ifx\m@thpack@@temptoken\rmath%
+    \else\ifx\m@thpack@@temptoken\ltext%
+    \else\ifx\m@thpack@@temptoken\ctext%
+    \else\ifx\m@thpack@@temptoken\rtext%
+    \else\ifx\m@thpack@@temptoken\colskip%
+    \else\ifx\m@thpack@@temptoken\infinite%
+    \else\ifx\m@thpack@@temptoken\m@thpack@@checkend%
+    \else%
+      \aftergroup\m@thpack@gentemplate@optcheck@error%
+    \fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi\fi%
+  \endgroup%
+}
+
+\def\m@thpack@gentemplate@optcheck@error#1{%
+  \m@thpack@error{不明なオプション'\noexpand#1' (alignテンプレートオプション)}{入力された名前のオプションはありません。^^Jタイプミスのチェックも忘れずに。}%
+}
+
+\def\m@thpack@template@resetalign{%
+  \tabskip=0pt %
+  \everycr={}%
+}
+
+%  \envtype align用テンプレート生成マクロ群 終わり
+%%%%
+
+%%%%
+%  リダイレクト環境マクロ群 始まり
+
+\def\disp{%
+  \begingroup%
+    \futurelet\m@thpack@@temptoken\m@thpack@redirectdisp@optcheck%  次のトークンを読み込む
+}
+
+\def\m@thpack@redirectdisp@optcheck{%
+    \ifx\m@thpack@@temptoken[%  オプションの有り無し判定
+      \aftergroup\m@thpack@redirectdisp@body%
+    \else%
+      \aftergroup\m@thpack@redirectdisp@body\aftergroup[\aftergroup]%
+    \fi%
+  \endgroup%
+}
+
+\def\m@thpack@redirectdisp@body[#1]{%
+  \begingroup%
+    \ifmathenvfleqn%
+      \def\m@thpack@redirectdisp@@end{\endmathenv}%  \enddispで実行するマクロを定義
+      \mathenv%
+      \envtype[#1]{disp}%
+    \else%
+      \def\m@thpack@redirectdisp@@end{%  \enddispで実行するマクロを定義
+        \m@thpack@gentag{#1}%  タグ生成
+        \ifm@thpack@@tagexists%  ボックス作成時、レジスターが不定になる可能性に注意
+          \everyhbox={}%
+          \global\setbox\m@thpack@boxga=\m@thpack@tagbox{\m@thpack@@tag}%  タグのボックス
+        \fi%
+        \box\m@thpack@boxga%
+        $$%
+      }%
+      \ifmathenvleqno%
+        \expandafter\def\expandafter\m@thpack@redirectdisp@@end\expandafter{%  \m@thpack@redirectdisp@endの最初に\leqnoを追加
+          \expandafter\leqno\m@thpack@redirectdisp@@end%
+        }%
+      \else%
+        \expandafter\def\expandafter\m@thpack@redirectdisp@@end\expandafter{%  \m@thpack@redirectdisp@endの最初に\eqnoを追加
+          \expandafter\eqno\m@thpack@redirectdisp@@end%
+        }%
+      \fi%
+      \everydisplay={}%
+      $$%
+    \fi%
+}
+
+\def\enddisp{%
+    \m@thpack@redirectdisp@@end%
+  \endgroup%
+}
+
+\begingroup%
+  \def\m@thpack@@tempmac#1{%  定義の共通部分  #1は環境名
+    \gdef\csname#1\endcsname{%
+      \begingroup%
+        \futurelet\noexpand\m@thpack@@temptoken\csname m@thpack@redirect#1@optcheck\endcsname%  次のトークンを読み込む
+    }%
+    \gdef\csname m@thpack@redirect#1@optcheck\endcsname{%
+        \noexpand\ifx\noexpand\m@thpack@@temptoken[%  オプションの有り無し判定
+          \aftergroup\csname m@thpack@redirect#1@body\endcsname%
+        \noexpand\else%
+          \aftergroup\csname m@thpack@redirect#1@body\endcsname\aftergroup[\aftergroup]%
+        \noexpand\fi%
+      \endgroup%
+    }%
+    \gdef\csname m@thpack@redirect#1@body\endcsname[####1]{%
+      \noexpand\mathenv%
+      \noexpand\envtype[####1]{#1}%
+    }%
+    \gdef\csname end#1\endcsname{%
+      \noexpand\endmathenv%
+    }%
+  }%
+  \edef\m@thpack@@tempemac{\m@thpack@@tempmac{multi}}%  各リダイレクト環境を定義
+  \m@thpack@@tempemac%
+  \edef\m@thpack@@tempemac{\m@thpack@@tempmac{cmulti}}%
+  \m@thpack@@tempemac%
+  \edef\m@thpack@@tempemac{\m@thpack@@tempmac{lines}}%
+  \m@thpack@@tempemac%
+  \edef\m@thpack@@tempemac{\m@thpack@@tempmac{align}}%
+  \m@thpack@@tempemac%
+\endgroup%
+
+%  リダイレクト環境マクロ群 終わり
+%%%%
+
+
+% TODO
+% inline env
+
+
+
+
+\catcode`@=12%  @のカテゴリーコードを通常に戻す
